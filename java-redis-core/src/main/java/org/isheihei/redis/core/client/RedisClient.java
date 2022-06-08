@@ -18,6 +18,12 @@ public interface RedisClient {
     RedisDB getDb();
 
     /**
+     * @Description: 获取标志认证标志
+     * @Return: int
+     * @Author: isheihei
+     */
+    int getAuth();
+    /**
      * @Description: 设置认证标志
      * @Param: authenticated
      * @Return: void

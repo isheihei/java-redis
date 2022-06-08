@@ -1,10 +1,13 @@
 package org.isheihei.redis.core.command.impl;
 
 import io.netty.channel.ChannelHandlerContext;
+import org.isheihei.redis.common.consts.ErrorsConsts;
+import org.isheihei.redis.common.util.ConfigUtil;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.resp.BulkString;
+import org.isheihei.redis.core.resp.Errors;
 import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.SimpleString;
 
@@ -35,12 +38,12 @@ public class Auth implements Command {
 
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
-        //TODO : 密码从配置中获取
-        if (password == "123") {
+        if (password.equals(ConfigUtil.getAuth())) {
             redisClient.setAuth(1);
             ctx.writeAndFlush(new SimpleString("OK"));
+            LOGGER.error("Auth 日志");
         } else {
-            ctx.writeAndFlush(new SimpleString("The password is incorrect!"));
+            ctx.writeAndFlush(new Errors(ErrorsConsts.INVALID_PASSWORD));
         }
     }
 }

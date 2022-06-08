@@ -109,13 +109,9 @@ public class RedisNetServer implements RedisServer{
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
                         // 初始化客户端
                         int id = clientId.incrementAndGet();
-                        System.out.println("akkk");
-
                         RedisClient client = new RedisNormalClient(socketChannel.localAddress().toString(), id, dbs.get(0));
-
                         clients.put(id, client);
-                        System.out.println("aaa");
-
+                        LOGGER.error("Server 日志");
                         //  初始化 channel
                         ChannelPipeline channelPipeline = socketChannel.pipeline();
                         channelPipeline.addLast(

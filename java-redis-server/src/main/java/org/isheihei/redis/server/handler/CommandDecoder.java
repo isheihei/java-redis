@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import org.apache.log4j.Logger;
+import org.isheihei.redis.common.consts.ErrorsConsts;
 import org.isheihei.redis.common.util.TRACEID;
 import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandFactory;
@@ -49,7 +50,7 @@ public class CommandDecoder extends LengthFieldBasedFrameDecoder {
                 }
                 if (command == null) {
                     //取出命令
-                    ctx.writeAndFlush(new Errors("unsupport command:" + ((BulkString) ((RespArray) resp).getArray()[0]).getContent().toUtf8String()));
+                    ctx.writeAndFlush(new Errors(ErrorsConsts.UNKNOWN_COMMAND + ((BulkString) ((RespArray) resp).getArray()[0]).getContent().toUtf8String() + "'"));
                 } else {
                     return command;
                 }

@@ -47,6 +47,11 @@ public class RedisNormalClient implements RedisClient{
     }
 
     @Override
+    public int getAuth() {
+        return authenticated;
+    }
+
+    @Override
     public void setAuth(int authenticated) {
         this.authenticated = authenticated;
     }
