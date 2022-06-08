@@ -11,9 +11,30 @@
 
     <artifactId>java-redis-server</artifactId>
 
-    <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
-    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.isheihei</groupId>
+            <artifactId>java-redis-core</artifactId>
+            <version>${java-redis.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.isheihei</groupId>
+            <artifactId>java-redis-common</artifactId>
+            <version>${java-redis.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
 </project>
