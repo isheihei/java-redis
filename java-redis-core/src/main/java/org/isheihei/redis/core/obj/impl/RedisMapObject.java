@@ -1,7 +1,6 @@
 package org.isheihei.redis.core.obj.impl;
 
 import org.isheihei.redis.core.obj.AbstractRedisObject;
-import org.isheihei.redis.core.obj.RedisObjectType;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 import org.isheihei.redis.core.struct.RedisDataStructType;
 
@@ -13,7 +12,22 @@ import org.isheihei.redis.core.struct.RedisDataStructType;
  */
 public class RedisMapObject extends AbstractRedisObject {
 
-    public RedisMapObject(RedisDataStructType encoding, RedisObjectType type, RedisDataStruct data) {
-        super(encoding, type, data);
+    private RedisDataStruct map;
+
+    public RedisMapObject() {
+        setEncoding(RedisDataStructType.redisMap);
+        map = getEncoding().getSupplier().get();
     }
+
+    public RedisMapObject(RedisDataStructType encoding) {
+        super(encoding);
+        map = getEncoding().getSupplier().get();
+    }
+
+    @Override
+    public RedisDataStruct data() {
+        return map;
+    }
+
+
 }

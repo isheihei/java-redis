@@ -1,13 +1,13 @@
 package org.isheihei.redis.core.db;
 
 import org.isheihei.redis.core.obj.RedisObject;
-import org.isheihei.redis.core.struct.BytesWrapper;
+import org.isheihei.redis.core.struct.impl.BytesWrapper;
+import org.isheihei.redis.core.struct.impl.RedisDynamicString;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @ClassName: RedisDB
@@ -16,8 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Author: isheihei
  */
 public class RedisDBImpl implements RedisDB {
-    private final Map<BytesWrapper, RedisObject> dict = new HashMap<BytesWrapper, RedisObject>();
-//    private final ConcurrentHashMap<BytesWrapper, RedisObject> dict = new ConcurrentHashMap<>();
+    private final Map<BytesWrapper, RedisObject> dict = new HashMap<>();
+//    private final ConcurrentHashMap<RedisDynamicString, RedisObject> dict = new ConcurrentHashMap<>();
 
     @Override
     public Set<BytesWrapper> keys() {

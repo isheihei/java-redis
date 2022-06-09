@@ -50,7 +50,7 @@ public class CommandDecoder extends LengthFieldBasedFrameDecoder {
                 }
                 if (command == null) {
                     //取出命令
-                    ctx.writeAndFlush(new Errors(ErrorsConsts.UNKNOWN_COMMAND + ((BulkString) ((RespArray) resp).getArray()[0]).getContent().toUtf8String() + "'"));
+                    ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.UNKNOWN_COMMAND, ((BulkString) ((RespArray) resp).getArray()[0]).getContent().toUtf8String())));
                 } else {
                     return command;
                 }

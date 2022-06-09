@@ -11,11 +11,7 @@ import org.isheihei.redis.core.struct.RedisDataStructType;
  */
 public interface RedisObject {
 
-
-    RedisDataStructType encoding();
-
-    RedisObjectType type();
-
     RedisDataStruct data();
 
+    RedisDataStructType getEncoding();
 }

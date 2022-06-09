@@ -1,7 +1,6 @@
 package org.isheihei.redis.core.obj.impl;
 
 import org.isheihei.redis.core.obj.AbstractRedisObject;
-import org.isheihei.redis.core.obj.RedisObjectType;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 import org.isheihei.redis.core.struct.RedisDataStructType;
 
@@ -12,8 +11,19 @@ import org.isheihei.redis.core.struct.RedisDataStructType;
  * @Author: isheihei
  */
 public class RedisListObject extends AbstractRedisObject {
+    private RedisDataStruct list;
+    public RedisListObject() {
+        setEncoding(RedisDataStructType.redisDoubleLinkedList);
+        list = getEncoding().getSupplier().get();
+    }
 
-    public RedisListObject(RedisDataStructType encoding, RedisObjectType type, RedisDataStruct data) {
-        super(encoding, type, data);
+    public RedisListObject(RedisDataStructType encoding) {
+        super(encoding);
+        list = getEncoding().getSupplier().get();
+    }
+
+    @Override
+    public RedisDataStruct data() {
+        return list;
     }
 }

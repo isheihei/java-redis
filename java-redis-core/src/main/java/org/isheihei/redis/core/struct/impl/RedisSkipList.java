@@ -11,5 +11,5 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * @Date: 2022/5/31 0:25
  * @Author: isheihei
  */
-public class RedisSkipList<K, V> extends ConcurrentSkipListMap<K, V> implements RedisDataStruct {
+public class RedisSkipList extends ConcurrentSkipListMap<RedisDynamicString, RedisDynamicString> implements RedisDataStruct {
 }

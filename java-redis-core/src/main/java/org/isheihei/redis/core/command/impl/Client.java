@@ -1,11 +1,13 @@
 package org.isheihei.redis.core.command.impl;
 
 import io.netty.channel.ChannelHandlerContext;
+import org.isheihei.redis.common.consts.ErrorsConsts;
 import org.isheihei.redis.common.util.TRACEID;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.resp.BulkString;
+import org.isheihei.redis.core.resp.Errors;
 import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.SimpleString;
 
@@ -19,6 +21,8 @@ public class Client implements Command {
 
     private String subCommand;
 
+    private String clientName;
+
     private Resp[] array;
 
     @Override
@@ -29,18 +33,23 @@ public class Client implements Command {
     @Override
     public void setContent(Resp[] array) {
         this.array = array;
-        subCommand = ((BulkString) array[1]).getContent().toUtf8String();
+
     }
 
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
         String traceId = TRACEID.currentTraceId();
-        LOGGER.debug("traceId:{} 当前的子命令是：{}"+traceId+subCommand);
+        LOGGER.debug("traceId:{} 当前的子命令是：{}" + traceId + subCommand);
+        if ((subCommand = getFirstArgsOrSubCommand(ctx, array, 1)) == null) {
+            return;
+        }
         switch (subCommand) {
             case "setname":
-                String ClientName = new String(((BulkString) array[2]).getContent().getByteArray());
-                redisClient.setName(ClientName);
-                ctx.writeAndFlush(new SimpleString("OK"));
+                if ((clientName = getArguments(ctx, array, 2, subCommand)) == null) {
+                    return;
+                }
+                redisClient.setName(clientName);
+                ctx.writeAndFlush(SimpleString.OK);
                 break;
             case "getname":
                 String name = redisClient.getName();
@@ -51,7 +60,7 @@ public class Client implements Command {
                 }
                 break;
             default:
-                throw new IllegalArgumentException();
+                ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.CLIENT_SUB_COMMAND_ERROR)));
         }
     }
 }

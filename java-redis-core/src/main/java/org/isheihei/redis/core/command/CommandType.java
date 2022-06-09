@@ -3,6 +3,7 @@ package org.isheihei.redis.core.command;
 import org.isheihei.redis.core.command.impl.Auth;
 import org.isheihei.redis.core.command.impl.Client;
 import org.isheihei.redis.core.command.impl.Config;
+import org.isheihei.redis.core.command.impl.string.*;
 
 import java.util.function.Supplier;
 
@@ -13,7 +14,8 @@ import java.util.function.Supplier;
  * @Author: isheihei
  */
 public enum CommandType {
-    auth(Auth::new), client(Client::new), config(Config::new);
+    auth(Auth::new), client(Client::new), config(Config::new),
+    get(Get::new), set(Set::new), mget(Mget::new), mset(Mset::new), setex(SetEx::new), setnx(SetNx::new);
 //    info(Info::new), client(Client::new), set(Set::new), type(Type::new),//
 //    ttl(Ttl::new), get(Get::new), quit(Quit::new),//
 //    setnx(SetNx::new), lpush(Lpush::new), lrange(Lrange::new), lrem(Lrem::new), rpush(Rpush::new), del(Del::new), sadd(Sadd::new),//
@@ -30,7 +32,12 @@ public enum CommandType {
         this.supplier = supplier;
     }
 
-    // 获取一个操作类实例对象
+    //
+    /**
+     * @Description: 获取一个操作类实例对象
+     * @Return: Supplier<Command>
+     * @Author: isheihei
+     */
     public Supplier<Command> getSupplier() {
         return supplier;
     }

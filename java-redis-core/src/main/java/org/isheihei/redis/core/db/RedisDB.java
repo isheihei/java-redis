@@ -1,8 +1,8 @@
 package org.isheihei.redis.core.db;
 
-import io.netty.channel.Channel;
 import org.isheihei.redis.core.obj.RedisObject;
-import org.isheihei.redis.core.struct.BytesWrapper;
+import org.isheihei.redis.core.struct.impl.BytesWrapper;
+import org.isheihei.redis.core.struct.impl.RedisDynamicString;
 
 import java.util.List;
 import java.util.Set;

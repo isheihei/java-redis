@@ -1,7 +1,6 @@
 package org.isheihei.redis.core.obj.impl;
 
 import org.isheihei.redis.core.obj.AbstractRedisObject;
-import org.isheihei.redis.core.obj.RedisObjectType;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 import org.isheihei.redis.core.struct.RedisDataStructType;
 
@@ -13,7 +12,20 @@ import org.isheihei.redis.core.struct.RedisDataStructType;
  */
 public class RedisSetObject extends AbstractRedisObject {
 
-    public RedisSetObject(RedisDataStructType encoding, RedisObjectType type, RedisDataStruct data) {
-        super(encoding, type, data);
+    private RedisDataStruct set;
+
+    public RedisSetObject() {
+        setEncoding(RedisDataStructType.redisSet);
+        set = getEncoding().getSupplier().get();
+    }
+
+    public RedisSetObject(RedisDataStructType encoding) {
+        super(encoding);
+        set = getEncoding().getSupplier().get();
+    }
+
+    @Override
+    public RedisDataStruct data() {
+        return set;
     }
 }

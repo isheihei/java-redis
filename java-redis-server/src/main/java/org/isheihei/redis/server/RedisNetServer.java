@@ -9,6 +9,7 @@ import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.util.concurrent.EventExecutorGroup;
 import org.apache.log4j.Logger;
+import org.isheihei.redis.common.util.ConfigUtil;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.db.RedisDBImpl;
 import org.isheihei.redis.core.persist.aof.Aof;
@@ -103,7 +104,7 @@ public class RedisNetServer implements RedisServer{
 //                .childOption(ChannelOption.TCP_NODELAY, true)
 //                .childOption(ChannelOption.SO_SNDBUF, 65535)
 //                .childOption(ChannelOption.SO_RCVBUF, 65535)
-                .localAddress(new InetSocketAddress("127.0.0.1", 6379))
+                .localAddress(new InetSocketAddress(ConfigUtil.getIp(), Integer.parseInt(ConfigUtil.getPort())))
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
@@ -111,7 +112,7 @@ public class RedisNetServer implements RedisServer{
                         int id = clientId.incrementAndGet();
                         RedisClient client = new RedisNormalClient(socketChannel.localAddress().toString(), id, dbs.get(0));
                         clients.put(id, client);
-                        LOGGER.error("Server 日志");
+
                         //  初始化 channel
                         ChannelPipeline channelPipeline = socketChannel.pipeline();
                         channelPipeline.addLast(

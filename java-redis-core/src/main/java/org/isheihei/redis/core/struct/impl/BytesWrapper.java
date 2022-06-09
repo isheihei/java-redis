@@ -1,4 +1,4 @@
-package org.isheihei.redis.core.struct;
+package org.isheihei.redis.core.struct.impl;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -6,14 +6,18 @@ import java.util.Arrays;
 
 /**
  * @ClassName: BytesWrapper
- * @Description: 内存复用，减少内存新建/销毁的开销
- * @Date: 2022/6/1 15:58
+ * @Description: 内存复用，减少内存创建/销毁的开销
+ * @Date: 2022/6/10 0:04
  * @Author: isheihei
  */
-public class BytesWrapper implements Comparable<BytesWrapper>{
-    static final Charset CHARSET = StandardCharsets.UTF_8;
+public class BytesWrapper implements Comparable<BytesWrapper> {
 
+    static final Charset CHARSET = StandardCharsets.UTF_8;
     private final byte[] content;
+
+    public BytesWrapper() {
+        content = new byte[0];
+    }
 
     public BytesWrapper(byte[] content) {
         this.content = content;
@@ -23,12 +27,21 @@ public class BytesWrapper implements Comparable<BytesWrapper>{
         return content;
     }
 
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         BytesWrapper that = (BytesWrapper) o;
         return Arrays.equals(content, that.content);
+    }
+
+    public String toUtf8String() {
+        return new String(content, CHARSET);
     }
 
     @Override
@@ -36,9 +49,6 @@ public class BytesWrapper implements Comparable<BytesWrapper>{
         return Arrays.hashCode(content);
     }
 
-    public String toUtf8String() {
-        return new String(content, CHARSET);
-    }
 
     @Override
     public int compareTo(BytesWrapper o) {

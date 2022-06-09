@@ -7,4 +7,7 @@ package org.isheihei.redis.core.struct;
  * @Author: isheihei
  */
 public interface RedisDataStruct {
+
+    // 一些通用操作
+
 }

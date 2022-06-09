@@ -13,12 +13,14 @@ import org.isheihei.redis.core.resp.SimpleString;
 
 /**
  * @ClassName: Auth
- * @Description: TODO
+ * @Description: 认证
  * @Date: 2022/6/8 19:03
  * @Author: isheihei
  */
 public class Auth implements Command {
     private String password;
+
+    private Resp[] array;
 
     @Override
     public CommandType type() {
@@ -27,21 +29,17 @@ public class Auth implements Command {
 
     @Override
     public void setContent(Resp[] array) {
-        BulkString bulkString = (BulkString) array[1];
-        byte[] content = bulkString.getContent().getByteArray();
-        if (content.length == 0) {
-            password = "";
-        } else {
-            password = new String(content);
-        }
+        this.array = array;
     }
 
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
-        if (password.equals(ConfigUtil.getAuth())) {
+        if ((password = getFirstArgsOrSubCommand(ctx, array, 1)) == null) {
+            return;
+        }
+        if (password.equals(ConfigUtil.getRequirepass())) {
             redisClient.setAuth(1);
-            ctx.writeAndFlush(new SimpleString("OK"));
-            LOGGER.error("Auth 日志");
+            ctx.writeAndFlush(SimpleString.OK);
         } else {
             ctx.writeAndFlush(new Errors(ErrorsConsts.INVALID_PASSWORD));
         }

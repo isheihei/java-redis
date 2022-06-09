@@ -11,5 +11,5 @@ import java.util.HashSet;
  * @Date: 2022/5/31 0:25
  * @Author: isheihei
  */
-public class RedisSet<E> extends HashSet<E> implements RedisDataStruct {
+public class RedisSet extends HashSet<RedisDynamicString> implements RedisDataStruct {
 }

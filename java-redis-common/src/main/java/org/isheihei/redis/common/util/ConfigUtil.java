@@ -1,11 +1,15 @@
 package org.isheihei.redis.common.util;
 
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
+
 import io.netty.util.internal.StringUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @ClassName: ConfigUtil
@@ -20,8 +24,9 @@ public class ConfigUtil {
 
     private static String CONFIG_FILE_PATH = "/redis_config.properties";
     private static String DEFAULT_IP = "0.0.0.0";
-    private static Integer DEFAULT_PORT = 6379;
-    private static String DEFAULT_AUTH = null;
+    private static String DEFAULT_PORT = "6379";
+
+    private static String DEFAULT_REQUIREPASS    = null;
 
     private static ConfigUtil Instance = new ConfigUtil();
 
@@ -37,17 +42,59 @@ public class ConfigUtil {
         }
     }
 
+    /**
+     * @Description: 获取配置信息
+     * @Param: configParam 配置属性名
+     * @Return: String 如果不存在该配置，则返回null
+     * @Author: isheihei
+     */
+    public static String getConfig(String configParam) throws Exception{
+        if (configParam == null) {
+            return null;
+        } else if (configs.getProperty(configParam) == null) {
+            return null;
+        } else {
+                Class<?> configUtilClass = ConfigUtil.class;
+                Method method  = configUtilClass.getMethod("get" + RedisStringUtil.upperCaseFirst(configParam));
+                return (String) method.invoke(null, null);
+        }
+    }
 
-    public static String getAddress() {
+    /**
+     * @Description: 修改配置属性，不能持久化到redis_config中，成功返回true，失败false
+     * @Param: configParam 配置名
+     * @Param: newValue 配置值
+     * @Return: String
+     * @Author: isheihei
+     */
+    public static boolean setConfig(String configParam, String newValue) throws Exception {
+        if (RedisStringUtil.isNullOrEmpty(configParam) || RedisStringUtil.isNullOrEmpty(newValue)) {
+            return false;
+        }
+        String oldValue = configs.getProperty(configParam);
+        configs.setProperty(configParam, newValue);
+        Class<?> configUtilClass = ConfigUtil.class;
+        Method method  = configUtilClass.getMethod("get" + RedisStringUtil.upperCaseFirst(configParam));
+        String check = (String) method.invoke(null, null);
+        if (newValue.equals(check)) {
+            return true;
+        } else {
+            configs.setProperty(configParam, oldValue);
+            return false;
+        }
+    }
+
+
+    public static String getIp() {
         String address = configs.getProperty("ip");
-        if (StringUtil.isNullOrEmpty(address)) {
+        if (RedisStringUtil.isNullOrEmpty(address)) {
             return DEFAULT_IP;
         }
         return address;
     }
 
-    public static Integer getPort() {
-        Integer port = DEFAULT_PORT;
+    public static String getPort() {
+        Integer port = Integer.parseInt(DEFAULT_PORT);
         try {
             String strPort = configs.getProperty("port");
             port = Integer.parseInt(strPort);
@@ -57,10 +104,10 @@ public class ConfigUtil {
         if (port <= 0 || port > 60000) {
             return DEFAULT_PORT;
         }
-        return port;
+        return String.valueOf(port);
     }
 
-    public static String getAuth() {
+    public static String getRequirepass() {
         return configs.getProperty("requirepass", null);
     }
 

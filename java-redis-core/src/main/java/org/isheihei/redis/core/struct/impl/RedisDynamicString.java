@@ -1,7 +1,5 @@
 package org.isheihei.redis.core.struct.impl;
 
-import com.sun.org.apache.xpath.internal.operations.String;
-import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 
 /**
@@ -10,6 +8,23 @@ import org.isheihei.redis.core.struct.RedisDataStruct;
  * @Date: 2022/5/31 0:24
  * @Author: isheihei
  */
-public class RedisDynamicString extends String implements RedisDataStruct {
+public class RedisDynamicString implements RedisDataStruct {
 
+    private BytesWrapper value;
+
+    public RedisDynamicString(BytesWrapper value){
+        this.value = value;
+    }
+    public RedisDynamicString(){
+
+    }
+    public BytesWrapper getValue()
+    {
+        return value;
+    }
+
+    public void setValue(BytesWrapper value)
+    {
+        this.value = value;
+    }
 }

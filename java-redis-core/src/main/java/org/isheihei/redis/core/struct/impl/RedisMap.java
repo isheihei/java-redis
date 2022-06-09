@@ -11,5 +11,5 @@ import java.util.HashMap;
  * @Date: 2022/5/31 0:25
  * @Author: isheihei
  */
-public class RedisMap<K, V> extends HashMap<K, V> implements RedisDataStruct {
+public class RedisMap extends HashMap<RedisDynamicString, RedisDynamicString> implements RedisDataStruct {
 }

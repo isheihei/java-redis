@@ -1,6 +1,7 @@
 package org.isheihei.redis.core.resp;
 
-import org.isheihei.redis.core.struct.BytesWrapper;
+import org.isheihei.redis.core.struct.impl.BytesWrapper;
+import org.isheihei.redis.core.struct.impl.RedisDynamicString;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;

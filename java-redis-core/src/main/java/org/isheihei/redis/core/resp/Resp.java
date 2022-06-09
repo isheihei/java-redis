@@ -1,7 +1,8 @@
 package org.isheihei.redis.core.resp;
 
 import io.netty.buffer.ByteBuf;
-import org.isheihei.redis.core.struct.BytesWrapper;
+import org.isheihei.redis.core.struct.impl.BytesWrapper;
+import org.isheihei.redis.core.struct.impl.RedisDynamicString;
 
 /**
  * @ClassName: Resp

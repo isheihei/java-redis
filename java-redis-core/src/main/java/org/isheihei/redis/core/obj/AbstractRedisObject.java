@@ -14,30 +14,27 @@ public abstract class AbstractRedisObject implements RedisObject{
     // 对象底层实现结构
     private RedisDataStructType encoding;
 
-    // 对象类型
-    private RedisObjectType type;
 
-    // 对象引用
-    private RedisDataStruct data;
+    public AbstractRedisObject() {
+    }
 
-    public AbstractRedisObject(RedisDataStructType encoding, RedisObjectType type, RedisDataStruct data) {
+    public AbstractRedisObject(RedisDataStructType encoding) {
         this.encoding = encoding;
-        this.type = type;
-        this.data = data;
     }
 
     @Override
-    public RedisDataStructType encoding() {
+    public abstract RedisDataStruct data();
+
+    @Override
+    public RedisDataStructType getEncoding() {
         return encoding;
     }
 
-    @Override
-    public RedisObjectType type() {
-        return type;
+
+
+    public void setEncoding(RedisDataStructType encoding) {
+        this.encoding = encoding;
     }
 
-    @Override
-    public RedisDataStruct data() {
-        return data;
-    }
+
 }
