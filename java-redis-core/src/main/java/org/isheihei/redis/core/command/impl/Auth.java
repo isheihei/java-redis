@@ -6,10 +6,10 @@ import org.isheihei.redis.common.util.ConfigUtil;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandType;
-import org.isheihei.redis.core.resp.BulkString;
 import org.isheihei.redis.core.resp.Errors;
 import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.SimpleString;
+import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 /**
  * @ClassName: Auth
@@ -18,7 +18,7 @@ import org.isheihei.redis.core.resp.SimpleString;
  * @Author: isheihei
  */
 public class Auth implements Command {
-    private String password;
+    private BytesWrapper password;
 
     private Resp[] array;
 
@@ -34,10 +34,10 @@ public class Auth implements Command {
 
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
-        if ((password = getArgsOrSubCommand(ctx, array, 1)) == null) {
+        if ((password = getBytesWrapper(ctx, array, 1)) == null) {
             return;
         }
-        if (password.equals(ConfigUtil.getRequirepass())) {
+        if (password.toUtf8String().equals(ConfigUtil.getRequirepass())) {
             redisClient.setAuth(1);
             ctx.writeAndFlush(SimpleString.OK);
         } else {

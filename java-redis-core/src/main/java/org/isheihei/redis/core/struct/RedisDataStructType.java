@@ -1,8 +1,5 @@
 package org.isheihei.redis.core.struct;
 
-import org.isheihei.redis.core.command.Command;
-import org.isheihei.redis.core.command.impl.Client;
-import org.isheihei.redis.core.command.impl.Config;
 import org.isheihei.redis.core.struct.impl.*;
 
 import java.util.function.Supplier;

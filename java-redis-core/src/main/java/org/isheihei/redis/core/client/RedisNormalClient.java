@@ -2,6 +2,8 @@ package org.isheihei.redis.core.client;
 
 import org.isheihei.redis.core.db.RedisDB;
 
+import java.util.UUID;
+
 /**
  * @ClassName: RedisNormalClient
  * @Description: 客户端实现类
@@ -16,7 +18,7 @@ public class RedisNormalClient implements RedisClient{
     private int fd;
 
     // 默认没有名字， 可以使用命令 client setname 设置
-    private String name = null;
+    private String name;
 
     // 当前客户端正在操作的数据库
     private RedisDB db;
@@ -37,6 +39,7 @@ public class RedisNormalClient implements RedisClient{
         this.addr = addr;
         this.fd = fd;
         this.db = db;
+        this.name = addr + ":" + UUID.randomUUID();
         ctime = System.currentTimeMillis();
         lastInteraction = System.currentTimeMillis();
     }

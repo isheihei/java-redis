@@ -4,6 +4,7 @@ import org.isheihei.redis.core.struct.RedisDataStruct;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.stream.Collectors;
 
 /**
@@ -19,7 +20,7 @@ public class RedisDoubleLinkedList extends LinkedList<BytesWrapper> implements R
     }
 
     public void rpush(List<BytesWrapper> values) {
-        values.stream().forEach(value -> this.offerFirst(value));
+        values.stream().forEach(value -> this.offerLast(value));
     }
 
     public void lpush(List<BytesWrapper> values) {
@@ -33,5 +34,49 @@ public class RedisDoubleLinkedList extends LinkedList<BytesWrapper> implements R
 
     public BytesWrapper rpop() {
         return this.pollLast();
+    }
+
+    public int lrem(Integer count, BytesWrapper element) {
+        int expectCount = count;
+        if (count == 0) {
+            return 0;
+        }
+        boolean flag = true;
+        if (count < 0) {
+            flag = false;
+            count = -count;
+        }
+        ListIterator<BytesWrapper> iterator = this.listIterator();
+
+        if (flag) {
+            // 正向遍历
+            while (iterator.hasNext() && count > 0) {
+                if (element.equals(iterator.next())) {
+                    iterator.remove();
+                    count--;
+                }
+            }
+        } else {
+            //反向遍历 双指针
+            while (iterator.hasNext()) {
+                iterator.next();
+            }
+            while (iterator.hasPrevious() && count > 0) {
+                if (element.equals(iterator.previous())) {
+                    iterator.remove();
+                    count--;
+                }
+            }
+        }
+        return Math.abs(expectCount) - count;
+    }
+
+    public boolean lset(Integer index, BytesWrapper element) {
+        if (index >= 0 && index < this.size() - 1) {
+            set(index, element);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

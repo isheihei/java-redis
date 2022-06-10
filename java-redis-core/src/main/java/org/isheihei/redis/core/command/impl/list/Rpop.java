@@ -15,6 +15,8 @@ import org.isheihei.redis.core.struct.impl.BytesWrapper;
 public class Rpop extends Pop{
     private BytesWrapper key;
 
+    private Resp[] array;
+
     @Override
     public CommandType type() {
         return CommandType.rpop;
@@ -22,11 +24,12 @@ public class Rpop extends Pop{
 
     @Override
     public void setContent(Resp[] array) {
-        key = getDs(array, 1);
+        this.array = array;
     }
 
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
+        if ((key = getBytesWrapper(ctx, array, 1)) == null) return;
         lrPop(ctx, redisClient, key, false);
     }
 }

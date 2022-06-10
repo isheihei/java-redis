@@ -10,6 +10,7 @@ import org.isheihei.redis.core.resp.BulkString;
 import org.isheihei.redis.core.resp.Errors;
 import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.SimpleString;
+import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 /**
  * @ClassName: Client
@@ -40,12 +41,14 @@ public class Client implements Command {
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
         String traceId = TRACEID.currentTraceId();
         LOGGER.debug("traceId:{} 当前的子命令是：{}" + traceId + subCommand);
-        if ((subCommand = getArgsOrSubCommand(ctx, array, 1)) == null) {
+        BytesWrapper bytesSubCommand;
+        if ((bytesSubCommand = getBytesWrapper(ctx, array, 1)) == null) {
             return;
         }
+        subCommand = bytesSubCommand.toUtf8String();
         switch (subCommand) {
             case "setname":
-                if ((clientName = getSubCommandArgs(ctx, array, 2, subCommand)) == null) {
+                if ((clientName = getStringSubCommandArgs(ctx, array, 2, subCommand)) == null) {
                     return;
                 }
                 redisClient.setName(clientName);

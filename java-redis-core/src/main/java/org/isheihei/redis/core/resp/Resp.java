@@ -2,7 +2,6 @@ package org.isheihei.redis.core.resp;
 
 import io.netty.buffer.ByteBuf;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
-import org.isheihei.redis.core.struct.impl.RedisDynamicString;
 
 /**
  * @ClassName: Resp
@@ -48,12 +47,12 @@ public interface Resp {
             BytesWrapper content = ((BulkString) resp).getContent();
             if (content == null) {
                 // null: "$-1\r\n"
-                buffer.writeByte(RespType.BULK.getCode());
+                buffer.writeByte(RespType.ERROR.getCode());
                 buffer.writeByte(RespType.ONE.getCode());
                 writeEof(buffer);
             } else if (content.getByteArray().length == 0) {
                 // 空串: "$0\r\n\r\n"
-                buffer.writeByte(RespType.BULK.getCode());
+                buffer.writeByte(RespType.ZERO.getCode());
                 writeEof(buffer);
                 writeEof(buffer);
             } else {

@@ -1,12 +1,10 @@
 package org.isheihei.redis.core.command.impl.string;
 
 import io.netty.channel.ChannelHandlerContext;
-import org.isheihei.redis.common.consts.ErrorsConsts;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.obj.impl.RedisStringObject;
-import org.isheihei.redis.core.resp.Errors;
 import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.SimpleString;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
@@ -21,6 +19,10 @@ public class Set implements Command {
 
     private Resp[] array;
 
+    private BytesWrapper key;
+
+    private BytesWrapper value;
+
     @Override
     public CommandType type() {
         return CommandType.set;
@@ -33,10 +35,9 @@ public class Set implements Command {
 
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
-        BytesWrapper key = getDs(array, 1);
-        BytesWrapper value = getDs(array, 2);
+        key = getBytesWrapper(ctx, array, 1);
+        value = getBytesWrapper(ctx, array, 2);
         if (key == null || value == null) {
-            ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
             return;
         }
         RedisStringObject stringObject = new RedisStringObject(value);

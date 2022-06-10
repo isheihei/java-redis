@@ -7,6 +7,7 @@ import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.RedisObject;
+import org.isheihei.redis.core.obj.impl.RedisListObject;
 import org.isheihei.redis.core.resp.BulkString;
 import org.isheihei.redis.core.resp.Errors;
 import org.isheihei.redis.core.resp.Resp;
@@ -31,30 +32,34 @@ public abstract class Pop implements Command {
     public abstract void handle(ChannelHandlerContext ctx, RedisClient redisClient);
 
     public void lrPop(ChannelHandlerContext ctx, RedisClient redisClient, BytesWrapper key, boolean direct) {
-        if (key == null) {
-            ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
-        } else {
-            RedisDB db = redisClient.getDb();
-            RedisObject redisObject = db.get(key);
-            if (redisObject == null) {
-                ctx.writeAndFlush(BulkString.NullBulkString);
-            } else {
-                RedisDataStruct data = redisObject.data();
-                if (data instanceof RedisDoubleLinkedList) {
-                    BytesWrapper res = null;
-                    RedisDoubleLinkedList list = (RedisDoubleLinkedList) data;
-                    if (direct) {
-                        res = list.lpop();
-                    }else {
-                        res = list.rpop();
-                    }
-                    if (res == null) {
-                        ctx.writeAndFlush(BulkString.NullBulkString);
-                    } else {
-                        ctx.writeAndFlush(new BulkString(res));
-                    }
-                }
-            }
+        RedisDB db = redisClient.getDb();
+        RedisObject redisObject = db.get(key);
+        if (redisObject == null) {
+            ctx.writeAndFlush(BulkString.NullBulkString);
+            return;
         }
+        if (redisObject instanceof RedisListObject) {
+            RedisDataStruct data = redisObject.data();
+            if (data instanceof RedisDoubleLinkedList) {
+                BytesWrapper res = null;
+                RedisDoubleLinkedList list = (RedisDoubleLinkedList) data;
+                if (direct) {
+                    res = list.lpop();
+                } else {
+                    res = list.rpop();
+                }
+                if (res == null) {
+                    ctx.writeAndFlush(BulkString.NullBulkString);
+                } else {
+                    ctx.writeAndFlush(new BulkString(res));
+                }
+            } else {
+                throw new UnsupportedOperationException();
+            }
+        } else {
+            ctx.writeAndFlush(new Errors(ErrorsConsts.WRONG_TYPE_OPERATION));
+        }
+
+
     }
 }

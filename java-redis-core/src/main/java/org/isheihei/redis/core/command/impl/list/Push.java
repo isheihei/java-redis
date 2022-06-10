@@ -1,15 +1,12 @@
 package org.isheihei.redis.core.command.impl.list;
 
 import io.netty.channel.ChannelHandlerContext;
-import org.isheihei.redis.common.consts.ErrorsConsts;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.obj.impl.RedisListObject;
-import org.isheihei.redis.core.resp.BulkString;
-import org.isheihei.redis.core.resp.Errors;
 import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.RespInt;
 import org.isheihei.redis.core.struct.RedisDataStruct;
@@ -43,9 +40,8 @@ public abstract class Push implements Command {
      * @Author: isheihei
      */
     public void lrPush(ChannelHandlerContext ctx, RedisClient redisClient, boolean direct, BytesWrapper key, List<BytesWrapper> values) {
-        if (key == null) {
-            ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
-            return;
+        if (values.size() == 0) {
+            ctx.writeAndFlush(new RespInt(0));
         }
         RedisDB db = redisClient.getDb();
         RedisObject redisObject = db.get(key);

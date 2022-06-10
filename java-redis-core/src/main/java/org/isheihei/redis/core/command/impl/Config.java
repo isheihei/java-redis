@@ -43,12 +43,14 @@ public class Config implements Command {
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
         String traceId = TRACEID.currentTraceId();
         LOGGER.debug("traceId:{} 当前的子命令是：{}" + traceId + subCommand);
-        if ((subCommand = getArgsOrSubCommand(ctx, array, 1)) == null) {
+        BytesWrapper bytesSubCommand;
+        if ((bytesSubCommand = getBytesWrapper(ctx, array, 1)) == null) {
             return;
         }
+        subCommand = bytesSubCommand.toUtf8String();
         switch (subCommand) {
             case "get":
-                if ((configParam = getSubCommandArgs(ctx, array, 2, subCommand)) == null) {
+                if ((configParam = getStringSubCommandArgs(ctx, array, 2, subCommand)) == null) {
                     return;
                 }
                 String configValue = null;
@@ -68,10 +70,10 @@ public class Config implements Command {
                 }
                 break;
             case "set":
-                if ((configParam = getSubCommandArgs(ctx, array, 2, subCommand)) == null) {
+                if ((configParam = getStringSubCommandArgs(ctx, array, 2, subCommand)) == null) {
                     return;
                 }
-                if ((newConfigValue = getSubCommandArgs(ctx, array, 3, subCommand)) == null) {
+                if ((newConfigValue = getStringSubCommandArgs(ctx, array, 3, subCommand)) == null) {
                     return;
                 }
                 boolean state = false;

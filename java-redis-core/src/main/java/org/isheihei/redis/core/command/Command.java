@@ -7,7 +7,6 @@ import org.isheihei.redis.core.resp.BulkString;
 import org.isheihei.redis.core.resp.Errors;
 import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
-import org.isheihei.redis.core.struct.impl.RedisDynamicString;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -49,55 +48,40 @@ public interface Command {
 
 
     /**
-     * @Description: 获取键字符串包装对象
-     * @Param: ctx
+     * @Description: 获取字符串包装对象
      * @Param: array
      * @Param: index
      * @Return: BytesWrapper
      * @Author: isheihei
      */
-    default BytesWrapper getDs(Resp[] array, int index){
+    default BytesWrapper getBytesWrapper(Resp[] array, int index){
         if (array.length < (index + 1)) {
             return null;
         } else {
             return ((BulkString) array[index]).getContent();
         }
     };
+
+
     /**
-     * @Description: 获取子命令或参数
+     * @Description: 获取字符串包装对象
      * @Param: ctx
      * @Param: array
-     * @Param: index 数组索引（取第几个参数）
-     * @Return: String
+     * @Param: index
+     * @Return: * @Return: BytesWrapper
      * @Author: isheihei
      */
-    default String getArgsOrSubCommand(ChannelHandlerContext ctx, Resp[] array, int index){
+    default BytesWrapper getBytesWrapper(ChannelHandlerContext ctx, Resp[] array, int index){
         if (array.length < (index + 1)) {
             ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
             return null;
         } else {
-            return ((BulkString) array[index]).getContent().toUtf8String().toLowerCase();
+            return ((BulkString) array[index]).getContent();
         }
     };
 
     /**
-     * 获取 key
-     * @param ctx
-     * @param array
-     * @param index
-     * @return
-     */
-    default BytesWrapper getKey(ChannelHandlerContext ctx, Resp[] array, int index){
-        if (array.length < (index + 1)) {
-            ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
-            return null;
-        } else {
-            return ((BulkString)array[index]).getContent();
-        }
-    };
-
-    /**
-     * @Description: 获取参数
+     * @Description: 获取包含 subCommand 的 String 类型参数
      * @Param: ctx
      * @Param: array
      * @Param: index
@@ -105,7 +89,7 @@ public interface Command {
      * @Return: String
      * @Author: isheihei
      */
-    default String getSubCommandArgs(ChannelHandlerContext ctx, Resp[] array, int index, String subCommand) {
+    default String getStringSubCommandArgs(ChannelHandlerContext ctx, Resp[] array, int index, String subCommand) {
         if (array.length < (index + 1)) {
             ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.SUBCOMMAND_WRONG_ARGS_NUMBER, type().toString().toUpperCase(), subCommand)));
             return null;

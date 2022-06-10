@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 /**
  * @ClassName: Rpush
- * @Description: TODO
+ * @Description: 列表头添加元素，不存在则创建
  * @Date: 2022/6/10 16:24
  * @Author: isheihei
  */
@@ -22,6 +22,8 @@ public class Rpush extends Push{
     private BytesWrapper key;
     private List<BytesWrapper> values;
 
+    private Resp[] array;
+
     @Override
     public CommandType type() {
         return CommandType.rpush;
@@ -29,12 +31,13 @@ public class Rpush extends Push{
 
     @Override
     public void setContent(Resp[] array) {
-        key = getDs(array, 1);
-        values = Arrays.stream(array).skip(2).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
+        this.array = array;
     }
 
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
+        if ((key = getBytesWrapper(ctx, array, 1)) == null) return;
+        values = Arrays.stream(array).skip(2).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
         lrPush(ctx, redisClient, false, key, values);
     }
 }

@@ -1,6 +1,5 @@
 package org.isheihei.redis.core.command.impl.string;
 
-import com.sun.javafx.image.impl.ByteRgb;
 import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.Command;
@@ -15,9 +14,7 @@ import org.isheihei.redis.core.struct.impl.BytesWrapper;
 import org.isheihei.redis.core.struct.impl.RedisDynamicString;
 
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -68,5 +65,6 @@ public class Mget implements Command {
                 })
                 .toArray(Resp[]::new);
         ctx.writeAndFlush(new RespArray(array));
+
     }
 }

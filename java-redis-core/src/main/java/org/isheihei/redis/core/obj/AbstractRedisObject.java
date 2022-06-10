@@ -14,7 +14,6 @@ public abstract class AbstractRedisObject implements RedisObject{
     // 对象底层实现结构
     private RedisDataStructType encoding;
 
-
     public AbstractRedisObject() {
     }
 
@@ -29,7 +28,6 @@ public abstract class AbstractRedisObject implements RedisObject{
     public RedisDataStructType getEncoding() {
         return encoding;
     }
-
 
 
     public void setEncoding(RedisDataStructType encoding) {

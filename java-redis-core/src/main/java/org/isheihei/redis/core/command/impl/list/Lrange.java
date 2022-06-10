@@ -8,7 +8,10 @@ import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.obj.impl.RedisListObject;
-import org.isheihei.redis.core.resp.*;
+import org.isheihei.redis.core.resp.BulkString;
+import org.isheihei.redis.core.resp.Errors;
+import org.isheihei.redis.core.resp.Resp;
+import org.isheihei.redis.core.resp.RespArray;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 import org.isheihei.redis.core.struct.impl.RedisDoubleLinkedList;
@@ -41,15 +44,14 @@ public class Lrange implements Command {
 
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
-        key = getKey(ctx, array, 1);
-        String startString = getArgsOrSubCommand(ctx, array, 2);
-        String endString = getArgsOrSubCommand(ctx, array, 3);
-        if (key == null || startString == null || endString == null) {
-            ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
-            return;
-        }
-        start = Integer.parseInt(startString);
-        end = Integer.parseInt(endString);
+        if ((key = getBytesWrapper(ctx, array, 1)) == null) return;
+        BytesWrapper startString;
+        if ((startString = getBytesWrapper(ctx, array, 2)) == null) return;
+        BytesWrapper endString;
+        if ((endString = getBytesWrapper(ctx, array, 3)) == null) return;
+
+        start = Integer.parseInt(startString.toUtf8String());
+        end = Integer.parseInt(endString.toUtf8String());
         RedisDB db = redisClient.getDb();
         RedisObject redisObject = db.get(key);
         if (redisObject == null) {
@@ -64,7 +66,8 @@ public class Lrange implements Command {
                 throw new UnsupportedOperationException();
             }
         } else {
-            throw new UnsupportedOperationException();
+            ctx.writeAndFlush(new Errors(ErrorsConsts.WRONG_TYPE_OPERATION));
+            return;
         }
 
     }

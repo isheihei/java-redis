@@ -1,15 +1,11 @@
 package org.isheihei.redis.common.util;
 
 
-import io.netty.util.internal.StringUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @ClassName: ConfigUtil

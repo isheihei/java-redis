@@ -6,7 +6,7 @@
     <groupId>org.isheihei</groupId>
     <artifactId>java-redis</artifactId>
     <packaging>pom</packaging>
-    <version>${java-redis.version}</version>
+    <version>0.0.1-SNAPSHOT</version>
     <modules>
         <module>java-redis-common</module>
         <module>java-redis-core</module>
@@ -21,6 +21,7 @@
         <netty.version>4.1.66.Final</netty.version>
         <log4j.version>1.2.17</log4j.version>
         <junit.version>4.12</junit.version>
+        <slf4j-nop.version>1.7.2</slf4j-nop.version>
     </properties>
 
     <dependencyManagement>
@@ -35,6 +36,16 @@
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>redis.clients</groupId>
+                <artifactId>jedis</artifactId>
+                <version>3.6.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-nop</artifactId>
+                <version>${slf4j-nop.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

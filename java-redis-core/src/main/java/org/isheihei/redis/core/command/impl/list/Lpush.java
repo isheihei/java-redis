@@ -1,20 +1,11 @@
 package org.isheihei.redis.core.command.impl.list;
 
 import io.netty.channel.ChannelHandlerContext;
-import org.isheihei.redis.common.consts.ErrorsConsts;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandType;
-import org.isheihei.redis.core.db.RedisDB;
-import org.isheihei.redis.core.obj.RedisObject;
-import org.isheihei.redis.core.obj.impl.RedisListObject;
 import org.isheihei.redis.core.resp.BulkString;
-import org.isheihei.redis.core.resp.Errors;
 import org.isheihei.redis.core.resp.Resp;
-import org.isheihei.redis.core.resp.RespInt;
-import org.isheihei.redis.core.struct.RedisDataStruct;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
-import org.isheihei.redis.core.struct.impl.RedisDoubleLinkedList;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,6 +22,8 @@ public class Lpush extends Push {
     private BytesWrapper key;
     private List<BytesWrapper> values;
 
+    private Resp[] array;
+
     @Override
     public CommandType type() {
         return CommandType.lpush;
@@ -38,12 +31,14 @@ public class Lpush extends Push {
 
     @Override
     public void setContent(Resp[] array) {
-        key = getDs(array, 1);
-        values = Arrays.stream(array).skip(2).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
+        this.array = array;
+
     }
 
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
+        if ((key = getBytesWrapper(ctx, array, 1)) == null) return;
+        values = Arrays.stream(array).skip(2).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
         lrPush(ctx, redisClient, true, key, values);
     }
 }

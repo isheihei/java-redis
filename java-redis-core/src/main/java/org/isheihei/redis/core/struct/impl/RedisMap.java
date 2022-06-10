@@ -1,6 +1,5 @@
 package org.isheihei.redis.core.struct.impl;
 
-import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 
 import java.util.HashMap;

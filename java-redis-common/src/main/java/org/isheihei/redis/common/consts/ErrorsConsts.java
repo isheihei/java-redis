@@ -20,4 +20,7 @@ public class ErrorsConsts {
     public static final String WRONG_ARGS_NUMBER = "ERR Wrong number of arguments for %s";
     public static final String CONFIG_SUB_COMMAND_ERROR = "ERR CONFIG subcommand must be one of GET, SET";
     public static final String CLIENT_SUB_COMMAND_ERROR = "ERR Syntax error, try CLIENT (GETNAME | SETNAME connection-name)";
+    public static final String NO_SUCH_KEY = "ERR no such key";
+    public static final String WRONG_TYPE_OPERATION = "WRONGTYPE Operation against a key holding the wrong kind of value";
+    public static final String INDEX_OUT_OF_RANGE = "ERR index out of range";
 }

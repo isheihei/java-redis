@@ -1,12 +1,14 @@
 package org.isheihei.redis.core.command.impl.string;
 
 import io.netty.channel.ChannelHandlerContext;
+import org.isheihei.redis.common.consts.ErrorsConsts;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.obj.impl.RedisStringObject;
 import org.isheihei.redis.core.resp.BulkString;
+import org.isheihei.redis.core.resp.Errors;
 import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
@@ -29,7 +31,7 @@ public class Get implements Command {
 
     @Override
     public void setContent(Resp[] array) {
-        key = getDs(array, 1);
+        key = getBytesWrapper(array, 1);
     }
 
     @Override
@@ -49,7 +51,8 @@ public class Get implements Command {
                 throw new UnsupportedOperationException();
             }
         } else {
-            throw new UnsupportedOperationException();
+            ctx.writeAndFlush(new Errors(ErrorsConsts.WRONG_TYPE_OPERATION));
+
         }
     }
 }
