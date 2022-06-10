@@ -41,6 +41,6 @@ public class Set implements Command {
         }
         RedisStringObject stringObject = new RedisStringObject(value);
         redisClient.getDb().put(key, stringObject);
-        ctx.writeAndFlush(new SimpleString("OK"));
+        ctx.writeAndFlush(SimpleString.OK);
     }
 }

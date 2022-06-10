@@ -10,15 +10,14 @@ public class ErrorsConsts {
     public static final String INVALID_PASSWORD = "ERR invalid password";
     public static final String NO_AUTH = "NOAUTH Authentication required.";
     public static final String UNKNOWN_COMMAND = "ERR unknown command '%s'";
-
-
     public static final String INTERNEL_ERROR = "ERR internal error!";
     public static final String UNSUPOORT_CONFIG = "ERR Unsupported CONFIG parameter: %s";
-
-    public static final String WRONG_ARGS_NUMBER = "ERR Wrong number of arguments for %s %s";
-
+    // 子命令参数错误
+    public static final String SUBCOMMAND_WRONG_ARGS_NUMBER = "ERR Wrong number of arguments for %s %s";
+    // 命令没有参数
     public static final String COMMAND_WRONG_ARGS_NUMBER = "ERR Wrong number of arguments for '%s' command";
-
+    // 命令参数数量错误
+    public static final String WRONG_ARGS_NUMBER = "ERR Wrong number of arguments for %s";
     public static final String CONFIG_SUB_COMMAND_ERROR = "ERR CONFIG subcommand must be one of GET, SET";
     public static final String CLIENT_SUB_COMMAND_ERROR = "ERR Syntax error, try CLIENT (GETNAME | SETNAME connection-name)";
 }

@@ -40,12 +40,12 @@ public class Client implements Command {
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
         String traceId = TRACEID.currentTraceId();
         LOGGER.debug("traceId:{} 当前的子命令是：{}" + traceId + subCommand);
-        if ((subCommand = getFirstArgsOrSubCommand(ctx, array, 1)) == null) {
+        if ((subCommand = getArgsOrSubCommand(ctx, array, 1)) == null) {
             return;
         }
         switch (subCommand) {
             case "setname":
-                if ((clientName = getArguments(ctx, array, 2, subCommand)) == null) {
+                if ((clientName = getSubCommandArgs(ctx, array, 2, subCommand)) == null) {
                     return;
                 }
                 redisClient.setName(clientName);

@@ -37,7 +37,10 @@ public class Get implements Command {
         RedisObject redisObject = redisClient.getDb().get(key);
         if (redisObject == null) {
             ctx.writeAndFlush(BulkString.NullBulkString);
-        } else if (redisObject instanceof RedisStringObject) {
+            return;
+        }
+
+        if (redisObject instanceof RedisStringObject) {
             RedisDataStruct data = redisObject.data();
             if (data instanceof RedisDynamicString) {
                 RedisDynamicString value = (RedisDynamicString) data;
@@ -45,7 +48,8 @@ public class Get implements Command {
             } else {
                 throw new UnsupportedOperationException();
             }
+        } else {
+            throw new UnsupportedOperationException();
         }
-
     }
 }

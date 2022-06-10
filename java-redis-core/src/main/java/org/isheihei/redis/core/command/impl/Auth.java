@@ -34,7 +34,7 @@ public class Auth implements Command {
 
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
-        if ((password = getFirstArgsOrSubCommand(ctx, array, 1)) == null) {
+        if ((password = getArgsOrSubCommand(ctx, array, 1)) == null) {
             return;
         }
         if (password.equals(ConfigUtil.getRequirepass())) {

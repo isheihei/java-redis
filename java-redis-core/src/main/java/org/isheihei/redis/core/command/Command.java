@@ -64,19 +64,35 @@ public interface Command {
         }
     };
     /**
-     * @Description: 获取子命令或第一个参数
+     * @Description: 获取子命令或参数
      * @Param: ctx
      * @Param: array
      * @Param: index 数组索引（取第几个参数）
      * @Return: String
      * @Author: isheihei
      */
-    default String getFirstArgsOrSubCommand(ChannelHandlerContext ctx, Resp[] array, int index){
+    default String getArgsOrSubCommand(ChannelHandlerContext ctx, Resp[] array, int index){
         if (array.length < (index + 1)) {
             ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
             return null;
         } else {
             return ((BulkString) array[index]).getContent().toUtf8String().toLowerCase();
+        }
+    };
+
+    /**
+     * 获取 key
+     * @param ctx
+     * @param array
+     * @param index
+     * @return
+     */
+    default BytesWrapper getKey(ChannelHandlerContext ctx, Resp[] array, int index){
+        if (array.length < (index + 1)) {
+            ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
+            return null;
+        } else {
+            return ((BulkString)array[index]).getContent();
         }
     };
 
@@ -89,16 +105,13 @@ public interface Command {
      * @Return: String
      * @Author: isheihei
      */
-    default String getArguments(ChannelHandlerContext ctx, Resp[] array, int index, String subCommand) {
+    default String getSubCommandArgs(ChannelHandlerContext ctx, Resp[] array, int index, String subCommand) {
         if (array.length < (index + 1)) {
-            ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.WRONG_ARGS_NUMBER, type().toString().toUpperCase(), subCommand)));
+            ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.SUBCOMMAND_WRONG_ARGS_NUMBER, type().toString().toUpperCase(), subCommand)));
             return null;
         } else {
             return ((BulkString) array[index]).getContent().toUtf8String().toLowerCase();
         }
     }
-
-
-
 
 }
