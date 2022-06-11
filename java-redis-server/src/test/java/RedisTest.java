@@ -25,7 +25,7 @@ public class RedisTest {
         new RedisNetServer().start();
         Jedis jedis = new Jedis("127.0.0.1", 6379);
 
-        // 通用命令
+        // server
         jedis.configGet("no_exit_name");    // config get no_exit_name
         Assert.assertEquals(OK, jedis.configSet("port", "9090")); // config set port 9090
         Assert.assertEquals("9090", jedis.configGet("port").get(1));   // config get port
@@ -33,8 +33,13 @@ public class RedisTest {
         jedis.clientSetname("test_client_name");    // client setname test_client_name
         Assert.assertEquals("test_client_name", jedis.clientGetname()); // client getname
 
+        //  connection
         jedis.configSet("requirepass", "password"); // config set requirepass password
         Assert.assertEquals(OK, jedis.auth("password"));    // auth password
+        Assert.assertEquals("echo", jedis.echo("echo"));    //  echo echo
+        Assert.assertEquals("PONG", jedis.ping());  // ping
+        Assert.assertEquals(OK, jedis.select(1));   //  select 1
+        Assert.assertEquals(OK, jedis.select(0));   //  select 0
 
         //  string
         Assert.assertNull(jedis.get(STRING_KEY)); // get string_key

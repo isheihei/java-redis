@@ -42,9 +42,7 @@ public class Lrem implements Command {
 
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
-        key = getBytesWrapper(array, 1);
-        if (key == null) {
-            ctx.writeAndFlush(new RespInt(0));
+        if ((key = getBytesWrapper(ctx, array, 1)) == null) {
             return;
         }
 

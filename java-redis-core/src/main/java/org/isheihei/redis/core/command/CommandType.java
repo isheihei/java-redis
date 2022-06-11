@@ -1,6 +1,10 @@
 package org.isheihei.redis.core.command;
 
 import org.isheihei.redis.core.command.impl.connection.Auth;
+import org.isheihei.redis.core.command.impl.connection.Echo;
+import org.isheihei.redis.core.command.impl.connection.Ping;
+import org.isheihei.redis.core.command.impl.connection.Quit;
+import org.isheihei.redis.core.command.impl.connection.Select;
 import org.isheihei.redis.core.command.impl.hash.Hdel;
 import org.isheihei.redis.core.command.impl.hash.Hexists;
 import org.isheihei.redis.core.command.impl.hash.Hget;
@@ -38,7 +42,7 @@ import java.util.function.Supplier;
  * @Author: isheihei
  */
 public enum CommandType {
-    auth(Auth::new), client(Client::new), config(Config::new),
+    auth(Auth::new), client(Client::new), config(Config::new), echo(Echo::new), ping(Ping::new), quit(Quit::new), select(Select::new),
     get(Get::new), set(Set::new), mget(Mget::new), mset(Mset::new), append(Append::new), setex(SetEx::new), setnx(SetNx::new),
     lpush(Lpush::new), lrange(Lrange::new), lrem(Lrem::new), rpush(Rpush::new), lpop(Lpop::new), rpop(Rpop::new), lset(Lset::new), lindex(Lindex::new), llen(Llen::new),
     hdel(Hdel::new), hexists(Hexists::new), hget(Hget::new), hgetall(Hgetall::new), hkeys(Hkeys::new), hset(Hset::new), hmset(Hmset::new), hvals(Hvals::new), hmget(Hmget::new);

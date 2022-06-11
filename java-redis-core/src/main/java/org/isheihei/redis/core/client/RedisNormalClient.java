@@ -2,6 +2,7 @@ package org.isheihei.redis.core.client;
 
 import org.isheihei.redis.core.db.RedisDB;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -20,8 +21,11 @@ public class RedisNormalClient implements RedisClient{
     // 默认没有名字， 可以使用命令 client setname 设置
     private String name;
 
-    // 当前客户端正在操作的数据库
-    private RedisDB db;
+    // 数据库
+    private List<RedisDB> dbs;
+
+    // 当前使用的数据库索引
+    private int dbIndex = 0;
 
     // 标志，可以i有多个，暂不实现
 //    private String[] flags;
@@ -35,10 +39,10 @@ public class RedisNormalClient implements RedisClient{
     // 客户端与服务器最后一次进行互动的时间
     private long lastInteraction;
 
-    public RedisNormalClient(String addr, int fd, RedisDB db) {
+    public RedisNormalClient(String addr, int fd, List<RedisDB> dbs) {
         this.addr = addr;
         this.fd = fd;
-        this.db = db;
+        this.dbs = dbs;
         this.name = addr + ":" + UUID.randomUUID();
         ctime = System.currentTimeMillis();
         lastInteraction = System.currentTimeMillis();
@@ -46,7 +50,17 @@ public class RedisNormalClient implements RedisClient{
 
     @Override
     public RedisDB getDb() {
-        return db;
+        return dbs.get(dbIndex);
+    }
+
+    @Override
+    public boolean setDb(int dbIndex) {
+        if (dbIndex < 0 || dbIndex >= dbs.size()) {
+            return false;
+        } else {
+            this.dbIndex = dbIndex;
+            return true;
+        }
     }
 
     @Override

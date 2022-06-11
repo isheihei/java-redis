@@ -114,7 +114,7 @@ public class RedisNetServer implements RedisServer{
                     protected void initChannel(SocketChannel socketChannel) throws Exception {
                         // 初始化客户端
                         int id = clientId.incrementAndGet();
-                        RedisClient client = new RedisNormalClient(socketChannel.localAddress().toString(), id, dbs.get(0));
+                        RedisClient client = new RedisNormalClient(socketChannel.localAddress().toString(), id, dbs);
                         clients.put(id, client);
 
                         //  初始化 channel

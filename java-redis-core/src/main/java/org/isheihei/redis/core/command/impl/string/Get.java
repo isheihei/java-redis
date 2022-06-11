@@ -24,6 +24,8 @@ public class Get implements Command {
 
     private BytesWrapper key;
 
+    private Resp[] array;
+
     @Override
     public CommandType type() {
         return CommandType.get;
@@ -31,11 +33,14 @@ public class Get implements Command {
 
     @Override
     public void setContent(Resp[] array) {
-        key = getBytesWrapper(array, 1);
+        this.array = array;
     }
 
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
+        if ((key = getBytesWrapper(ctx, array, 1)) == null) {
+            return;
+        }
         RedisObject redisObject = redisClient.getDb().get(key);
         if (redisObject == null) {
             ctx.writeAndFlush(BulkString.NullBulkString);

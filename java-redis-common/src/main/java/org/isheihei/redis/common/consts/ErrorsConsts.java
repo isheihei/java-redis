@@ -25,4 +25,6 @@ public class ErrorsConsts {
     public static final String INDEX_OUT_OF_RANGE = "ERR index out of range";
 
     public static final String VALUE_IS_NOT_INT = "ERR value is not an integer or out of range";
+    public static final String INVALID_DB_INDEX = "ERR invalid DB index";
+
 }

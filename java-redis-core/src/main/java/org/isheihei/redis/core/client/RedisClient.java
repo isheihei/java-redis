@@ -11,11 +11,19 @@ import org.isheihei.redis.core.db.RedisDB;
 public interface RedisClient {
 
     /**
-     * @Description: 获取当前客户端操作的数据库
+     * @Description: 获取当前客户端使用的数据库
      * @Return:  RedisDB
      * @Author: isheihei
      */
     RedisDB getDb();
+
+
+    /**
+     * @Description: 设置当前客户端使用的数据库
+     * @Param: dbIndex
+     * @Author: isheihei
+     */
+    boolean setDb(int dbIndex);
 
     /**
      * @Description: 获取标志认证标志

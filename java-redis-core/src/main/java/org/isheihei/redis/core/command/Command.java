@@ -46,23 +46,6 @@ public interface Command {
      */
     void handle(ChannelHandlerContext ctx, RedisClient redisClient);
 
-
-    /**
-     * @Description: 获取字符串包装对象
-     * @Param: array
-     * @Param: index
-     * @Return: BytesWrapper
-     * @Author: isheihei
-     */
-    default BytesWrapper getBytesWrapper(Resp[] array, int index){
-        if (array.length < (index + 1)) {
-            return null;
-        } else {
-            return ((BulkString) array[index]).getContent();
-        }
-    };
-
-
     /**
      * @Description: 获取字符串包装对象
      * @Param: ctx
