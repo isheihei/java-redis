@@ -14,6 +14,7 @@ import org.isheihei.redis.core.resp.SimpleString;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,10 +47,12 @@ public class Mset implements Command {
 
         if (kvList.size() % 2 != 0) {
             ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.WRONG_ARGS_NUMBER, type().toString().toUpperCase())));
+            return;
         } else {
             RedisDB db = redisClient.getDb();
-            for (int i = 0; i < kvList.size(); i += 2) {
-                db.put(kvList.get(i), new RedisStringObject(kvList.get(i + 1)));
+            Iterator<BytesWrapper> iterator = kvList.iterator();
+            while (iterator.hasNext()) {
+                db.put(iterator.next(), new RedisStringObject(iterator.next()));
             }
             ctx.writeAndFlush(SimpleString.OK);
         }

@@ -1,4 +1,5 @@
-package org.isheihei.redis.core.command.impl.string;
+package org.isheihei.redis.core.command.impl.hash;
+
 
 import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConsts;
@@ -6,47 +7,61 @@ import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.obj.RedisObject;
-import org.isheihei.redis.core.obj.impl.RedisStringObject;
-import org.isheihei.redis.core.resp.BulkString;
+import org.isheihei.redis.core.obj.impl.RedisMapObject;
 import org.isheihei.redis.core.resp.Errors;
 import org.isheihei.redis.core.resp.Resp;
+import org.isheihei.redis.core.resp.RespInt;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
-import org.isheihei.redis.core.struct.impl.RedisDynamicString;
+import org.isheihei.redis.core.struct.impl.RedisMap;
 
 /**
- * @ClassName: Get
- * @Description: get key
- * @Date: 2022/6/9 23:22
+ * @ClassName: Exists
+ * @Description: 查看哈希表的指定字段 field 是否存在
+ * @Date: 2022/6/11 15:15
  * @Author: isheihei
  */
-public class Get implements Command {
+public class Hexists implements Command {
 
     private BytesWrapper key;
 
+    private BytesWrapper field;
+
+    private Resp[] array;
+
     @Override
     public CommandType type() {
-        return CommandType.get;
+        return CommandType.hexists;
     }
 
     @Override
     public void setContent(Resp[] array) {
-        key = getBytesWrapper(array, 1);
+        this.array = array;
     }
 
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
-        RedisObject redisObject = redisClient.getDb().get(key);
-        if (redisObject == null) {
-            ctx.writeAndFlush(BulkString.NullBulkString);
+        if ((key = getBytesWrapper(ctx, array, 1)) == null) {
+            return;
+        }
+        if ((field = getBytesWrapper(ctx, array, 2)) == null) {
             return;
         }
 
-        if (redisObject instanceof RedisStringObject) {
+        RedisObject redisObject = redisClient.getDb().get(key);
+        if (redisObject == null) {
+            ctx.writeAndFlush(new RespInt(0));
+            return;
+        }
+        if (redisObject instanceof RedisMapObject) {
             RedisDataStruct data = redisObject.data();
-            if (data instanceof RedisDynamicString) {
-                RedisDynamicString value = (RedisDynamicString) data;
-                ctx.writeAndFlush(new BulkString(value.getValue()));
+            if (data instanceof RedisMap) {
+                RedisMap map = (RedisMap) data;
+                if (map.containsKey(field)) {
+                    ctx.writeAndFlush(new RespInt(1));
+                } else {
+                    ctx.writeAndFlush(new RespInt(0));
+                }
             } else {
                 throw new UnsupportedOperationException();
             }

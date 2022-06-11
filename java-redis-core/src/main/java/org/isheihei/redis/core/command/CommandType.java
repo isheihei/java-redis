@@ -1,8 +1,15 @@
 package org.isheihei.redis.core.command;
 
-import org.isheihei.redis.core.command.impl.Auth;
-import org.isheihei.redis.core.command.impl.Client;
-import org.isheihei.redis.core.command.impl.Config;
+import org.isheihei.redis.core.command.impl.connection.Auth;
+import org.isheihei.redis.core.command.impl.hash.Hdel;
+import org.isheihei.redis.core.command.impl.hash.Hexists;
+import org.isheihei.redis.core.command.impl.hash.Hget;
+import org.isheihei.redis.core.command.impl.hash.Hgetall;
+import org.isheihei.redis.core.command.impl.hash.Hkeys;
+import org.isheihei.redis.core.command.impl.hash.Hmget;
+import org.isheihei.redis.core.command.impl.hash.Hmset;
+import org.isheihei.redis.core.command.impl.hash.Hset;
+import org.isheihei.redis.core.command.impl.hash.Hvals;
 import org.isheihei.redis.core.command.impl.list.Lpop;
 import org.isheihei.redis.core.command.impl.list.Lpush;
 import org.isheihei.redis.core.command.impl.list.Lrange;
@@ -10,6 +17,8 @@ import org.isheihei.redis.core.command.impl.list.Lrem;
 import org.isheihei.redis.core.command.impl.list.Lset;
 import org.isheihei.redis.core.command.impl.list.Rpop;
 import org.isheihei.redis.core.command.impl.list.Rpush;
+import org.isheihei.redis.core.command.impl.server.Client;
+import org.isheihei.redis.core.command.impl.server.Config;
 import org.isheihei.redis.core.command.impl.string.Get;
 import org.isheihei.redis.core.command.impl.string.Mget;
 import org.isheihei.redis.core.command.impl.string.Mset;
@@ -28,7 +37,8 @@ import java.util.function.Supplier;
 public enum CommandType {
     auth(Auth::new), client(Client::new), config(Config::new),
     get(Get::new), set(Set::new), mget(Mget::new), mset(Mset::new), setex(SetEx::new), setnx(SetNx::new),
-    lpush(Lpush::new), lrange(Lrange::new), lrem(Lrem::new), rpush(Rpush::new), lpop(Lpop::new), rpop(Rpop::new), lset(Lset::new);
+    lpush(Lpush::new), lrange(Lrange::new), lrem(Lrem::new), rpush(Rpush::new), lpop(Lpop::new), rpop(Rpop::new), lset(Lset::new),
+    hdel(Hdel::new), hexists(Hexists::new), hget(Hget::new), hgetall(Hgetall::new), hkeys(Hkeys::new), hset(Hset::new), hmset(Hmset::new), hvals(Hvals::new), hmget(Hmget::new);
 
     // 操作类构造器
     private final Supplier<Command> supplier;
@@ -46,7 +56,6 @@ public enum CommandType {
     public Supplier<Command> getSupplier() {
         return supplier;
     }
-
 
 
 }

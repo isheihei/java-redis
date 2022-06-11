@@ -35,9 +35,10 @@ public class Set implements Command {
 
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
-        key = getBytesWrapper(ctx, array, 1);
-        value = getBytesWrapper(ctx, array, 2);
-        if (key == null || value == null) {
+        if ((key = getBytesWrapper(ctx, array, 1)) == null) {
+            return;
+        }
+        if ((value = getBytesWrapper(ctx, array, 2)) == null) {
             return;
         }
         RedisStringObject stringObject = new RedisStringObject(value);

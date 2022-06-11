@@ -71,6 +71,7 @@ public class RedisNetServer implements RedisServer{
     public RedisNetServer(){
         // 目前只使用单路select线程模型
         channelOption = new SingleChannelSelectStrategy().select();
+//        channelOption = new DefaultChannelSelectStrategy().select();
         this.redisSingleEventExecutor = new NioEventLoopGroup(1);
 
         // 初始化db
