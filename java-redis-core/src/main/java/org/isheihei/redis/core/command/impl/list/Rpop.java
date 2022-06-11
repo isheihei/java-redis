@@ -8,7 +8,7 @@ import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 /**
  * @ClassName: Rpop
- * @Description: 移除并返回列表最后一个元素的值
+ * @Description: 在 key 中的列表的尾部插入所有指定的值
  * @Date: 2022/6/10 16:38
  * @Author: isheihei
  */

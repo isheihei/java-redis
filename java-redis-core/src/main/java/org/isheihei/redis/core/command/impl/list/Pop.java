@@ -17,7 +17,7 @@ import org.isheihei.redis.core.struct.impl.RedisDoubleLinkedList;
 
 /**
  * @ClassName: Pop
- * @Description: TODO
+ * @Description: lpop rpop 提取公共父类 降低重复代码
  * @Date: 2022/6/10 16:30
  * @Author: isheihei
  */

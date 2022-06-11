@@ -17,7 +17,7 @@ import org.isheihei.redis.core.struct.impl.RedisDoubleLinkedList;
 
 /**
  * @ClassName: Lset
- * @Description: LSET key index element 设置列表 key 中 index 位置的元素值为 element
+ * @Description: 设置列表 key 中 index 位置的元素值为 element
  * @Date: 2022/6/10 17:21
  * @Author: isheihei
  */
@@ -46,7 +46,13 @@ public class Lset implements Command {
         if ((key = getBytesWrapper(ctx, array, 1)) == null) return;
         BytesWrapper bytesIndex;
         if ((bytesIndex = getBytesWrapper(ctx, array, 2)) == null) return;
-        index = Integer.parseInt(bytesIndex.toUtf8String());
+        try {
+            index = Integer.parseInt(bytesIndex.toUtf8String());
+        } catch (NumberFormatException e) {
+            LOGGER.error("参数无法转换为数字", e);
+            ctx.writeAndFlush(new Errors(ErrorsConsts.VALUE_IS_NOT_INT));
+            return;
+        }
         if ((element = getBytesWrapper(ctx, array, 3)) == null) return;
 
         RedisDB db = redisClient.getDb();

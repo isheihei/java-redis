@@ -23,4 +23,6 @@ public class ErrorsConsts {
     public static final String NO_SUCH_KEY = "ERR no such key";
     public static final String WRONG_TYPE_OPERATION = "WRONGTYPE Operation against a key holding the wrong kind of value";
     public static final String INDEX_OUT_OF_RANGE = "ERR index out of range";
+
+    public static final String VALUE_IS_NOT_INT = "ERR value is not an integer or out of range";
 }

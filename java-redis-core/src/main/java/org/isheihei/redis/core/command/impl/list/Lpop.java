@@ -8,7 +8,7 @@ import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 /**
  * @ClassName: Lpop
- * @Description: 删除并返回列表第一个元素
+ * @Description: 于删除并返回存储在 key 中的列表的第一个元素
  * @Date: 2022/6/10 16:38
  * @Author: isheihei
  */

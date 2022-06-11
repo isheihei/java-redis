@@ -14,7 +14,9 @@ import java.util.HashMap;
 public class RedisTest {
     private static String OK = "OK";
 
-    private static String STRING_KEY = "list_key";
+    private static String STRING_KEY = "string_key";
+
+    private static String LIST_KEY = "list_key";
 
     private static String HASH_KEY = "hash_key";
 
@@ -35,30 +37,33 @@ public class RedisTest {
         Assert.assertEquals(OK, jedis.auth("password"));    // auth password
 
         //  string
-        Assert.assertNull(jedis.get("stirng_key")); // get string_key
-        Assert.assertEquals(OK, jedis.set("string_key", "string_value"));   // set string_key string_value
+        Assert.assertNull(jedis.get(STRING_KEY)); // get string_key
+        Assert.assertEquals(OK, jedis.set(STRING_KEY, "string_value"));   // set string_key string_value
         Assert.assertEquals(OK, jedis.mset("s1", "v1", "s2", "v2"));    // mset s1 v1 s2 v2
         Assert.assertEquals("v1", jedis.mget("s1", "s2").get(0));   // mget s1 s2
         Assert.assertEquals("v2", jedis.mget("s1", "s2").get(1));   // mget s1 s2
+        Assert.assertEquals(Long.valueOf(2), jedis.append("s3", "v3"));
+        Assert.assertEquals(Long.valueOf(4), jedis.append("s3", "v3"));
+        Assert.assertEquals("v3v3", jedis.get("s3"));
 
         //  list
-        Assert.assertEquals(0, jedis.lrange(STRING_KEY, 0, 1).size());  // lange list_key 0 1
-        jedis.lpush(STRING_KEY, "v3");  // lpush list_key v3
-        jedis.rpush(STRING_KEY, "v1");  // lpush list_key v1
-        jedis.rpush(STRING_KEY, "v1");  // lpush list_key v1
-        jedis.rpush(STRING_KEY, "v5");  // lpush list_key v5
-        jedis.rpush(STRING_KEY, "v4");  // lpush list_key v4
-        jedis.rpush(STRING_KEY, "v2");  // lpush list_key v2    // 当前列表：v3, v1, v1, v5, v4, v2
-        Assert.assertEquals("v3", jedis.lrange(STRING_KEY, 0, 1).get(0)); // lange list_key 0 1
-        jedis.lpop(STRING_KEY); //  lpop list_key
-        jedis.rpop(STRING_KEY); // rpop list_key    //  当前列表：v1, v1, v5, v4
-        Assert.assertEquals("v1", jedis.lrange(STRING_KEY, 0, 1).get(0)); // lange list_key 0 1
+        Assert.assertEquals(0, jedis.lrange(LIST_KEY, 0, 1).size());  // lange list_key 0 1
+        jedis.lpush(LIST_KEY, "v3");  // lpush list_key v3
+        jedis.rpush(LIST_KEY, "v1");  // lpush list_key v1
+        jedis.rpush(LIST_KEY, "v1");  // lpush list_key v1
+        jedis.rpush(LIST_KEY, "v5");  // lpush list_key v5
+        jedis.rpush(LIST_KEY, "v4");  // lpush list_key v4
+        jedis.rpush(LIST_KEY, "v2");  // lpush list_key v2    // 当前列表：v3, v1, v1, v5, v4, v2
+        Assert.assertEquals("v3", jedis.lrange(LIST_KEY, 0, 1).get(0)); // lange list_key 0 1
+        jedis.lpop(LIST_KEY); //  lpop list_key
+        jedis.rpop(LIST_KEY); // rpop list_key    //  当前列表：v1, v1, v5, v4
+        Assert.assertEquals("v1", jedis.lrange(LIST_KEY, 0, 1).get(0)); // lange list_key 0 1
 
-        jedis.lrem(STRING_KEY, 2, "v1"); // lrem list_string 2 v1   //  当前列表：v5, v4
-        Assert.assertEquals("v5", jedis.lrange(STRING_KEY, 0, 1).get(0)); // lange list_key 0 1
+        jedis.lrem(LIST_KEY, 2, "v1"); // lrem list_string 2 v1   //  当前列表：v5, v4
+        Assert.assertEquals("v5", jedis.lrange(LIST_KEY, 0, 1).get(0)); // lange list_key 0 1
 
-        jedis.lset(STRING_KEY, 0, "v6");// lset list_key 0 v6   //  当前列表：v6, v4
-        Assert.assertEquals("v6", jedis.lrange(STRING_KEY, 0, 1).get(0)); // lange list_key 0 1
+        jedis.lset(LIST_KEY, 0, "v6");// lset list_key 0 v6   //  当前列表：v6, v4
+        Assert.assertEquals("v6", jedis.lrange(LIST_KEY, 0, 1).get(0)); // lange list_key 0 1
 
         // hash
         Assert.assertEquals(0, jedis.hkeys(HASH_KEY).size());   //  hkeys hash_key
@@ -79,7 +84,7 @@ public class RedisTest {
         }});    //  hmset hash_key field2 v2 field3 v3  // 当前hash：[field1, v1], [field2, v2], [field3, v3]
 
         //  hdel hash_key field1 filed4 不存在的 field 忽略
-        Assert.assertEquals(new Long(1), jedis.hdel(HASH_KEY, "field1" ,"field4"));
+        Assert.assertEquals(Long.valueOf(1), jedis.hdel(HASH_KEY, "field1" ,"field4"));
         //  hmget hash_key field2 field3
         Assert.assertTrue(jedis.hmget(HASH_KEY, "field2", "field3").contains("v2"));
         Assert.assertTrue(jedis.hmget(HASH_KEY, "field2", "field3").contains("v3"));

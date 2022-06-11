@@ -27,4 +27,14 @@ public class RedisDynamicString implements RedisDataStruct {
     {
         this.value = value;
     }
+
+    public int append(BytesWrapper append) {
+        byte[] oldValue = value.getByteArray();
+        byte[] appendValue = append.getByteArray();
+        byte[] newValue = new byte[oldValue.length + appendValue.length];
+        System.arraycopy(oldValue, 0, newValue, 0, oldValue.length);
+        System.arraycopy(appendValue, 0, newValue, oldValue.length, appendValue.length);
+        value = new BytesWrapper(newValue);
+        return value.length();
+    }
 }

@@ -49,9 +49,14 @@ public class Lrange implements Command {
         if ((startString = getBytesWrapper(ctx, array, 2)) == null) return;
         BytesWrapper endString;
         if ((endString = getBytesWrapper(ctx, array, 3)) == null) return;
-
-        start = Integer.parseInt(startString.toUtf8String());
-        end = Integer.parseInt(endString.toUtf8String());
+        try {
+            start = Integer.parseInt(startString.toUtf8String());
+            end = Integer.parseInt(endString.toUtf8String());
+        } catch (NumberFormatException e) {
+            LOGGER.error("参数无法转换为数字", e);
+            ctx.writeAndFlush(new Errors(ErrorsConsts.VALUE_IS_NOT_INT));
+            return;
+        }
         RedisDB db = redisClient.getDb();
         RedisObject redisObject = db.get(key);
         if (redisObject == null) {

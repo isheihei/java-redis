@@ -11,7 +11,7 @@ import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 /**
  * @ClassName: Set
- * @Description: set key value
+ * @Description: 将键 key 设定为指定的“字符串”值
  * @Date: 2022/6/9 23:23
  * @Author: isheihei
  */

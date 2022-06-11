@@ -16,7 +16,7 @@ import org.isheihei.redis.core.struct.impl.RedisDynamicString;
 
 /**
  * @ClassName: Get
- * @Description: get key
+ * @Description: 获取指定 key 的值
  * @Date: 2022/6/9 23:22
  * @Author: isheihei
  */

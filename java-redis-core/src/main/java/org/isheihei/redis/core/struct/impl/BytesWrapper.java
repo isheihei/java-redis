@@ -27,6 +27,9 @@ public class BytesWrapper implements Comparable<BytesWrapper> {
         return content;
     }
 
+    public int length() {
+        return content == null ? 0 : content.length;
+    }
 
     @Override
     public boolean equals(Object o) {

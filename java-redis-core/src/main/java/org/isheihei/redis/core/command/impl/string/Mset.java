@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 /**
  * @ClassName: Mset
- * @Description: 批量添加字符串
+ * @Description: 设置多个 key 的值为各自对应的 value
  * @Date: 2022/6/9 23:24
  * @Author: isheihei
  */
@@ -40,6 +40,7 @@ public class Mset implements Command {
 
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
+        // TODO 批量应该是原子操作
         if (kvList.size() == 0 || kvList == null) {
             ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
             return;

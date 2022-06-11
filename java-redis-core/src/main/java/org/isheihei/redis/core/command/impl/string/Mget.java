@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 /**
  * @ClassName: Mget
- * @Description: 批量获取，不存在的键返回空
+ * @Description: 命令返回所有(一个或多个)给定 key 的值
  * @Date: 2022/6/9 23:24
  * @Author: isheihei
  */

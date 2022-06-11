@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 /**
  * @ClassName: Lpush
- * @Description: 列表头添加元素，不存在则创建
+ * @Description: 将一个或多个值插入到列表key 的头部，不存在则创建
  * @Date: 2022/6/10 15:43
  * @Author: isheihei
  */

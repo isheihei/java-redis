@@ -16,7 +16,7 @@ import org.isheihei.redis.core.struct.impl.RedisDoubleLinkedList;
 
 /**
  * @ClassName: Lrem
- * @Description: LREM key count element 删除count个值为element的元素
+ * @Description: 从列表 key 中删除前 count 个值等于 element 的元素
  * @Date: 2022/6/10 15:43
  * @Author: isheihei
  */
@@ -48,7 +48,13 @@ public class Lrem implements Command {
             return;
         }
 
-        count = Integer.valueOf(getBytesWrapper(ctx, array, 2).toUtf8String());
+        try {
+            count = Integer.valueOf(getBytesWrapper(ctx, array, 2).toUtf8String());
+        } catch (NumberFormatException e) {
+            LOGGER.error("参数无法转换为数字", e);
+            ctx.writeAndFlush(new Errors(ErrorsConsts.VALUE_IS_NOT_INT));
+            return;
+        }
         element = getBytesWrapper(ctx, array, 3);
         if (count == null || element == null) {
             return;

@@ -45,6 +45,7 @@ public class Hmset implements Command {
 
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
+        // TODO 原子性未实现
         if ((key = getBytesWrapper(ctx, array, 1)) == null) {
             return;
         }

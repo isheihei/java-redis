@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
  */
 public class RedisDoubleLinkedList extends LinkedList<BytesWrapper> implements RedisDataStruct {
     public List<BytesWrapper> lrange(int start, int end) {
-        // TODO 复数表示从后向前 以及返回
+        // TODO 负数表示从后向前 以及返回
         return this.stream().skip(start).limit(end - start >= 0 ? end - start + 1 : 0).collect(Collectors.toList());
     }
 
@@ -78,5 +78,14 @@ public class RedisDoubleLinkedList extends LinkedList<BytesWrapper> implements R
         } else {
             return false;
         }
+    }
+
+    public BytesWrapper index(int index) {
+        if (Math.abs(index) > this.size() - 1) {
+            return null;
+        } else {
+            // 分为正数索引和复数索引的情况
+            return this.get((this.size() + index) % this.size());
+        } 
     }
 }

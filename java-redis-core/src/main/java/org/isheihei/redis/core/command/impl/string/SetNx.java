@@ -8,7 +8,7 @@ import org.isheihei.redis.core.resp.Resp;
 
 /**
  * @ClassName: SetNx
- * @Description: TODO 不存在则设置 否则不变
+ * @Description: TODO
  * @Date: 2022/6/9 23:25
  * @Author: isheihei
  */
