@@ -3,7 +3,6 @@ package org.isheihei.redis.core.db;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -38,7 +37,7 @@ public interface RedisDB {
     void put(BytesWrapper key, RedisObject redisObject);
 
     /**
-     * @Description: 获取一个键对应的值
+     * @Description: 获取一个键对应的值 过期或不存在返回 null
      * @Param: key
      * @Return: RedisObject
      * @Author: isheihei
@@ -46,12 +45,22 @@ public interface RedisDB {
     RedisObject get(BytesWrapper key);
 
     /**
-     * @Description: 删除一批键值对
-     * @Param: keys
-     * @Return: long
+     * @Description: 为一个键设置过期时间
+     * @Param: key
+     * @Param: expireTime
+     * @Return: int 成功返回1 失败返回0
      * @Author: isheihei
      */
-    long remove(List<BytesWrapper> keys);
+    int expire(BytesWrapper key, long expireTime);
+
+
+    /**
+     * @Description: 将一个 key 的过期时间删除
+     * @Param: key
+     * @Return: int
+     * @Author: isheihei
+     */
+    int persist(BytesWrapper key);
 
     /**
      * @Description: 清空数据库

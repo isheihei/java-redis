@@ -51,7 +51,7 @@ public interface Command {
      * @Param: ctx
      * @Param: array
      * @Param: index
-     * @Return: * @Return: BytesWrapper
+     * @Return: BytesWrapper
      * @Author: isheihei
      */
     default BytesWrapper getBytesWrapper(ChannelHandlerContext ctx, Resp[] array, int index){

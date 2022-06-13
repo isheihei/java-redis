@@ -5,6 +5,7 @@ import org.isheihei.redis.common.consts.ErrorsConsts;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandType;
+import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.obj.impl.RedisStringObject;
 import org.isheihei.redis.core.resp.BulkString;
@@ -20,7 +21,7 @@ import org.isheihei.redis.core.struct.impl.RedisDynamicString;
  * @Date: 2022/6/9 23:22
  * @Author: isheihei
  */
-public class Get implements Command {
+public class Get  implements Command {
 
     private BytesWrapper key;
 
@@ -36,12 +37,14 @@ public class Get implements Command {
         this.array = array;
     }
 
+
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
         if ((key = getBytesWrapper(ctx, array, 1)) == null) {
             return;
         }
-        RedisObject redisObject = redisClient.getDb().get(key);
+        RedisDB db = redisClient.getDb();
+        RedisObject redisObject = db.get(key);
         if (redisObject == null) {
             ctx.writeAndFlush(BulkString.NullBulkString);
             return;

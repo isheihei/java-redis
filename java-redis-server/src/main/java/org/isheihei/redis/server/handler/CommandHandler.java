@@ -37,7 +37,7 @@ public class CommandHandler extends SimpleChannelInboundHandler<Command> {
                 command.handle(ctx, client);
             }
         } catch (Exception e) {
-            LOGGER.error("执行命令", e);
+            LOGGER.error("执行命令出错", e);
             ctx.writeAndFlush(new Errors(ErrorsConsts.INTERNEL_ERROR));
         }
     }

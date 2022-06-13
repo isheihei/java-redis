@@ -14,6 +14,8 @@ public abstract class AbstractRedisObject implements RedisObject{
     // 对象底层实现结构
     private RedisDataStructType encoding;
 
+    private long lru;
+
     public AbstractRedisObject() {
     }
 

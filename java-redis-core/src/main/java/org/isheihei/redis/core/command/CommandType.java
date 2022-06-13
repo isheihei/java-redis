@@ -14,6 +14,7 @@ import org.isheihei.redis.core.command.impl.hash.Hmget;
 import org.isheihei.redis.core.command.impl.hash.Hmset;
 import org.isheihei.redis.core.command.impl.hash.Hset;
 import org.isheihei.redis.core.command.impl.hash.Hvals;
+import org.isheihei.redis.core.command.impl.key.Expire;
 import org.isheihei.redis.core.command.impl.list.Lindex;
 import org.isheihei.redis.core.command.impl.list.Llen;
 import org.isheihei.redis.core.command.impl.list.Lpop;
@@ -43,6 +44,7 @@ import java.util.function.Supplier;
  */
 public enum CommandType {
     auth(Auth::new), client(Client::new), config(Config::new), echo(Echo::new), ping(Ping::new), quit(Quit::new), select(Select::new),
+    expire(Expire::new),
     get(Get::new), set(Set::new), mget(Mget::new), mset(Mset::new), append(Append::new), setex(SetEx::new), setnx(SetNx::new),
     lpush(Lpush::new), lrange(Lrange::new), lrem(Lrem::new), rpush(Rpush::new), lpop(Lpop::new), rpop(Rpop::new), lset(Lset::new), lindex(Lindex::new), llen(Llen::new),
     hdel(Hdel::new), hexists(Hexists::new), hget(Hget::new), hgetall(Hgetall::new), hkeys(Hkeys::new), hset(Hset::new), hmset(Hmset::new), hvals(Hvals::new), hmget(Hmget::new);

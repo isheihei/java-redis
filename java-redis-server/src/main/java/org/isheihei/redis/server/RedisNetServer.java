@@ -28,6 +28,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -128,6 +129,13 @@ public class RedisNetServer implements RedisServer{
                         channelPipeline.addLast(redisSingleEventExecutor, new CommandHandler(client));
                     }
                 });
+        //TODO 执行定时操作 serverCron
+        redisSingleEventExecutor.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                    System.out.println("执行中");
+            }
+        }, 5, 5, TimeUnit.SECONDS);
 
         try {
             ChannelFuture sync = serverBootstrap.bind().sync();
