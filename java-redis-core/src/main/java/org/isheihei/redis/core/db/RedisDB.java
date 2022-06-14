@@ -63,6 +63,34 @@ public interface RedisDB {
     int persist(BytesWrapper key);
 
     /**
+     * @Description: 一个键是否过期 不存在或过期返回 false 未过期返回 true
+     * @Param: key
+     * @Return: boolean
+     * @Author: isheihei
+     */
+    boolean isExpired(BytesWrapper key);
+
+    /**
+     * @Description: 获取过期列表的大小
+     * @Return:
+     * @Author: isheihei
+     */
+    int expiresSize();
+
+    /**
+     * @Description: 随机获取一个过期列表中的 key
+     * @Return: BytesWrapper
+     * @Author: isheihei
+     */
+    BytesWrapper getRandomKey();
+
+    /**
+     * @Description: 删除过期的键
+     * @Author: isheihei
+     */
+    void deleteExpiredKey(BytesWrapper key);
+
+    /**
      * @Description: 清空数据库
      * @Return: void
      * @Author: isheihei

@@ -47,7 +47,7 @@ public class CommandFactory {
         } else {
             try {
                 Command command = supplier.get();
-                command.setContent(array);
+                command.setContent(respArray);
                 return command;
             } catch (Throwable e) {
                 LOGGER.debug("traceId:"+TRACEID.currentTraceId()+" 不支持的命令：{},数据读取异常"+commandName);

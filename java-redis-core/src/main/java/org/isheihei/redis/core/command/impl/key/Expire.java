@@ -3,14 +3,16 @@ package org.isheihei.redis.core.command.impl.key;
 import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConsts;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandType;
+import org.isheihei.redis.core.command.WriteCommand;
 import org.isheihei.redis.core.db.RedisDB;
+import org.isheihei.redis.core.resp.BulkString;
 import org.isheihei.redis.core.resp.Errors;
-import org.isheihei.redis.core.resp.Resp;
+import org.isheihei.redis.core.resp.RespArray;
 import org.isheihei.redis.core.resp.RespInt;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -19,9 +21,7 @@ import java.util.concurrent.TimeUnit;
  * @Date: 2022/6/11 15:42
  * @Author: isheihei
  */
-public class Expire implements Command {
-
-    private Resp[] array;
+public class Expire extends WriteCommand {
 
     private BytesWrapper key;
 
@@ -33,12 +33,7 @@ public class Expire implements Command {
     }
 
     @Override
-    public void setContent(Resp[] array) {
-        this.array = array;
-    }
-
-    @Override
-    public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
+    public void handleWrite(ChannelHandlerContext ctx, RedisClient redisClient) {
         if ((key = getBytesWrapper(ctx, array, 1)) == null) {
             return;
         }
@@ -62,5 +57,36 @@ public class Expire implements Command {
         }
         int res = db.expire(key, expireAt);
         ctx.writeAndFlush(new RespInt(res));
+    }
+
+    @Override
+    public void handleLoadAof(RedisClient redisClient) {
+        if ((key = getBytesWrapper(array, 1)) == null) {
+            return;
+        }
+        BytesWrapper bytesExpireAt;
+        if ((bytesExpireAt = getBytesWrapper(array, 2)) == null) {
+            return;
+        }
+        try {
+            long timeout = Long.parseLong(bytesExpireAt.toUtf8String());
+            // aof 载入时直接载入绝对时间
+            expireAt = timeout;
+        } catch (NumberFormatException e) {
+            LOGGER.error("参数无法转换为时间戳", e);
+            return;
+        }
+        RedisDB db = redisClient.getDb();
+        if (db.get(key) == null) {
+            return;
+        }
+        int res = db.expire(key, expireAt);
+    }
+
+    @Override
+    public void putAof() {
+        // aof 写入时转换为绝对时间
+        array[2] = new BulkString(new BytesWrapper(String.valueOf(expireAt).getBytes(StandardCharsets.UTF_8)));
+        getAof().put(new RespArray(array));
     }
 }

@@ -2,7 +2,7 @@ package org.isheihei.redis.core.command.impl.string;
 
 import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.command.Command;
+import org.isheihei.redis.core.command.AbstractCommand;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.impl.RedisStringObject;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * @Date: 2022/6/9 23:24
  * @Author: isheihei
  */
-public class Mget implements Command {
+public class Mget extends AbstractCommand {
 
     private List<BytesWrapper> keys;
 
@@ -33,12 +33,8 @@ public class Mget implements Command {
     }
 
     @Override
-    public void setContent(Resp[] array) {
-        keys = Arrays.stream(array).skip(1).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
-    }
-
-    @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
+        keys = Arrays.stream(array).skip(1).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
         if (keys.size() == 0 || keys == null) {
             ctx.writeAndFlush(BulkString.NullBulkString);
             return;

@@ -5,9 +5,13 @@ import org.isheihei.redis.common.consts.ErrorsConsts;
 import org.isheihei.redis.common.util.ConfigUtil;
 import org.isheihei.redis.common.util.TRACEID;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.command.Command;
+import org.isheihei.redis.core.command.AbstractCommand;
 import org.isheihei.redis.core.command.CommandType;
-import org.isheihei.redis.core.resp.*;
+import org.isheihei.redis.core.resp.BulkString;
+import org.isheihei.redis.core.resp.Errors;
+import org.isheihei.redis.core.resp.Resp;
+import org.isheihei.redis.core.resp.RespArray;
+import org.isheihei.redis.core.resp.SimpleString;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 import java.util.ArrayList;
@@ -18,9 +22,7 @@ import java.util.ArrayList;
  * @Date: 2022/6/8 19:25
  * @Author: isheihei
  */
-public class Config implements Command {
-
-    private Resp[] array;
+public class Config extends AbstractCommand {
 
     private String subCommand;
 
@@ -32,11 +34,6 @@ public class Config implements Command {
 
     public CommandType type() {
         return CommandType.config;
-    }
-
-    @Override
-    public void setContent(Resp[] array) {
-        this.array = array;
     }
 
     @Override

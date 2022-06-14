@@ -3,10 +3,9 @@ package org.isheihei.redis.core.command.impl.connection;
 import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConsts;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandType;
+import org.isheihei.redis.core.command.WriteCommand;
 import org.isheihei.redis.core.resp.Errors;
-import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.SimpleString;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
@@ -16,9 +15,7 @@ import org.isheihei.redis.core.struct.impl.BytesWrapper;
  * @Date: 2022/6/11 16:01
  * @Author: isheihei
  */
-public class Select implements Command {
-
-    private Resp[] array;
+public class Select extends WriteCommand {
 
     private int index;
 
@@ -27,10 +24,6 @@ public class Select implements Command {
         return CommandType.select;
     }
 
-    @Override
-    public void setContent(Resp[] array) {
-        this.array = array;
-    }
 
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
@@ -51,5 +44,25 @@ public class Select implements Command {
         } else {
             ctx.writeAndFlush(new Errors(ErrorsConsts.INVALID_DB_INDEX));
         }
+    }
+
+    @Override
+    public void handleWrite(ChannelHandlerContext ctx, RedisClient redisClient) {
+
+    }
+
+    @Override
+    public void handleLoadAof(RedisClient redisClient) {
+        BytesWrapper indexBytes;
+        if ((indexBytes = getBytesWrapper(array, 1)) == null) {
+            return;
+        }
+        try {
+            index = Integer.parseInt(indexBytes.toUtf8String());
+        } catch (NumberFormatException e) {
+            LOGGER.error("数据库索引不是整数类型");
+            return;
+        }
+        redisClient.setDb(index);
     }
 }

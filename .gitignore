@@ -28,3 +28,7 @@ build/
 # system ignore
 .DS_Store
 Thumbs.db
+
+# persist database
+persist/
+.aof

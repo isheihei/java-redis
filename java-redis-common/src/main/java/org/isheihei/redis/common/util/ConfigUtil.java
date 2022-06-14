@@ -24,6 +24,12 @@ public class ConfigUtil {
 
     private static String DEFAULT_REQUIREPASS    = null;
 
+    private static String DEFAULT_AOF_PATH    = "./persist/aof/";
+
+    private static final String DEFAULT_APPEND_FILE_NAME = "appendonly.aof";
+
+    private static String DEFAULT_APPEND_ONLY    = "no";
+
     private static ConfigUtil Instance = new ConfigUtil();
 
     private static Properties configs;
@@ -105,6 +111,17 @@ public class ConfigUtil {
 
     public static String getRequirepass() {
         return configs.getProperty("requirepass", null);
+    }
+
+    public static String getAofPath() {
+        return DEFAULT_AOF_PATH;
+    }
+
+    public static String getAppendFileName() {
+        return configs.getProperty("appendfilename", DEFAULT_APPEND_FILE_NAME);
+    }
+    public static String getAppendOnly() {
+        return configs.getProperty("appendonly", DEFAULT_APPEND_ONLY);
     }
 
 }

@@ -17,6 +17,7 @@ import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.client.RedisNormalClient;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.db.RedisDBImpl;
+import org.isheihei.redis.core.expired.DefaultExpireStrategy;
 import org.isheihei.redis.core.persist.aof.Aof;
 import org.isheihei.redis.server.channel.LocalChannelOption;
 import org.isheihei.redis.server.channel.SingleChannelSelectStrategy;
@@ -80,6 +81,7 @@ public class RedisNetServer implements RedisServer{
         for (int i = 0; i < dbNum; i++) {
             dbs.add(new RedisDBImpl());
         }
+        this.aof = new Aof(dbs);
     }
     @Override
     public void start() {
@@ -126,16 +128,13 @@ public class RedisNetServer implements RedisServer{
 //                                /*心跳,管理长连接*/
 //                                new IdleStateHandler(0, 0, 20)
                         );
-                        channelPipeline.addLast(redisSingleEventExecutor, new CommandHandler(client));
+                        channelPipeline.addLast(redisSingleEventExecutor, new CommandHandler(client, aof));
                     }
                 });
+        redisSingleEventExecutor.submit(() -> aof.load());
         //TODO 执行定时操作 serverCron
-        redisSingleEventExecutor.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                    System.out.println("执行中");
-            }
-        }, 5, 5, TimeUnit.SECONDS);
+        ServerCron serverCron = new ServerCron().expireStrategy(new DefaultExpireStrategy(dbs)).aof(aof);
+        redisSingleEventExecutor.scheduleWithFixedDelay(serverCron, 100, 100, TimeUnit.MILLISECONDS);
 
         try {
             ChannelFuture sync = serverBootstrap.bind().sync();

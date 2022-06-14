@@ -3,7 +3,6 @@ package org.isheihei.redis.core.command.impl.list;
 import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
-import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 /**
@@ -12,11 +11,9 @@ import org.isheihei.redis.core.struct.impl.BytesWrapper;
  * @Date: 2022/6/10 16:38
  * @Author: isheihei
  */
-public class Lpop extends Pop{
+public class Lpop extends Pop {
 
     private BytesWrapper key;
-
-    private Resp[] array;
 
     @Override
     public CommandType type() {
@@ -24,13 +21,14 @@ public class Lpop extends Pop{
     }
 
     @Override
-    public void setContent(Resp[] array) {
-        this.array = array;
+    public void handleWrite(ChannelHandlerContext ctx, RedisClient redisClient) {
+        if ((key = getBytesWrapper(ctx, array, 1)) == null) return;
+        lrPop(ctx, redisClient, key, true);
     }
 
     @Override
-    public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
-        if ((key = getBytesWrapper(ctx, array, 1)) == null) return;
-        lrPop(ctx, redisClient, key, true);
+    public void handleLoadAof(RedisClient redisClient) {
+        if ((key = getBytesWrapper(array, 1)) == null) return;
+        lrPop(redisClient, key, true);
     }
 }

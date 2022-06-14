@@ -3,13 +3,12 @@ package org.isheihei.redis.core.command.impl.list;
 import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConsts;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandType;
+import org.isheihei.redis.core.command.WriteCommand;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.obj.impl.RedisListObject;
 import org.isheihei.redis.core.resp.Errors;
-import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.SimpleString;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
@@ -21,9 +20,7 @@ import org.isheihei.redis.core.struct.impl.RedisDoubleLinkedList;
  * @Date: 2022/6/10 17:21
  * @Author: isheihei
  */
-public class Lset implements Command {
-
-    private Resp[] array;
+public class Lset extends WriteCommand {
 
     private BytesWrapper key;
 
@@ -37,12 +34,7 @@ public class Lset implements Command {
     }
 
     @Override
-    public void setContent(Resp[] array) {
-        this.array = array;
-    }
-
-    @Override
-    public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
+    public void handleWrite(ChannelHandlerContext ctx, RedisClient redisClient) {
         if ((key = getBytesWrapper(ctx, array, 1)) == null) return;
         BytesWrapper bytesIndex;
         if ((bytesIndex = getBytesWrapper(ctx, array, 2)) == null) return;
@@ -76,6 +68,35 @@ public class Lset implements Command {
             }
         } else {
             ctx.writeAndFlush(new Errors(ErrorsConsts.WRONG_TYPE_OPERATION));
+        }
+    }
+
+    @Override
+    public void handleLoadAof(RedisClient redisClient) {
+        if ((key = getBytesWrapper(array, 1)) == null) return;
+        BytesWrapper bytesIndex;
+        if ((bytesIndex = getBytesWrapper(array, 2)) == null) return;
+        try {
+            index = Integer.parseInt(bytesIndex.toUtf8String());
+        } catch (NumberFormatException e) {
+            LOGGER.error("参数无法转换为数字", e);
+            return;
+        }
+        if ((element = getBytesWrapper(array, 3)) == null) return;
+
+        RedisDB db = redisClient.getDb();
+        RedisObject redisObject = db.get(key);
+        if (redisObject == null) {
+            return;
+        }
+        if (redisObject instanceof RedisListObject) {
+            RedisDataStruct data = redisObject.data();
+            if (data instanceof RedisDoubleLinkedList) {
+                RedisDoubleLinkedList list = (RedisDoubleLinkedList) data;
+                boolean flag = list.lset(index, element);
+            } else {
+                throw new UnsupportedOperationException();
+            }
         }
     }
 }

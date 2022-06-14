@@ -6,6 +6,7 @@ import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -88,6 +89,36 @@ public class RedisDBImpl implements RedisDB {
             expires.remove(key);
             return 1;
         }
+    }
+
+    @Override
+    public boolean isExpired(BytesWrapper key) {
+        if (expires.containsKey(key)) {
+            if (expires.get(key) < System.currentTimeMillis()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public int expiresSize() {
+        return expires.size();
+    }
+
+    @Override
+    public BytesWrapper getRandomKey() {
+        Random random = new Random();
+        int randomIndex = random.nextInt(expires.size());
+
+        Set<BytesWrapper> keySet = expires.keySet();
+        return keySet.stream().skip(randomIndex).findFirst().get();
+    }
+
+    @Override
+    public void deleteExpiredKey(BytesWrapper key) {
+            expires.remove(key);
+            dict.remove(key);
     }
 
     @Override

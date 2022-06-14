@@ -3,14 +3,13 @@ package org.isheihei.redis.core.command.impl.string;
 import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConsts;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.command.Command;
+import org.isheihei.redis.core.command.AbstractCommand;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.obj.impl.RedisStringObject;
 import org.isheihei.redis.core.resp.BulkString;
 import org.isheihei.redis.core.resp.Errors;
-import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 import org.isheihei.redis.core.struct.impl.RedisDynamicString;
@@ -21,20 +20,13 @@ import org.isheihei.redis.core.struct.impl.RedisDynamicString;
  * @Date: 2022/6/9 23:22
  * @Author: isheihei
  */
-public class Get  implements Command {
+public class Get  extends AbstractCommand {
 
     private BytesWrapper key;
-
-    private Resp[] array;
 
     @Override
     public CommandType type() {
         return CommandType.get;
-    }
-
-    @Override
-    public void setContent(Resp[] array) {
-        this.array = array;
     }
 
 

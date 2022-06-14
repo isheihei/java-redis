@@ -4,6 +4,7 @@ import org.junit.Test;
 import redis.clients.jedis.Jedis;
 
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @ClassName: RedisTest
@@ -94,5 +95,10 @@ public class RedisTest {
         Assert.assertTrue(jedis.hmget(HASH_KEY, "field2", "field3").contains("v2"));
         Assert.assertTrue(jedis.hmget(HASH_KEY, "field2", "field3").contains("v3"));
         Assert.assertEquals(2, jedis.hmget(HASH_KEY, "field2", "field3").size());
+        try {
+            Thread.sleep(TimeUnit.SECONDS.toMillis(2));
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -23,7 +23,7 @@ public class RedisNormalClient implements RedisClient{
 
     // 数据库
     private List<RedisDB> dbs;
-
+    
     // 当前使用的数据库索引
     private int dbIndex = 0;
 

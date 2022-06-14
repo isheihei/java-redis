@@ -2,10 +2,9 @@ package org.isheihei.redis.core.command.impl.connection;
 
 import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.command.Command;
+import org.isheihei.redis.core.command.AbstractCommand;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.resp.BulkString;
-import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.SimpleString;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
@@ -19,7 +18,7 @@ import java.util.stream.Collectors;
  * @Date: 2022/6/11 16:00
  * @Author: isheihei
  */
-public class Ping implements Command {
+public class Ping extends AbstractCommand {
 
     private List<BytesWrapper> message;
 
@@ -29,12 +28,8 @@ public class Ping implements Command {
     }
 
     @Override
-    public void setContent(Resp[] array) {
-        message = Arrays.stream(array).skip(1).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
-    }
-
-    @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
+        message = Arrays.stream(array).skip(1).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
         if (message == null || message.size() == 0) {
             ctx.writeAndFlush(new SimpleString("PONG"));
         } else {

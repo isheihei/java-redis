@@ -3,7 +3,7 @@ package org.isheihei.redis.core.command.impl.list;
 import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConsts;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.command.Command;
+import org.isheihei.redis.core.command.AbstractCommand;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.RedisObject;
@@ -24,22 +24,15 @@ import java.util.List;
  * @Date: 2022/6/10 15:43
  * @Author: isheihei
  */
-public class Lrange implements Command {
+public class Lrange extends AbstractCommand {
 
     private BytesWrapper key;
     private int          start;
     private int          end;
 
-    private Resp[] array;
-
     @Override
     public CommandType type() {
         return CommandType.lrange;
-    }
-
-    @Override
-    public void setContent(Resp[] array) {
-        this.array = array;
     }
 
     @Override

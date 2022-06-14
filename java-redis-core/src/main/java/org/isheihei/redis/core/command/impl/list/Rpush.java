@@ -4,7 +4,6 @@ import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.resp.BulkString;
-import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 import java.util.Arrays;
@@ -22,22 +21,22 @@ public class Rpush extends Push{
     private BytesWrapper key;
     private List<BytesWrapper> values;
 
-    private Resp[] array;
-
     @Override
     public CommandType type() {
         return CommandType.rpush;
     }
 
     @Override
-    public void setContent(Resp[] array) {
-        this.array = array;
-    }
-
-    @Override
-    public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
+    public void handleWrite(ChannelHandlerContext ctx, RedisClient redisClient) {
         if ((key = getBytesWrapper(ctx, array, 1)) == null) return;
         values = Arrays.stream(array).skip(2).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
         lrPush(ctx, redisClient, false, key, values);
+    }
+
+    @Override
+    public void handleLoadAof(RedisClient redisClient) {
+        if ((key = getBytesWrapper(array, 1)) == null) return;
+        values = Arrays.stream(array).skip(2).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
+        lrPush(redisClient, false, key, values);
     }
 }

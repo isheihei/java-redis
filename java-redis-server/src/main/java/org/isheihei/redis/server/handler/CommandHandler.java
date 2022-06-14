@@ -8,6 +8,7 @@ import org.isheihei.redis.common.util.ConfigUtil;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandType;
+import org.isheihei.redis.core.persist.aof.Aof;
 import org.isheihei.redis.core.resp.Errors;
 
 /**
@@ -22,9 +23,12 @@ public class CommandHandler extends SimpleChannelInboundHandler<Command> {
 
     private RedisClient client;
 
-    public CommandHandler(RedisClient client) {
+    private Aof aof;
+
+    public CommandHandler(RedisClient client, Aof aof) {
         super();
         this.client = client;
+        this.aof = aof;
     }
 
     @Override

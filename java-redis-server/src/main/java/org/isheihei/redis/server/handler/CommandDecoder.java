@@ -8,8 +8,13 @@ import org.isheihei.redis.common.consts.ErrorsConsts;
 import org.isheihei.redis.common.util.TRACEID;
 import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandFactory;
+import org.isheihei.redis.core.command.WriteCommand;
 import org.isheihei.redis.core.persist.aof.Aof;
-import org.isheihei.redis.core.resp.*;
+import org.isheihei.redis.core.resp.BulkString;
+import org.isheihei.redis.core.resp.Errors;
+import org.isheihei.redis.core.resp.Resp;
+import org.isheihei.redis.core.resp.RespArray;
+import org.isheihei.redis.core.resp.SimpleString;
 
 
 /**
@@ -23,8 +28,10 @@ public class CommandDecoder extends LengthFieldBasedFrameDecoder {
     private static final Logger LOGGER = Logger.getLogger(CommandDecoder.class);
     private static final int MAX_FRAME_LENGTH = Integer.MAX_VALUE;
 
+    private Aof aof;
     public CommandDecoder(Aof aof) {
         this();
+        this.aof = aof;
     }
 
     public CommandDecoder() {
@@ -52,6 +59,9 @@ public class CommandDecoder extends LengthFieldBasedFrameDecoder {
                     //取出命令
                     ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.UNKNOWN_COMMAND, ((BulkString) ((RespArray) resp).getArray()[0]).getContent().toUtf8String())));
                 } else {
+                    if (command instanceof WriteCommand) {
+                        ((WriteCommand) command).setAof(aof);
+                    }
                     return command;
                 }
             } catch (Exception e) {

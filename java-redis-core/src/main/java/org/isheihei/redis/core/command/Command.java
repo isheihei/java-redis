@@ -6,6 +6,7 @@ import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.resp.BulkString;
 import org.isheihei.redis.core.resp.Errors;
 import org.isheihei.redis.core.resp.Resp;
+import org.isheihei.redis.core.resp.RespArray;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 import java.nio.charset.Charset;
@@ -31,11 +32,11 @@ public interface Command {
 
     /**
      * @Description: 注入操作属性，变量等
-     * @Param: array
+     * @Param: arrays
      * @Return: void
      * @Author: isheihei
      */
-    void setContent(Resp[] array);
+    void setContent(RespArray arrays);
 
     /**
      * @Description: 执行操作
@@ -57,6 +58,21 @@ public interface Command {
     default BytesWrapper getBytesWrapper(ChannelHandlerContext ctx, Resp[] array, int index){
         if (array.length < (index + 1)) {
             ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
+            return null;
+        } else {
+            return ((BulkString) array[index]).getContent();
+        }
+    };
+
+    /**
+     * @Description: 获取字符串包装对象
+     * @Param: array
+     * @Param: index
+     * @Return: BytesWrapper
+     * @Author: isheihei
+     */
+    default BytesWrapper getBytesWrapper(Resp[] array, int index){
+        if (array.length < (index + 1)) {
             return null;
         } else {
             return ((BulkString) array[index]).getContent();

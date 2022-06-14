@@ -3,7 +3,7 @@ package org.isheihei.redis.core.command.impl.hash;
 import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConsts;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.command.Command;
+import org.isheihei.redis.core.command.AbstractCommand;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.obj.impl.RedisMapObject;
@@ -23,21 +23,15 @@ import java.util.List;
  * @Date: 2022/6/11 15:16
  * @Author: isheihei
  */
-public class Hkeys implements Command {
+public class Hkeys extends AbstractCommand {
 
     private BytesWrapper key;
-
-    private Resp[] array;
 
     @Override
     public CommandType type() {
         return CommandType.hkeys;
     }
 
-    @Override
-    public void setContent(Resp[] array) {
-        this.array = array;
-    }
 
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {

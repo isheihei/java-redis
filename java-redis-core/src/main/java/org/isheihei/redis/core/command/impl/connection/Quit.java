@@ -2,9 +2,8 @@ package org.isheihei.redis.core.command.impl.connection;
 
 import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.command.Command;
+import org.isheihei.redis.core.command.AbstractCommand;
 import org.isheihei.redis.core.command.CommandType;
-import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.SimpleString;
 
 /**
@@ -13,16 +12,11 @@ import org.isheihei.redis.core.resp.SimpleString;
  * @Date: 2022/6/11 16:00
  * @Author: isheihei
  */
-public class Quit implements Command {
+public class Quit extends AbstractCommand {
     @Override
     public CommandType type()
     {
         return CommandType.quit;
-    }
-
-    @Override
-    public void setContent(Resp[] array) {
-
     }
 
     @Override

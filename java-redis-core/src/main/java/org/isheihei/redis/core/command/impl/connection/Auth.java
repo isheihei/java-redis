@@ -4,10 +4,9 @@ import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConsts;
 import org.isheihei.redis.common.util.ConfigUtil;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.command.Command;
+import org.isheihei.redis.core.command.AbstractCommand;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.resp.Errors;
-import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.SimpleString;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
@@ -17,19 +16,12 @@ import org.isheihei.redis.core.struct.impl.BytesWrapper;
  * @Date: 2022/6/8 19:03
  * @Author: isheihei
  */
-public class Auth implements Command {
+public class Auth extends AbstractCommand {
     private BytesWrapper password;
-
-    private Resp[] array;
 
     @Override
     public CommandType type() {
         return CommandType.auth;
-    }
-
-    @Override
-    public void setContent(Resp[] array) {
-        this.array = array;
     }
 
     @Override
