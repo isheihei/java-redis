@@ -19,6 +19,7 @@ import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.db.RedisDBImpl;
 import org.isheihei.redis.core.expired.DefaultExpireStrategy;
 import org.isheihei.redis.core.persist.aof.Aof;
+import org.isheihei.redis.server.channel.ChannelSelectStrategy;
 import org.isheihei.redis.server.channel.LocalChannelOption;
 import org.isheihei.redis.server.channel.SingleChannelSelectStrategy;
 import org.isheihei.redis.server.handler.CommandDecoder;
@@ -38,20 +39,24 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @Date: 2022/5/31 14:36
  * @Author: isheihei
  */
-public class RedisNetServer implements RedisServer{
+public class RedisNetServer implements RedisServer {
 
     private static final Logger LOGGER = Logger.getLogger(RedisNetServer.class);
 
     // 客户端列表
-    private final ConcurrentHashMap<Integer, RedisClient> clients  = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Integer, RedisClient> clients = new ConcurrentHashMap<>();
 
     private final AtomicInteger clientId = new AtomicInteger(0);
+
+    private String ip = ConfigUtil.getIp();
+
+    private int port = Integer.valueOf(ConfigUtil.getPort());
 
     // 数据库列表
     private List<RedisDB> dbs;
 
     // 数据库数量
-    private int dbNum = 16;
+    private int dbNum = Integer.parseInt(ConfigUtil.getDbnum());
 
     // 修改计数器
     private AtomicInteger dirty = new AtomicInteger();
@@ -62,41 +67,83 @@ public class RedisNetServer implements RedisServer{
     // aof缓冲区
     private Aof aof;
 
+    private boolean appendOnlyFile = false;
+
     private final ServerBootstrap serverBootstrap = new ServerBootstrap();
 
     // 处理 redis 核心操作的线程，是单线程的
-    private final EventExecutorGroup redisSingleEventExecutor;
+    private final EventExecutorGroup redisSingleEventExecutor = new NioEventLoopGroup(1);
 
     // 处理连接和io操作的线程
-    private final LocalChannelOption channelOption;
+    private LocalChannelOption channelOption;
 
-    public RedisNetServer(){
-        // 目前只使用单路select线程模型
-        channelOption = new SingleChannelSelectStrategy().select();
-//        channelOption = new DefaultChannelSelectStrategy().select();
-        this.redisSingleEventExecutor = new NioEventLoopGroup(1);
+    public RedisNetServer() {
+        this.channelOption = new SingleChannelSelectStrategy().select();
+    }
 
+    public RedisNetServer ip(String ip) {
+        boolean success = ConfigUtil.setConfig("ip", ip);
+        if (success) {
+            this.ip = ip;
+        }
+        return this;
+    }
+    public RedisNetServer port(int port) {
+        boolean success = ConfigUtil.setConfig("port", String.valueOf(port));
+        if (success) {
+            this.port = port;
+        }
+        return this;
+    }
+
+    public RedisNetServer channelOption(ChannelSelectStrategy channelSelectStrategy) {
+        this.channelOption = channelSelectStrategy.select();
+        return this;
+    }
+
+    public RedisNetServer dbNum(int dbNum) {
+        boolean success = ConfigUtil.setConfig("dbnum", String.valueOf(dbNum));
+        if (success) {
+            this.dbNum = dbNum;
+        }
+        return this;
+    }
+
+    public RedisNetServer aof(boolean on) {
+        boolean success = ConfigUtil.setConfig("appendonly", String.valueOf(on));
+        if (success) {
+            this.appendOnlyFile = on;
+        }
+        return this;
+    }
+
+    public RedisNetServer init() {
         // 初始化db
         dbs = new ArrayList<>();
         for (int i = 0; i < dbNum; i++) {
             dbs.add(new RedisDBImpl());
         }
-        this.aof = new Aof(dbs);
+
+        // 初始化aof
+        if (appendOnlyFile) {
+            this.aof = new Aof(dbs);
+        }
+        return this;
     }
+
     @Override
     public void start() {
         start0();
     }
 
     @Override
-    public void close()
-    {
+    public void close() {
         try {
             channelOption.boss().shutdownGracefully();
             channelOption.selectors().shutdownGracefully();
             redisSingleEventExecutor.shutdownGracefully();
-        }catch (Exception ignored) {
-            LOGGER.warn( "Exception!", ignored);
+        } catch (Exception ignored) {
+            LOGGER.warn("Exception!", ignored);
         }
     }
 
@@ -111,10 +158,10 @@ public class RedisNetServer implements RedisServer{
 //                .childOption(ChannelOption.TCP_NODELAY, true)
 //                .childOption(ChannelOption.SO_SNDBUF, 65535)
 //                .childOption(ChannelOption.SO_RCVBUF, 65535)
-                .localAddress(new InetSocketAddress(ConfigUtil.getIp(), Integer.parseInt(ConfigUtil.getPort())))
+                .localAddress(new InetSocketAddress(ip, port))
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
-                    protected void initChannel(SocketChannel socketChannel) throws Exception {
+                    protected void initChannel(SocketChannel socketChannel) {
                         // 初始化客户端
                         int id = clientId.incrementAndGet();
                         RedisClient client = new RedisNormalClient(socketChannel.localAddress().toString(), id, dbs);
@@ -128,20 +175,23 @@ public class RedisNetServer implements RedisServer{
 //                                /*心跳,管理长连接*/
 //                                new IdleStateHandler(0, 0, 20)
                         );
-                        channelPipeline.addLast(redisSingleEventExecutor, new CommandHandler(client, aof));
+                        channelPipeline.addLast(redisSingleEventExecutor, new CommandHandler(client));
                     }
                 });
-        redisSingleEventExecutor.submit(() -> aof.load());
+
         //TODO 执行定时操作 serverCron
-        ServerCron serverCron = new ServerCron().expireStrategy(new DefaultExpireStrategy(dbs)).aof(aof);
+        ServerCron serverCron = new ServerCron().expireStrategy(new DefaultExpireStrategy(dbs));
+        if (appendOnlyFile) {
+            redisSingleEventExecutor.submit(() -> aof.load());
+            serverCron.aof(aof);
+        }
         redisSingleEventExecutor.scheduleWithFixedDelay(serverCron, 100, 100, TimeUnit.MILLISECONDS);
 
         try {
             ChannelFuture sync = serverBootstrap.bind().sync();
             LOGGER.info(sync.channel().localAddress().toString());
         } catch (InterruptedException e) {
-//
-            LOGGER.warn( "Interrupted!", e);
+            LOGGER.warn("Interrupted!", e);
             throw new RuntimeException(e);
         }
     }

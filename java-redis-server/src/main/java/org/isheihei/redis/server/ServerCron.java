@@ -48,6 +48,8 @@ public class ServerCron implements Runnable{
     @Override
     public void run() {
         databasesCron();
-        aofPersist();
+        if (aof != null) {
+            aofPersist();
+        }
     }
 }

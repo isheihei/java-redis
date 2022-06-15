@@ -59,7 +59,7 @@ public class CommandDecoder extends LengthFieldBasedFrameDecoder {
                     //取出命令
                     ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.UNKNOWN_COMMAND, ((BulkString) ((RespArray) resp).getArray()[0]).getContent().toUtf8String())));
                 } else {
-                    if (command instanceof WriteCommand) {
+                    if (aof != null && command instanceof WriteCommand) {
                         ((WriteCommand) command).setAof(aof);
                     }
                     return command;

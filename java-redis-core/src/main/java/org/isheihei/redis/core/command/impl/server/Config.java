@@ -74,11 +74,7 @@ public class Config extends AbstractCommand {
                     return;
                 }
                 boolean state = false;
-                try {
-                    state = ConfigUtil.setConfig(configParam, newConfigValue);
-                } catch (Exception e) {
-                    LOGGER.error("设置配置属性错误");
-                }
+                state = ConfigUtil.setConfig(configParam, newConfigValue);
                 if (state) {
                     ctx.writeAndFlush(SimpleString.OK);
                 } else {

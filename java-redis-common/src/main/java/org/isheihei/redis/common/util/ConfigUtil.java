@@ -1,7 +1,6 @@
 package org.isheihei.redis.common.util;
 
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -28,7 +27,9 @@ public class ConfigUtil {
 
     private static final String DEFAULT_APPEND_FILE_NAME = "appendonly.aof";
 
-    private static String DEFAULT_APPEND_ONLY    = "no";
+    private static String DEFAULT_APPEND_ONLY    = "false";
+
+    private static final String DEFAULT_DB_NUM = "16";
 
     private static ConfigUtil Instance = new ConfigUtil();
 
@@ -69,19 +70,24 @@ public class ConfigUtil {
      * @Return: String
      * @Author: isheihei
      */
-    public static boolean setConfig(String configParam, String newValue) throws Exception {
+    public static boolean setConfig(String configParam, String newValue) {
         if (RedisStringUtil.isNullOrEmpty(configParam) || RedisStringUtil.isNullOrEmpty(newValue)) {
             return false;
         }
         String oldValue = configs.getProperty(configParam);
         configs.setProperty(configParam, newValue);
         Class<?> configUtilClass = ConfigUtil.class;
-        Method method  = configUtilClass.getMethod("get" + RedisStringUtil.upperCaseFirst(configParam));
-        String check = (String) method.invoke(null, null);
-        if (newValue.equals(check)) {
-            return true;
-        } else {
-            configs.setProperty(configParam, oldValue);
+        try {
+            Method method = configUtilClass.getMethod("get" + RedisStringUtil.upperCaseFirst(configParam));
+            String check = ((String) method.invoke(null, null));
+            if (newValue.equals(check)) {
+                return true;
+            } else {
+                configs.setProperty(configParam, oldValue);
+                return false;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
     }
@@ -96,9 +102,10 @@ public class ConfigUtil {
     }
 
     public static String getPort() {
-        Integer port = Integer.parseInt(DEFAULT_PORT);
+        int port;
+        String strPort;
         try {
-            String strPort = configs.getProperty("port");
+            strPort = configs.getProperty("port");
             port = Integer.parseInt(strPort);
         } catch (Exception e) {
             return DEFAULT_PORT;
@@ -106,22 +113,36 @@ public class ConfigUtil {
         if (port <= 0 || port > 60000) {
             return DEFAULT_PORT;
         }
-        return String.valueOf(port);
+        return strPort;
     }
 
     public static String getRequirepass() {
         return configs.getProperty("requirepass", null);
     }
 
-    public static String getAofPath() {
+    public static String getAofpath() {
         return DEFAULT_AOF_PATH;
     }
 
-    public static String getAppendFileName() {
+    public static String getAppendfilename() {
         return configs.getProperty("appendfilename", DEFAULT_APPEND_FILE_NAME);
     }
-    public static String getAppendOnly() {
-        return configs.getProperty("appendonly", DEFAULT_APPEND_ONLY);
+    public static String getAppendonly() {
+        return "true".equals(configs.getProperty("appendonly", DEFAULT_APPEND_ONLY))  ? "true"  : "false";
     }
 
+    public static String getDbnum() {
+        int dbNum;
+        String strDbNum;
+        try {
+            strDbNum = configs.getProperty("dbnum");
+            dbNum = Integer.parseInt(strDbNum);
+        } catch (Exception e) {
+            return DEFAULT_DB_NUM;
+        }
+        if (dbNum <= 0 || dbNum > 64) {
+            return DEFAULT_DB_NUM;
+        }
+        return strDbNum;
+    }
 }

@@ -20,6 +20,8 @@ public abstract class WriteCommand implements Command {
 
     private Aof aof = null;
 
+    private boolean aofOn = false;
+
     @Override
     public void setContent(RespArray arrays) {
         this.respArray = arrays;
@@ -29,11 +31,14 @@ public abstract class WriteCommand implements Command {
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
         handleWrite(ctx, redisClient);
-        putAof();
+        if (aofOn) {
+            putAof();
+        }
     }
 
     public void setAof(Aof aof) {
         this.aof = aof;
+        aofOn = true;
     }
 
     public Aof getAof() {
