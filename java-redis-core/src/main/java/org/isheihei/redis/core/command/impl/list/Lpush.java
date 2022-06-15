@@ -3,7 +3,7 @@ package org.isheihei.redis.core.command.impl.list;
 import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
-import org.isheihei.redis.core.resp.BulkString;
+import org.isheihei.redis.core.resp.impl.BulkString;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 import java.util.Arrays;

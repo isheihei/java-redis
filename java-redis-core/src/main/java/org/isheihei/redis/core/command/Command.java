@@ -3,10 +3,10 @@ package org.isheihei.redis.core.command;
 import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConsts;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.resp.BulkString;
-import org.isheihei.redis.core.resp.Errors;
+import org.isheihei.redis.core.resp.impl.BulkString;
+import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.Resp;
-import org.isheihei.redis.core.resp.RespArray;
+import org.isheihei.redis.core.resp.impl.RespArray;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 import java.nio.charset.Charset;

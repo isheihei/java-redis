@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @ClassName: RedisEvictTest
- * @Description: TODO
+ * @Description: 测试逐出策略 需要自行配置合适的虚拟机参数并打开 ServerCron 中注释掉的日志 参考jvm参数：-Xms20m -Xmx40m
  * @Date: 2022/6/15 21:27
  * @Author: isheihei
  */
@@ -26,7 +26,6 @@ public class RedisEvictTest {
                 .init()
                 .start();
         Jedis jedis = new Jedis("127.0.0.1", 6379, ((int) TimeUnit.SECONDS.toMillis(100)));
-
 //        int i = 1;
 //        while (true) {
 //            i++;

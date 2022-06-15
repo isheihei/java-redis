@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @ClassName: DeafaultExpireStrategy
- * @Description: TODO
+ * @ClassName: DefaultExpireStrategy
+ * @Description: 默认的过期删除策略
  * @Date: 2022/6/14 13:07
  * @Author: isheihei
  */
@@ -48,6 +48,7 @@ public class DefaultExpireStrategy implements ExpireStrategy{
         }
 
         currentDb %= dbSize;
+        int deleteCount = 0;
         for (int i = 0; i < keyNumbers; i++){
             RedisDB redisDB = dbs.get(currentDb);
             int expiresSize = redisDB.expiresSize();
@@ -55,10 +56,16 @@ public class DefaultExpireStrategy implements ExpireStrategy{
             BytesWrapper randomKey = redisDB.getRandomExpires();
             if (redisDB.isExpired(randomKey)) {
                 LOGGER.info("过期key: "  + randomKey.toUtf8String() +  "被删除");
+                deleteCount++;
                 redisDB.delete(randomKey);
             }
             if (System.currentTimeMillis() - start > timeLimit) {
                 return;
+            }
+            //  如果抽样的 20 个键过期的超过 1/4 则重复该过程
+            if (deleteCount > keyNumbers / 4) {
+                deleteCount = 0;
+                i = 0;
             }
         }
     }

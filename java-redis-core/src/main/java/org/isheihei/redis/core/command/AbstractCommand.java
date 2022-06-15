@@ -3,11 +3,11 @@ package org.isheihei.redis.core.command;
 import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.resp.Resp;
-import org.isheihei.redis.core.resp.RespArray;
+import org.isheihei.redis.core.resp.impl.RespArray;
 
 /**
  * @ClassName: AbstractCommand
- * @Description: TODO
+ * @Description: 不需要 aof 持久化即非写命令
  * @Date: 2022/6/14 19:57
  * @Author: isheihei
  */

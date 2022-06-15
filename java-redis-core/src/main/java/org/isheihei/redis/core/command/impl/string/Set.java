@@ -5,7 +5,7 @@ import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.command.WriteCommand;
 import org.isheihei.redis.core.obj.impl.RedisStringObject;
-import org.isheihei.redis.core.resp.SimpleString;
+import org.isheihei.redis.core.resp.impl.SimpleString;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 /**

@@ -7,9 +7,9 @@ import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.command.WriteCommand;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.impl.RedisStringObject;
-import org.isheihei.redis.core.resp.BulkString;
-import org.isheihei.redis.core.resp.Errors;
-import org.isheihei.redis.core.resp.SimpleString;
+import org.isheihei.redis.core.resp.impl.BulkString;
+import org.isheihei.redis.core.resp.impl.Errors;
+import org.isheihei.redis.core.resp.impl.SimpleString;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 import java.util.Arrays;

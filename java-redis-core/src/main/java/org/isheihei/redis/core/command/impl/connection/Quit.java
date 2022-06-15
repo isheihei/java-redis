@@ -4,7 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractCommand;
 import org.isheihei.redis.core.command.CommandType;
-import org.isheihei.redis.core.resp.SimpleString;
+import org.isheihei.redis.core.resp.impl.SimpleString;
 
 /**
  * @ClassName: Quit

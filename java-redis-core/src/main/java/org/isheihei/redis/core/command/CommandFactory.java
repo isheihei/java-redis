@@ -2,10 +2,10 @@ package org.isheihei.redis.core.command;
 
 import org.apache.log4j.Logger;
 import org.isheihei.redis.common.util.TRACEID;
-import org.isheihei.redis.core.resp.BulkString;
+import org.isheihei.redis.core.resp.impl.BulkString;
 import org.isheihei.redis.core.resp.Resp;
-import org.isheihei.redis.core.resp.RespArray;
-import org.isheihei.redis.core.resp.SimpleString;
+import org.isheihei.redis.core.resp.impl.RespArray;
+import org.isheihei.redis.core.resp.impl.SimpleString;
 
 import java.util.HashMap;
 import java.util.Map;

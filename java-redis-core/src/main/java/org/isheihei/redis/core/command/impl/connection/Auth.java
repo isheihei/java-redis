@@ -6,8 +6,8 @@ import org.isheihei.redis.common.util.ConfigUtil;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractCommand;
 import org.isheihei.redis.core.command.CommandType;
-import org.isheihei.redis.core.resp.Errors;
-import org.isheihei.redis.core.resp.SimpleString;
+import org.isheihei.redis.core.resp.impl.Errors;
+import org.isheihei.redis.core.resp.impl.SimpleString;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 /**

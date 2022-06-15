@@ -8,7 +8,7 @@ import org.isheihei.redis.server.channel.select.NioSelectChannelOption;
 
 /**
  * @ClassName: DefaultChannelSelectStrategy
- * @Description: TODO
+ * @Description: 默认的 nio 实现
  * @Date: 2022/6/11 16:23
  * @Author: isheihei
  */

@@ -1,7 +1,6 @@
 package org.isheihei.redis.core.db;
 
 import org.isheihei.redis.core.obj.RedisObject;
-import org.isheihei.redis.core.persist.aof.Aof;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 import java.util.HashMap;
@@ -18,9 +17,6 @@ import java.util.Set;
 public class RedisDBImpl implements RedisDB {
     private final Map<BytesWrapper, RedisObject> dict = new HashMap<>();
 //    private final ConcurrentHashMap<RedisDynamicString, RedisObject> dict = new ConcurrentHashMap<>();
-
-    // TODO
-    private Aof aof;
 
     //  过期字典
     private final Map<BytesWrapper, Long> expires = new HashMap<>();
@@ -41,6 +37,8 @@ public class RedisDBImpl implements RedisDB {
         if (redisObject == null) {
             return false;
         } else {
+            redisObject.refreshLru();
+            redisObject.updateLfu();
             return true;
         }
     }
@@ -63,19 +61,39 @@ public class RedisDBImpl implements RedisDB {
             return null;
         } else {
             redisObject.refreshLru();
+            redisObject.updateLfu();
             return redisObject;
         }
     }
 
     @Override
+    public BytesWrapper getRandomKey() {
+        Random random = new Random();
+        int randomIndex = random.nextInt(size());
+
+        Set<BytesWrapper> keySet = dict.keySet();
+        return keySet.stream().skip(randomIndex).findFirst().get();
+    }
+
+    @Override
     public int expire(BytesWrapper key, long expireTime) {
-        RedisObject redisObject = this.get(key);
+        RedisObject redisObject = get(key);
         if (redisObject == null) {
             return 0;
         } else {
             redisObject.refreshLru();
+            redisObject.updateLfu();
             expires.put(key, expireTime);
             return 1;
+        }
+    }
+
+    @Override
+    public Long getTtl(BytesWrapper key) {
+        if (expires.containsKey(key)) {
+            return expires.get(key);
+        } else {
+            return null;
         }
     }
 
@@ -85,7 +103,10 @@ public class RedisDBImpl implements RedisDB {
             return 0;
         } else {
             RedisObject redisObject = dict.get(key);
-            if (redisObject != null) redisObject.refreshLru();
+            if (redisObject != null) {
+                redisObject.refreshLru();
+                redisObject.updateLfu();
+            }
             expires.remove(key);
             return 1;
         }

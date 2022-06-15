@@ -65,10 +65,6 @@ public class ServerCron implements Runnable{
     private void evict() {
         Runtime runtime = Runtime.getRuntime();
         int i = -1;
-        LOGGER.info("尝试逐出key");
-        LOGGER.info("目前占用内存：" + runtime.totalMemory());
-        LOGGER.info("最大内存：" + runtime.maxMemory());
-        LOGGER.info("触发内存逐出阈值" + runtime.maxMemory() * evictStrategy.getMemoryRation());
 
         /**
          * 正常计算公式为：runtime.totalMemory() > runtime.maxMemory() * evictStrategy.getMemoryRation()
@@ -92,6 +88,9 @@ public class ServerCron implements Runnable{
          * 当占用到 0.6x = 180m 时候增加到 200m
          * 当空闲超 0.7y = 420m 的时候减少到 180m
          */
+//        LOGGER.info("目前占用内存：" + runtime.totalMemory());
+//        LOGGER.info("最大内存：" + runtime.maxMemory());
+//        LOGGER.info("触发内存逐出阈值" + runtime.maxMemory() * evictStrategy.getMemoryRation());
         while (runtime.totalMemory() == runtime.maxMemory()) {
             i = (i + 1) % dbs.size();
             if (dbs.get(i).size() != 0) {

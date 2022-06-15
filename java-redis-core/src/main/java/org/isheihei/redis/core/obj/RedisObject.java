@@ -18,4 +18,12 @@ public interface RedisObject {
     long getLru();
 
     void refreshLru();
+
+    long getCnt();
+
+    long getLdt();
+
+    void updateLfu();
+
+    int lfuDecrAndReturn();
 }

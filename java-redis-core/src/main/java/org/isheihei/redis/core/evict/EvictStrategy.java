@@ -4,7 +4,7 @@ import org.isheihei.redis.core.db.RedisDB;
 
 /**
  * @ClassName: EvictStrategy
- * @Description: TODO
+ * @Description: 逐出策略
  * @Date: 2022/6/14 12:59
  * @Author: isheihei
  */
@@ -16,8 +16,5 @@ public interface EvictStrategy{
 
     void setDb(RedisDB db);
 
-    void setSamples(int samples);
-
-    void setMemoryRation(double memoryRation);
     double getMemoryRation();
 }

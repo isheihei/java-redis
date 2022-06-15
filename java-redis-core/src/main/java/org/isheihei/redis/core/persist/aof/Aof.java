@@ -11,7 +11,7 @@ import org.isheihei.redis.core.command.CommandFactory;
 import org.isheihei.redis.core.command.WriteCommand;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.resp.Resp;
-import org.isheihei.redis.core.resp.RespArray;
+import org.isheihei.redis.core.resp.impl.RespArray;
 
 import java.io.File;
 import java.io.IOException;

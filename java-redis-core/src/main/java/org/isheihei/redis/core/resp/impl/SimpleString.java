@@ -1,4 +1,6 @@
-package org.isheihei.redis.core.resp;
+package org.isheihei.redis.core.resp.impl;
+
+import org.isheihei.redis.core.resp.Resp;
 
 /**
  * @ClassName: SimpleString
@@ -6,7 +8,7 @@ package org.isheihei.redis.core.resp;
  * @Date: 2022/6/1 15:12
  * @Author: isheihei
  */
-public class SimpleString implements Resp{
+public class SimpleString implements Resp {
 
     public static final SimpleString OK = new SimpleString("OK");
 

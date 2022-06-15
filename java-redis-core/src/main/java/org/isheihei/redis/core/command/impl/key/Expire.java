@@ -6,10 +6,10 @@ import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.command.WriteCommand;
 import org.isheihei.redis.core.db.RedisDB;
-import org.isheihei.redis.core.resp.BulkString;
-import org.isheihei.redis.core.resp.Errors;
-import org.isheihei.redis.core.resp.RespArray;
-import org.isheihei.redis.core.resp.RespInt;
+import org.isheihei.redis.core.resp.impl.BulkString;
+import org.isheihei.redis.core.resp.impl.Errors;
+import org.isheihei.redis.core.resp.impl.RespArray;
+import org.isheihei.redis.core.resp.impl.RespInt;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 import java.nio.charset.StandardCharsets;
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @ClassName: Expire
- * @Description: TODO
+ * @Description: 设置 key 的过期时间（seconds）
  * @Date: 2022/6/11 15:42
  * @Author: isheihei
  */

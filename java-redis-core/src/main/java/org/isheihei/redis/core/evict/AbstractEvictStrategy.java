@@ -4,7 +4,7 @@ import org.isheihei.redis.core.db.RedisDB;
 
 /**
  * @ClassName: AbstractEvictStrategy
- * @Description: TODO
+ * @Description: 逐出策略抽象类
  * @Date: 2022/6/15 16:33
  * @Author: isheihei
  */
@@ -12,7 +12,8 @@ public abstract class AbstractEvictStrategy implements EvictStrategy{
 
     public RedisDB db;
 
-    public int samples = 20;
+    //  redis 随机采样数在等于10的情况下已经很接近于理想的LRU算法性能
+    public int samples = 10;
 
     public double memoryRation = 0.5;
 
@@ -35,17 +36,6 @@ public abstract class AbstractEvictStrategy implements EvictStrategy{
     @Override
     public void setDb(RedisDB db) {
         this.db = db;
-    }
-
-
-    @Override
-    public void setSamples(int samples) {
-        this.samples = samples;
-    }
-
-    @Override
-    public void setMemoryRation(double memoryRation) {
-        this.memoryRation = memoryRation;
     }
 
 

@@ -1,4 +1,6 @@
-package org.isheihei.redis.core.resp;
+package org.isheihei.redis.core.resp.impl;
+
+import org.isheihei.redis.core.resp.Resp;
 
 /**
  * @ClassName: Errors
@@ -6,7 +8,7 @@ package org.isheihei.redis.core.resp;
  * @Date: 2022/6/1 15:40
  * @Author: isheihei
  */
-public class Errors implements Resp{
+public class Errors implements Resp {
 
     String content;
 

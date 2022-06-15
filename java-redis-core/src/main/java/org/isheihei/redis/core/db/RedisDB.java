@@ -47,6 +47,13 @@ public interface RedisDB {
     RedisObject get(BytesWrapper key);
 
     /**
+     * @Description: 随机获取一个 key
+     * @Return: BytesWrapper
+     * @Author: isheihei
+     */
+    BytesWrapper getRandomKey();
+
+    /**
      * @Description: 为一个键设置过期时间
      * @Param: key
      * @Param: expireTime
@@ -55,6 +62,13 @@ public interface RedisDB {
      */
     int expire(BytesWrapper key, long expireTime);
 
+    /**
+     * @Description: 获取一个键的过期时间
+     * @Param: key
+     * @Return: long
+     * @Author: isheihei
+     */
+    Long getTtl(BytesWrapper key);
 
     /**
      * @Description: 将一个 key 的过期时间删除

@@ -10,11 +10,11 @@ import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandFactory;
 import org.isheihei.redis.core.command.WriteCommand;
 import org.isheihei.redis.core.persist.aof.Aof;
-import org.isheihei.redis.core.resp.BulkString;
-import org.isheihei.redis.core.resp.Errors;
+import org.isheihei.redis.core.resp.impl.BulkString;
+import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.Resp;
-import org.isheihei.redis.core.resp.RespArray;
-import org.isheihei.redis.core.resp.SimpleString;
+import org.isheihei.redis.core.resp.impl.RespArray;
+import org.isheihei.redis.core.resp.impl.SimpleString;
 
 
 /**

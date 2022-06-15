@@ -2,13 +2,13 @@ package org.isheihei.redis.core.expired;
 
 /**
  * @ClassName: Expire
- * @Description: TODO
+ * @Description: 过期策略工厂
  * @Date: 2022/6/15 21:52
  * @Author: isheihei
  */
 public interface Expire {
 
-    public static ExpireStrategy defaultExpireStrategy() {
+    static ExpireStrategy DEFAULT_EXPIRE_STRATEGY() {
         return new DefaultExpireStrategy();
     }
 }

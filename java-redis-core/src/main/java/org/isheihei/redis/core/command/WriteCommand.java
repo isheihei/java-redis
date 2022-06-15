@@ -4,11 +4,11 @@ import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.persist.aof.Aof;
 import org.isheihei.redis.core.resp.Resp;
-import org.isheihei.redis.core.resp.RespArray;
+import org.isheihei.redis.core.resp.impl.RespArray;
 
 /**
  * @ClassName: AbstractCommand
- * @Description: 模板方法模式 实现后置 aof 等功能
+ * @Description: 写命令-模板方法模式 实现后置 aof 等功能
  * @Date: 2022/6/13 20:48
  * @Author: isheihei
  */

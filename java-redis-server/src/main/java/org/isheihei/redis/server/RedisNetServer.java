@@ -86,8 +86,8 @@ public class RedisNetServer implements RedisServer {
 
     public RedisNetServer() {
         this.channelOption = new SingleChannelSelectStrategy().select();
-        this.evictStrategy = Evict.volatileLruEvict();
-        this.expireStrategy = Expire.defaultExpireStrategy();
+        this.evictStrategy = Evict.NO_EVICT();
+        this.expireStrategy = Expire.DEFAULT_EXPIRE_STRATEGY();
     }
 
     public RedisNetServer ip(String ip) {
@@ -198,7 +198,7 @@ public class RedisNetServer implements RedisServer {
                     }
                 });
 
-        //TODO 执行定时操作 serverCron
+        //  执行定时操作 serverCron
         ServerCron serverCron = new ServerCron(dbs);
         serverCron.expireStrategy(expireStrategy);
         serverCron.evictStrategy(evictStrategy);
