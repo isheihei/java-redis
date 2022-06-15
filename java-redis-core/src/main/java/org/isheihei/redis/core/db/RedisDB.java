@@ -19,6 +19,8 @@ public interface RedisDB {
      */
     Set<BytesWrapper> keys();
 
+    int size();
+
     /**
      * @Description: 判断某个键是否存在
      * @Param: key
@@ -82,13 +84,13 @@ public interface RedisDB {
      * @Return: BytesWrapper
      * @Author: isheihei
      */
-    BytesWrapper getRandomKey();
+    BytesWrapper getRandomExpires();
 
     /**
-     * @Description: 删除过期的键
+     * @Description: 删除键
      * @Author: isheihei
      */
-    void deleteExpiredKey(BytesWrapper key);
+    void delete(BytesWrapper key);
 
     /**
      * @Description: 清空数据库

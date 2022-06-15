@@ -14,4 +14,8 @@ public interface RedisObject {
     RedisDataStruct data();
 
     RedisDataStructType getEncoding();
+
+    long getLru();
+
+    void refreshLru();
 }

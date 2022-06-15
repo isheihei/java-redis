@@ -31,8 +31,18 @@ public class RedisDBImpl implements RedisDB {
     }
 
     @Override
+    public int size() {
+        return dict.size();
+    }
+
+    @Override
     public boolean exist(BytesWrapper key) {
-        return dict.containsKey(key);
+        RedisObject redisObject = dict.get(key);
+        if (redisObject == null) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     @Override
@@ -46,12 +56,13 @@ public class RedisDBImpl implements RedisDB {
         RedisObject redisObject = dict.get(key);
         if (redisObject == null) {
             return null;
-        } else if (expired(key)){
+        } else if (isExpired(key)){
             expires.remove(key);
             dict.remove(key);
             // TODO aof 追加一条删除命令
             return null;
         } else {
+            redisObject.refreshLru();
             return redisObject;
         }
     }
@@ -62,22 +73,9 @@ public class RedisDBImpl implements RedisDB {
         if (redisObject == null) {
             return 0;
         } else {
+            redisObject.refreshLru();
             expires.put(key, expireTime);
             return 1;
-        }
-    }
-
-    /**
-     * @Description: 一个键是否已经过期 过期返回 true
-     * @Param: key
-     * @Return: int
-     * @Author: isheihei
-     */
-    private boolean expired(BytesWrapper key) {
-        if (expires.get(key) == null) {
-            return false;
-        } else {
-            return expires.get(key) < System.currentTimeMillis();
         }
     }
 
@@ -86,6 +84,8 @@ public class RedisDBImpl implements RedisDB {
         if (expires.get(key) == null) {
             return 0;
         } else {
+            RedisObject redisObject = dict.get(key);
+            if (redisObject != null) redisObject.refreshLru();
             expires.remove(key);
             return 1;
         }
@@ -107,7 +107,7 @@ public class RedisDBImpl implements RedisDB {
     }
 
     @Override
-    public BytesWrapper getRandomKey() {
+    public BytesWrapper getRandomExpires() {
         Random random = new Random();
         int randomIndex = random.nextInt(expires.size());
 
@@ -116,7 +116,7 @@ public class RedisDBImpl implements RedisDB {
     }
 
     @Override
-    public void deleteExpiredKey(BytesWrapper key) {
+    public void delete(BytesWrapper key) {
             expires.remove(key);
             dict.remove(key);
     }

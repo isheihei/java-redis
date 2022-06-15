@@ -17,7 +17,10 @@ import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.client.RedisNormalClient;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.db.RedisDBImpl;
-import org.isheihei.redis.core.expired.DefaultExpireStrategy;
+import org.isheihei.redis.core.evict.Evict;
+import org.isheihei.redis.core.evict.EvictStrategy;
+import org.isheihei.redis.core.expired.Expire;
+import org.isheihei.redis.core.expired.ExpireStrategy;
 import org.isheihei.redis.core.persist.aof.Aof;
 import org.isheihei.redis.server.channel.ChannelSelectStrategy;
 import org.isheihei.redis.server.channel.LocalChannelOption;
@@ -69,6 +72,10 @@ public class RedisNetServer implements RedisServer {
 
     private boolean appendOnlyFile = false;
 
+    private EvictStrategy evictStrategy;
+
+    private ExpireStrategy expireStrategy;
+
     private final ServerBootstrap serverBootstrap = new ServerBootstrap();
 
     // 处理 redis 核心操作的线程，是单线程的
@@ -79,6 +86,8 @@ public class RedisNetServer implements RedisServer {
 
     public RedisNetServer() {
         this.channelOption = new SingleChannelSelectStrategy().select();
+        this.evictStrategy = Evict.volatileLruEvict();
+        this.expireStrategy = Expire.defaultExpireStrategy();
     }
 
     public RedisNetServer ip(String ip) {
@@ -106,6 +115,16 @@ public class RedisNetServer implements RedisServer {
         if (success) {
             this.dbNum = dbNum;
         }
+        return this;
+    }
+
+    public RedisNetServer evictStrategy(EvictStrategy evictStrategy) {
+        this.evictStrategy = evictStrategy;
+        return this;
+    }
+
+    public RedisNetServer expireStrategy(ExpireStrategy expireStrategy) {
+        this.expireStrategy = expireStrategy;
         return this;
     }
 
@@ -180,7 +199,9 @@ public class RedisNetServer implements RedisServer {
                 });
 
         //TODO 执行定时操作 serverCron
-        ServerCron serverCron = new ServerCron().expireStrategy(new DefaultExpireStrategy(dbs));
+        ServerCron serverCron = new ServerCron(dbs);
+        serverCron.expireStrategy(expireStrategy);
+        serverCron.evictStrategy(evictStrategy);
         if (appendOnlyFile) {
             redisSingleEventExecutor.submit(() -> aof.load());
             serverCron.aof(aof);

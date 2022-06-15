@@ -1,4 +1,5 @@
 import org.isheihei.redis.server.RedisNetServer;
+import org.isheihei.redis.server.channel.SingleChannelSelectStrategy;
 import org.junit.Assert;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
@@ -12,7 +13,7 @@ import java.util.concurrent.TimeUnit;
  * @Date: 2022/6/10 17:43
  * @Author: isheihei
  */
-public class RedisTest {
+public class RedisCommandTest {
     private static String OK = "OK";
 
     private static String STRING_KEY = "string_key";
@@ -23,7 +24,14 @@ public class RedisTest {
 
     @Test
     public void commandTest() {
-        new RedisNetServer().start();
+        new RedisNetServer()
+                .ip("0.0.0.0")
+                .port(6379)
+                .channelOption(new SingleChannelSelectStrategy())
+                .dbNum(16)
+                .aof(false)
+                .init()
+                .start();
         Jedis jedis = new Jedis("127.0.0.1", 6379);
 
         // server

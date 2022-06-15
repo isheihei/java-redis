@@ -21,7 +21,18 @@ public abstract class AbstractRedisObject implements RedisObject{
 
     public AbstractRedisObject(RedisDataStructType encoding) {
         this.encoding = encoding;
+        this.lru = System.currentTimeMillis();
     }
+    @Override
+    public long getLru() {
+        return lru;
+    }
+
+    @Override
+    public void refreshLru() {
+        lru = System.currentTimeMillis();
+    }
+
 
     @Override
     public abstract RedisDataStruct data();

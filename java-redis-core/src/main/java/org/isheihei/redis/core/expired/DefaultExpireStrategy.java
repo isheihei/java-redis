@@ -30,6 +30,9 @@ public class DefaultExpireStrategy implements ExpireStrategy{
         this.dbs = dbs;
     }
 
+    public DefaultExpireStrategy() {
+    }
+
     public DefaultExpireStrategy(List<RedisDB> dbs, int dbNumbers, int keyNumbers) {
         this.dbs = dbs;
         this.dbNumbers = dbNumbers;
@@ -49,14 +52,19 @@ public class DefaultExpireStrategy implements ExpireStrategy{
             RedisDB redisDB = dbs.get(currentDb);
             int expiresSize = redisDB.expiresSize();
             if (expiresSize == 0) return;
-            BytesWrapper randomKey = redisDB.getRandomKey();
+            BytesWrapper randomKey = redisDB.getRandomExpires();
             if (redisDB.isExpired(randomKey)) {
                 LOGGER.info("过期key: "  + randomKey.toUtf8String() +  "被删除");
-                redisDB.deleteExpiredKey(randomKey);
+                redisDB.delete(randomKey);
             }
             if (System.currentTimeMillis() - start > timeLimit) {
                 return;
             }
         }
+    }
+
+    @Override
+    public void setDbs(List<RedisDB> dbs) {
+        this.dbs = dbs;
     }
 }
