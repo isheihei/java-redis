@@ -1,5 +1,7 @@
 package org.isheihei.redis.core.struct;
 
+import io.netty.buffer.ByteBuf;
+
 /**
  * @ClassName: RedisDataStruct
  * @Description: Redis数据类型
@@ -7,7 +9,7 @@ package org.isheihei.redis.core.struct;
  * @Author: isheihei
  */
 public interface RedisDataStruct {
+    byte[] toBytes();
 
-    // 一些通用操作
-
+    void loadRdb(ByteBuf bufferPolled);
 }

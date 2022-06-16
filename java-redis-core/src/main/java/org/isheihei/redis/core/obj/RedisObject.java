@@ -1,5 +1,6 @@
 package org.isheihei.redis.core.obj;
 
+import io.netty.buffer.ByteBuf;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 import org.isheihei.redis.core.struct.RedisDataStructType;
 
@@ -15,6 +16,8 @@ public interface RedisObject {
 
     RedisDataStructType getEncoding();
 
+    byte getType();
+
     long getLru();
 
     void refreshLru();
@@ -26,4 +29,8 @@ public interface RedisObject {
     void updateLfu();
 
     int lfuDecrAndReturn();
+
+    byte[] objectToBytes();
+
+    void loadRdb(ByteBuf bufferPolled);
 }

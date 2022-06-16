@@ -4,6 +4,7 @@ import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.evict.EvictStrategy;
 import org.isheihei.redis.core.expired.ExpireStrategy;
 import org.isheihei.redis.core.persist.aof.Aof;
+import org.isheihei.redis.core.persist.rdb.Rdb;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +26,8 @@ public class ServerCron implements Runnable{
     private EvictStrategy evictStrategy = null;
 
     private Aof aof = null;
+
+    private Rdb rdb = null;
 
     private long lastAofTime = 0;
 
@@ -51,15 +54,28 @@ public class ServerCron implements Runnable{
         return this;
     }
 
+
+    public ServerCron rdb(Rdb rdb) {
+        this.rdb = rdb;
+        return this;
+    }
+
     private void databasesCron() {
         expireStrategy.activeExpireCycle();
     }
 
     private void aofPersist() {
+        if (aof == null) {
+            return;
+        }
         if (System.currentTimeMillis() - lastAofTime > TimeUnit.SECONDS.toMillis(1)) {
             lastAofTime = System.currentTimeMillis();
             aof.save();
         }
+    }
+
+    private void rdbPersist() {
+        rdb.save();
     }
 
     private void evict() {
@@ -105,9 +121,12 @@ public class ServerCron implements Runnable{
     @Override
     public void run() {
         databasesCron();
-        if (aof != null) {
-            aofPersist();
-        }
+
+        aofPersist();
+
+//        rdbPersist();
+
         evict();
     }
+
 }

@@ -1,5 +1,6 @@
 package org.isheihei.redis.core.struct.impl;
 
+import io.netty.buffer.ByteBuf;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 
 import java.util.LinkedList;
@@ -87,5 +88,15 @@ public class RedisDoubleLinkedList extends LinkedList<BytesWrapper> implements R
             // 分为正数索引和复数索引的情况
             return this.get((this.size() + index) % this.size());
         } 
+    }
+
+    @Override
+    public byte[] toBytes() {
+        return new byte[0];
+    }
+
+    @Override
+    public void loadRdb(ByteBuf bufferPolled) {
+
     }
 }

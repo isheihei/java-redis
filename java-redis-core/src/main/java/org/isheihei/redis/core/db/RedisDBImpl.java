@@ -32,6 +32,17 @@ public class RedisDBImpl implements RedisDB {
     }
 
     @Override
+    public Map<BytesWrapper, RedisObject> dict() {
+        return dict;
+    }
+
+    @Override
+    public Map<BytesWrapper, Long> expires() {
+        return expires;
+    }
+
+
+    @Override
     public boolean exist(BytesWrapper key) {
         RedisObject redisObject = dict.get(key);
         if (redisObject == null) {
@@ -78,7 +89,7 @@ public class RedisDBImpl implements RedisDB {
     @Override
     public int expire(BytesWrapper key, long expireTime) {
         RedisObject redisObject = get(key);
-        if (redisObject == null) {
+        if (redisObject == null || expireTime == 0) {
             return 0;
         } else {
             redisObject.refreshLru();

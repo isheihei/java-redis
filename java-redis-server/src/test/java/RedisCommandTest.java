@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @ClassName: RedisTest
+ * @ClassName: RedisCommandTest
  * @Description: 命令单元测试
  * @Date: 2022/6/10 17:43
  * @Author: isheihei

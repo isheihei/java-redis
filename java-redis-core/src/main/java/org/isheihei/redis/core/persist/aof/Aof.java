@@ -2,7 +2,6 @@ package org.isheihei.redis.core.persist.aof;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.PooledByteBufAllocator;
 import org.isheihei.redis.common.util.ConfigUtil;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.client.RedisNormalClient;
@@ -10,6 +9,7 @@ import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandFactory;
 import org.isheihei.redis.core.command.WriteCommand;
 import org.isheihei.redis.core.db.RedisDB;
+import org.isheihei.redis.core.persist.Persist;
 import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.RespArray;
 
@@ -21,8 +21,9 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * @ClassName: Aof
@@ -30,14 +31,14 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @Date: 2022/5/31 15:09
  * @Author: isheihei
  */
-public class Aof {
+public class Aof implements Persist {
     private static final org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(Aof.class);
 
     private static final String suffix = ConfigUtil.getAppendfilename();
 
     private String fileName = ConfigUtil.getAofpath();
 
-    private LinkedBlockingQueue<Resp> bufferQueue = new LinkedBlockingQueue<>();
+    private Deque<Resp> bufferQueue = new LinkedList<>();
     private ByteBuf bufferPolled = ByteBufAllocator.DEFAULT.directBuffer(8888);
 
     private RedisClient mockClient;
@@ -56,6 +57,7 @@ public class Aof {
         bufferQueue.offer(resp);
     }
 
+    @Override
     public void save() {
         try {
             RandomAccessFile randomAccessFile = new RandomAccessFile(fileName + suffix, "rw");
@@ -71,6 +73,7 @@ public class Aof {
                 }
                 Resp.write(resp, bufferPolled);
                 int respLen = bufferPolled.readableBytes();
+                // TODO 取消循环写入 使用 ByteBuf.nioBuffer 直接写入
                 MappedByteBuffer mappedByteBuffer = channel.map(FileChannel.MapMode.READ_WRITE, 0, len + respLen);
 //                LOGGER.error("len " + len);
 //                LOGGER.error("mappedByteBuffer.position()" + mappedByteBuffer.position());
@@ -95,13 +98,13 @@ public class Aof {
         }
     }
 
+    @Override
     public void load() {
         try {
             RandomAccessFile randomAccessFile = new RandomAccessFile(fileName + suffix, "rw");
             FileChannel channel = randomAccessFile.getChannel();
             long len = channel.size();
             MappedByteBuffer mappedByteBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, len);
-            ByteBuf bufferPolled = new PooledByteBufAllocator().buffer((int) len);
             bufferPolled.writeBytes(mappedByteBuffer);
             while (bufferPolled.readableBytes() > 0){
                 Resp resp = null;

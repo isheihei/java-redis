@@ -25,7 +25,11 @@ public class ConfigUtil {
 
     private static String DEFAULT_AOF_PATH    = "./persist/aof/";
 
+    private static String DEFAULT_RDB_PATH    = "./persist/rdb/";
+
     private static final String DEFAULT_APPEND_FILE_NAME = "appendonly.aof";
+
+    private static final String DEFAULT_DATABASE_FILE_NAME = "database.rdb";
 
     private static String DEFAULT_APPEND_ONLY    = "false";
 
@@ -144,5 +148,13 @@ public class ConfigUtil {
             return DEFAULT_DB_NUM;
         }
         return strDbNum;
+    }
+
+    public static String getDatabasefilename() {
+        return configs.getProperty("databasefilename", DEFAULT_DATABASE_FILE_NAME);
+    }
+
+    public static String getRdbpath() {
+        return DEFAULT_RDB_PATH;
     }
 }

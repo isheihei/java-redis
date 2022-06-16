@@ -9,7 +9,8 @@ public class ServerStart {
                 .port(6379)
                 .channelOption(new SingleChannelSelectStrategy())
                 .dbNum(16)
-                .aof(false);
+                .aof(false)
+                .rdb(true);
 
         //  JVM 最大内存 可以通过 -Xmx 进行设置
         long maxMemory = Runtime.getRuntime().maxMemory();

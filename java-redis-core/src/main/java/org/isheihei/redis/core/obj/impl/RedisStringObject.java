@@ -1,5 +1,6 @@
 package org.isheihei.redis.core.obj.impl;
 
+import io.netty.buffer.ByteBuf;
 import org.isheihei.redis.core.obj.AbstractRedisObject;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 import org.isheihei.redis.core.struct.RedisDataStructType;
@@ -27,15 +28,28 @@ public class RedisStringObject extends AbstractRedisObject {
         string = getEncoding().getSupplier().get();
     }
 
+    @Override
+    public byte getType() {
+        return (byte) 0;
+    }
+
     public RedisStringObject(BytesWrapper stringValue) {
         setEncoding(RedisDataStructType.redisDynamicString);
         string = new RedisDynamicString(stringValue);
     }
 
-
-
     @Override
     public RedisDataStruct data() {
         return string;
+    }
+
+    @Override
+    public byte[] objectToBytes() {
+        return string.toBytes();
+    }
+
+    @Override
+    public void loadRdb(ByteBuf bufferPolled) {
+        string.loadRdb(bufferPolled);
     }
 }

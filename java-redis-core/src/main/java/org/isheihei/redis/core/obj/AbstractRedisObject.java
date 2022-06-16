@@ -46,6 +46,10 @@ public abstract class AbstractRedisObject implements RedisObject{
         this.ldt = System.currentTimeMillis();
         this.accessCount = LFU_INIT_VAL;
     }
+
+    @Override
+    public abstract byte getType();
+
     @Override
     public long getLru() {
         return lru;
@@ -104,6 +108,9 @@ public abstract class AbstractRedisObject implements RedisObject{
 
     @Override
     public abstract RedisDataStruct data();
+
+    @Override
+    public abstract byte[] objectToBytes();
 
     @Override
     public RedisDataStructType getEncoding() {

@@ -1,5 +1,6 @@
 package org.isheihei.redis.core.struct.impl;
 
+import io.netty.buffer.ByteBuf;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -11,4 +12,13 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * @Author: isheihei
  */
 public class RedisSkipList extends ConcurrentSkipListMap<RedisDynamicString, RedisDynamicString> implements RedisDataStruct {
+    @Override
+    public byte[] toBytes() {
+        return new byte[0];
+    }
+
+    @Override
+    public void loadRdb(ByteBuf bufferPolled) {
+
+    }
 }

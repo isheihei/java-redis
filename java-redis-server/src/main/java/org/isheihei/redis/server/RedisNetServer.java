@@ -22,6 +22,7 @@ import org.isheihei.redis.core.evict.EvictStrategy;
 import org.isheihei.redis.core.expired.Expire;
 import org.isheihei.redis.core.expired.ExpireStrategy;
 import org.isheihei.redis.core.persist.aof.Aof;
+import org.isheihei.redis.core.persist.rdb.Rdb;
 import org.isheihei.redis.server.channel.ChannelSelectStrategy;
 import org.isheihei.redis.server.channel.LocalChannelOption;
 import org.isheihei.redis.server.channel.SingleChannelSelectStrategy;
@@ -71,6 +72,10 @@ public class RedisNetServer implements RedisServer {
     private Aof aof;
 
     private boolean appendOnlyFile = false;
+
+    private Rdb rdb;
+
+    private boolean dataBase = false;
 
     private EvictStrategy evictStrategy;
 
@@ -136,6 +141,13 @@ public class RedisNetServer implements RedisServer {
         return this;
     }
 
+    public RedisNetServer rdb(boolean on) {
+        if (on) {
+            this.dataBase = true;
+        }
+        return this;
+    }
+
     public RedisNetServer init() {
         // 初始化db
         dbs = new ArrayList<>();
@@ -146,6 +158,10 @@ public class RedisNetServer implements RedisServer {
         // 初始化aof
         if (appendOnlyFile) {
             this.aof = new Aof(dbs);
+        }
+
+        if (dataBase) {
+            this.rdb = new Rdb(dbs);
         }
         return this;
     }
@@ -206,7 +222,12 @@ public class RedisNetServer implements RedisServer {
             redisSingleEventExecutor.submit(() -> aof.load());
             serverCron.aof(aof);
         }
-        redisSingleEventExecutor.scheduleWithFixedDelay(serverCron, 100, 100, TimeUnit.MILLISECONDS);
+        if (dataBase) {
+            redisSingleEventExecutor.submit(() -> rdb.load());
+            serverCron.rdb(rdb);
+        }
+//        redisSingleEventExecutor.scheduleWithFixedDelay(serverCron, 100, 100, TimeUnit.MILLISECONDS);
+        redisSingleEventExecutor.scheduleWithFixedDelay(serverCron, TimeUnit.SECONDS.toMillis(5), 100, TimeUnit.MILLISECONDS);
 
         try {
             ChannelFuture sync = serverBootstrap.bind().sync();

@@ -1,5 +1,6 @@
 package org.isheihei.redis.core.struct.impl;
 
+import io.netty.buffer.ByteBuf;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 
 import java.util.ArrayList;
@@ -50,5 +51,15 @@ public class RedisMap extends HashMap<BytesWrapper, BytesWrapper> implements Red
 
     public List<BytesWrapper> mget(List<BytesWrapper> fields) {
         return fields.stream().map(field -> this.get(field)).collect(Collectors.toList());
+    }
+
+    @Override
+    public byte[] toBytes() {
+        return new byte[0];
+    }
+
+    @Override
+    public void loadRdb(ByteBuf bufferPolled) {
+
     }
 }

@@ -1,5 +1,6 @@
 package org.isheihei.redis.core.obj.impl;
 
+import io.netty.buffer.ByteBuf;
 import org.isheihei.redis.core.obj.AbstractRedisObject;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 import org.isheihei.redis.core.struct.RedisDataStructType;
@@ -23,7 +24,22 @@ public class RedisListObject extends AbstractRedisObject {
     }
 
     @Override
+    public byte getType() {
+        return (byte) 2;
+    }
+
+    @Override
     public RedisDataStruct data() {
         return list;
+    }
+
+    @Override
+    public byte[] objectToBytes() {
+        return new byte[0];
+    }
+
+    @Override
+    public void loadRdb(ByteBuf bufferPolled) {
+
     }
 }

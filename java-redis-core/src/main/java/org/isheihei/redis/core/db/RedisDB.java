@@ -3,6 +3,7 @@ package org.isheihei.redis.core.db;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -20,6 +21,11 @@ public interface RedisDB {
     Set<BytesWrapper> keys();
 
     int size();
+
+
+    Map<BytesWrapper, RedisObject> dict();
+
+    Map<BytesWrapper, Long> expires();
 
     /**
      * @Description: 判断某个键是否存在
