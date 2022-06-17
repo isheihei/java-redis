@@ -34,9 +34,9 @@ import java.util.List;
 public class Aof implements Persist {
     private static final org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(Aof.class);
 
-    private static final String suffix = ConfigUtil.getAppendfilename();
+    private static final String suffix = ConfigUtil.getAppendFileName();
 
-    private String fileName = ConfigUtil.getAofpath();
+    private String fileName = ConfigUtil.getAofPath();
 
     private Deque<Resp> bufferQueue = new LinkedList<>();
     private ByteBuf bufferPolled = ByteBufAllocator.DEFAULT.directBuffer(8888);

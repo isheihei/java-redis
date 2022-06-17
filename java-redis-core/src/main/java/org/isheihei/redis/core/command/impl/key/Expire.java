@@ -1,7 +1,7 @@
 package org.isheihei.redis.core.command.impl.key;
 
 import io.netty.channel.ChannelHandlerContext;
-import org.isheihei.redis.common.consts.ErrorsConsts;
+import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.command.WriteCommand;
@@ -47,7 +47,7 @@ public class Expire extends WriteCommand {
             expireAt = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(timeout);
         } catch (NumberFormatException e) {
             LOGGER.error("参数无法转换为时间戳", e);
-            ctx.writeAndFlush(new Errors(ErrorsConsts.VALUE_IS_NOT_INT));
+            ctx.writeAndFlush(new Errors(ErrorsConst.VALUE_IS_NOT_INT));
             return;
         }
         RedisDB db = redisClient.getDb();

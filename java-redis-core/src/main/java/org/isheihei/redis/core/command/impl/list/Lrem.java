@@ -1,7 +1,7 @@
 package org.isheihei.redis.core.command.impl.list;
 
 import io.netty.channel.ChannelHandlerContext;
-import org.isheihei.redis.common.consts.ErrorsConsts;
+import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.command.WriteCommand;
@@ -42,7 +42,7 @@ public class Lrem extends WriteCommand {
             count = Integer.valueOf(getBytesWrapper(ctx, array, 2).toUtf8String());
         } catch (NumberFormatException e) {
             LOGGER.error("参数无法转换为数字", e);
-            ctx.writeAndFlush(new Errors(ErrorsConsts.VALUE_IS_NOT_INT));
+            ctx.writeAndFlush(new Errors(ErrorsConst.VALUE_IS_NOT_INT));
             return;
         }
         element = getBytesWrapper(ctx, array, 3);
@@ -60,7 +60,7 @@ public class Lrem extends WriteCommand {
                 throw new UnsupportedOperationException();
             }
         } else {
-            ctx.writeAndFlush(new Errors(ErrorsConsts.WRONG_TYPE_OPERATION));
+            ctx.writeAndFlush(new Errors(ErrorsConst.WRONG_TYPE_OPERATION));
             return;
         }
     }

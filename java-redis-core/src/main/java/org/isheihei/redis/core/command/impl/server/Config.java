@@ -1,7 +1,7 @@
 package org.isheihei.redis.core.command.impl.server;
 
 import io.netty.channel.ChannelHandlerContext;
-import org.isheihei.redis.common.consts.ErrorsConsts;
+import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.common.util.ConfigUtil;
 import org.isheihei.redis.common.util.TRACEID;
 import org.isheihei.redis.core.client.RedisClient;
@@ -78,11 +78,11 @@ public class Config extends AbstractCommand {
                 if (state) {
                     ctx.writeAndFlush(SimpleString.OK);
                 } else {
-                    ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.UNSUPOORT_CONFIG, configParam)));
+                    ctx.writeAndFlush(new Errors(String.format(ErrorsConst.UNSUPOORT_CONFIG, configParam)));
                 }
                 break;
             default:
-                ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.CONFIG_SUB_COMMAND_ERROR)));
+                ctx.writeAndFlush(new Errors(String.format(ErrorsConst.CONFIG_SUB_COMMAND_ERROR)));
         }
     }
 }

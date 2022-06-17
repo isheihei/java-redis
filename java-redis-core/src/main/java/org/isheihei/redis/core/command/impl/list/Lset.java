@@ -1,7 +1,7 @@
 package org.isheihei.redis.core.command.impl.list;
 
 import io.netty.channel.ChannelHandlerContext;
-import org.isheihei.redis.common.consts.ErrorsConsts;
+import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.command.WriteCommand;
@@ -42,7 +42,7 @@ public class Lset extends WriteCommand {
             index = Integer.parseInt(bytesIndex.toUtf8String());
         } catch (NumberFormatException e) {
             LOGGER.error("参数无法转换为数字", e);
-            ctx.writeAndFlush(new Errors(ErrorsConsts.VALUE_IS_NOT_INT));
+            ctx.writeAndFlush(new Errors(ErrorsConst.VALUE_IS_NOT_INT));
             return;
         }
         if ((element = getBytesWrapper(ctx, array, 3)) == null) return;
@@ -50,7 +50,7 @@ public class Lset extends WriteCommand {
         RedisDB db = redisClient.getDb();
         RedisObject redisObject = db.get(key);
         if (redisObject == null) {
-            ctx.writeAndFlush(new Errors(ErrorsConsts.NO_SUCH_KEY));
+            ctx.writeAndFlush(new Errors(ErrorsConst.NO_SUCH_KEY));
             return;
         }
         if (redisObject instanceof RedisListObject) {
@@ -61,13 +61,13 @@ public class Lset extends WriteCommand {
                 if (flag) {
                     ctx.writeAndFlush(SimpleString.OK);
                 } else {
-                    ctx.writeAndFlush(new Errors(ErrorsConsts.INDEX_OUT_OF_RANGE));
+                    ctx.writeAndFlush(new Errors(ErrorsConst.INDEX_OUT_OF_RANGE));
                 }
             } else {
                 throw new UnsupportedOperationException();
             }
         } else {
-            ctx.writeAndFlush(new Errors(ErrorsConsts.WRONG_TYPE_OPERATION));
+            ctx.writeAndFlush(new Errors(ErrorsConst.WRONG_TYPE_OPERATION));
         }
     }
 

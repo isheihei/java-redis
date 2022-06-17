@@ -1,7 +1,7 @@
 package org.isheihei.redis.core.command.impl.string;
 
 import io.netty.channel.ChannelHandlerContext;
-import org.isheihei.redis.common.consts.ErrorsConsts;
+import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractCommand;
 import org.isheihei.redis.core.command.CommandType;
@@ -51,7 +51,7 @@ public class Get  extends AbstractCommand {
                 throw new UnsupportedOperationException();
             }
         } else {
-            ctx.writeAndFlush(new Errors(ErrorsConsts.WRONG_TYPE_OPERATION));
+            ctx.writeAndFlush(new Errors(ErrorsConst.WRONG_TYPE_OPERATION));
         }
     }
 }

@@ -75,7 +75,9 @@ public class ServerCron implements Runnable{
     }
 
     private void rdbPersist() {
-        rdb.save();
+        if (rdb.satisfySaveParams()) {
+            rdb.save();
+        }
     }
 
     private void evict() {
@@ -124,7 +126,7 @@ public class ServerCron implements Runnable{
 
         aofPersist();
 
-//        rdbPersist();
+        rdbPersist();
 
         evict();
     }

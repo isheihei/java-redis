@@ -1,7 +1,7 @@
 package org.isheihei.redis.core.command.impl.server;
 
 import io.netty.channel.ChannelHandlerContext;
-import org.isheihei.redis.common.consts.ErrorsConsts;
+import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.common.util.TRACEID;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractCommand;
@@ -54,7 +54,7 @@ public class Client extends AbstractCommand {
                 }
                 break;
             default:
-                ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.CLIENT_SUB_COMMAND_ERROR)));
+                ctx.writeAndFlush(new Errors(String.format(ErrorsConst.CLIENT_SUB_COMMAND_ERROR)));
         }
     }
 }

@@ -10,10 +10,9 @@ public class ServerStart {
                 .channelOption(new SingleChannelSelectStrategy())
                 .dbNum(16)
                 .aof(false)
-                .rdb(true);
+                .rdb(false);
 
         //  JVM 最大内存 可以通过 -Xmx 进行设置
-        long maxMemory = Runtime.getRuntime().maxMemory();
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {
                 case "-ip":
@@ -24,10 +23,13 @@ public class ServerStart {
                     System.out.println(args[i]);
                     break;
                 case "-aof":
-                    server.aof(Boolean.getBoolean(args[++i]));
+                    server.aof(Boolean.parseBoolean(args[++i]));
                     break;
                 case "-dbNum":
                     server.dbNum(Integer.parseInt(args[++i]));
+                    break;
+                case "-rdb":
+                    server.rdb(Boolean.valueOf(args[++i]));
                     break;
                 default:
                     i++;

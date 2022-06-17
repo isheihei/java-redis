@@ -1,7 +1,7 @@
 package org.isheihei.redis.core.command;
 
 import io.netty.channel.ChannelHandlerContext;
-import org.isheihei.redis.common.consts.ErrorsConsts;
+import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.resp.impl.BulkString;
 import org.isheihei.redis.core.resp.impl.Errors;
@@ -57,7 +57,7 @@ public interface Command {
      */
     default BytesWrapper getBytesWrapper(ChannelHandlerContext ctx, Resp[] array, int index){
         if (array.length < (index + 1)) {
-            ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
+            ctx.writeAndFlush(new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
             return null;
         } else {
             return ((BulkString) array[index]).getContent();
@@ -90,7 +90,7 @@ public interface Command {
      */
     default String getStringSubCommandArgs(ChannelHandlerContext ctx, Resp[] array, int index, String subCommand) {
         if (array.length < (index + 1)) {
-            ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.SUBCOMMAND_WRONG_ARGS_NUMBER, type().toString().toUpperCase(), subCommand)));
+            ctx.writeAndFlush(new Errors(String.format(ErrorsConst.SUBCOMMAND_WRONG_ARGS_NUMBER, type().toString().toUpperCase(), subCommand)));
             return null;
         } else {
             return ((BulkString) array[index]).getContent().toUtf8String().toLowerCase();

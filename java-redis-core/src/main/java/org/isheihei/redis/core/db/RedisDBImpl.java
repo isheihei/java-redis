@@ -21,6 +21,9 @@ public class RedisDBImpl implements RedisDB {
     //  过期字典
     private final Map<BytesWrapper, Long> expires = new HashMap<>();
 
+    // 距离上一次 save 或 bgsave 后服务器进行了多少修改
+    private long dirty = 0;
+
     @Override
     public Set<BytesWrapper> keys() {
         return dict.keySet();
@@ -57,6 +60,7 @@ public class RedisDBImpl implements RedisDB {
     @Override
     public void put(BytesWrapper key, RedisObject redisObject) {
         expires.remove(key);
+        dirty++;
         dict.put(key, redisObject);
     }
 
@@ -92,6 +96,7 @@ public class RedisDBImpl implements RedisDB {
         if (redisObject == null || expireTime == 0) {
             return 0;
         } else {
+            dirty++;
             redisObject.refreshLru();
             redisObject.updateLfu();
             expires.put(key, expireTime);
@@ -115,6 +120,7 @@ public class RedisDBImpl implements RedisDB {
         } else {
             RedisObject redisObject = dict.get(key);
             if (redisObject != null) {
+                dirty++;
                 redisObject.refreshLru();
                 redisObject.updateLfu();
             }
@@ -149,12 +155,25 @@ public class RedisDBImpl implements RedisDB {
 
     @Override
     public void delete(BytesWrapper key) {
-            expires.remove(key);
-            dict.remove(key);
+        dirty++;
+        expires.remove(key);
+        dict.remove(key);
+    }
+
+    @Override
+    public long getDirty() {
+        return dirty;
+    }
+
+    @Override
+    public void resetDirty() {
+        dirty = 0;
     }
 
     @Override
     public void cleanAll() {
+        dirty += dict.size();
         dict.clear();
+        expires.clear();
     }
 }

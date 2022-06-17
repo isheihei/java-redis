@@ -1,12 +1,12 @@
 package org.isheihei.redis.common.consts;
 
 /**
- * @ClassName: ErrorsConsts
+ * @ClassName: ErrorsConst
  * @Description: TODO 重构成类的形式
  * @Date: 2022/6/8 23:18
  * @Author: isheihei
  */
-public class ErrorsConsts {
+public class ErrorsConst {
     public static final String INVALID_PASSWORD = "ERR invalid password";
     public static final String NO_AUTH = "NOAUTH Authentication required.";
     public static final String UNKNOWN_COMMAND = "ERR unknown command '%s'";
@@ -23,7 +23,6 @@ public class ErrorsConsts {
     public static final String NO_SUCH_KEY = "ERR no such key";
     public static final String WRONG_TYPE_OPERATION = "WRONGTYPE Operation against a key holding the wrong kind of value";
     public static final String INDEX_OUT_OF_RANGE = "ERR index out of range";
-
     public static final String VALUE_IS_NOT_INT = "ERR value is not an integer or out of range";
     public static final String INVALID_DB_INDEX = "ERR invalid DB index";
 

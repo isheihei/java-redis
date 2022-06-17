@@ -1,7 +1,7 @@
 package org.isheihei.redis.core.command.impl.string;
 
 import io.netty.channel.ChannelHandlerContext;
-import org.isheihei.redis.common.consts.ErrorsConsts;
+import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.command.WriteCommand;
@@ -37,12 +37,12 @@ public class Mset extends WriteCommand {
         // TODO 批量应该是原子操作
         kvList = Arrays.stream(array).skip(1).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
         if (kvList.size() == 0 || kvList == null) {
-            ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
+            ctx.writeAndFlush(new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
             return;
         }
 
         if (kvList.size() % 2 != 0) {
-            ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.WRONG_ARGS_NUMBER, type().toString().toUpperCase())));
+            ctx.writeAndFlush(new Errors(String.format(ErrorsConst.WRONG_ARGS_NUMBER, type().toString().toUpperCase())));
             return;
         } else {
             RedisDB db = redisClient.getDb();

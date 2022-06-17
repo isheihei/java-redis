@@ -54,28 +54,25 @@ public class RedisNetServer implements RedisServer {
 
     private String ip = ConfigUtil.getIp();
 
-    private int port = Integer.valueOf(ConfigUtil.getPort());
+    private int port = ConfigUtil.getPort();
 
     // 数据库列表
     private List<RedisDB> dbs;
 
     // 数据库数量
-    private int dbNum = Integer.parseInt(ConfigUtil.getDbnum());
+    private int dbNum = ConfigUtil.getDbNum();
 
     // 修改计数器
     private AtomicInteger dirty = new AtomicInteger();
 
-    // 记录上一次执行持久化的事件
-    private long timeStamp;
-
     // aof缓冲区
     private Aof aof;
 
-    private boolean appendOnlyFile = false;
+    private boolean appendOnlyFile = ConfigUtil.getAppendOnly();
 
     private Rdb rdb;
 
-    private boolean dataBase = false;
+    private boolean dataBase = ConfigUtil.getRdb();
 
     private EvictStrategy evictStrategy;
 
@@ -142,8 +139,9 @@ public class RedisNetServer implements RedisServer {
     }
 
     public RedisNetServer rdb(boolean on) {
-        if (on) {
-            this.dataBase = true;
+        boolean success = ConfigUtil.setConfig("rdb", String.valueOf(on));
+        if (success) {
+            this.dataBase = on;
         }
         return this;
     }
@@ -218,16 +216,20 @@ public class RedisNetServer implements RedisServer {
         ServerCron serverCron = new ServerCron(dbs);
         serverCron.expireStrategy(expireStrategy);
         serverCron.evictStrategy(evictStrategy);
-        if (appendOnlyFile) {
+        //  rdb 和 aof 同时开启优先使用aof文件加载
+        if (dataBase && appendOnlyFile) {
+            redisSingleEventExecutor.submit(() -> aof.load());
+            serverCron.aof(aof);
+            serverCron.rdb(rdb);
+        } else if (dataBase) {
+            redisSingleEventExecutor.submit(() -> rdb.load());
+            serverCron.rdb(rdb);
+        } else if (appendOnlyFile){
             redisSingleEventExecutor.submit(() -> aof.load());
             serverCron.aof(aof);
         }
-        if (dataBase) {
-            redisSingleEventExecutor.submit(() -> rdb.load());
-            serverCron.rdb(rdb);
-        }
-//        redisSingleEventExecutor.scheduleWithFixedDelay(serverCron, 100, 100, TimeUnit.MILLISECONDS);
-        redisSingleEventExecutor.scheduleWithFixedDelay(serverCron, TimeUnit.SECONDS.toMillis(5), 100, TimeUnit.MILLISECONDS);
+        redisSingleEventExecutor.scheduleWithFixedDelay(serverCron, 100, 100, TimeUnit.MILLISECONDS);
+//        redisSingleEventExecutor.scheduleWithFixedDelay(serverCron, TimeUnit.SECONDS.toMillis(5), TimeUnit.SECONDS.toMillis(5), TimeUnit.MILLISECONDS);
 
         try {
             ChannelFuture sync = serverBootstrap.bind().sync();

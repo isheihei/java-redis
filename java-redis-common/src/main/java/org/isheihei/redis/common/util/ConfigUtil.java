@@ -33,6 +33,8 @@ public class ConfigUtil {
 
     private static String DEFAULT_APPEND_ONLY    = "false";
 
+    private static final String DEFAULT_RDB = "false";
+
     private static final String DEFAULT_DB_NUM = "16";
 
     private static ConfigUtil Instance = new ConfigUtil();
@@ -62,7 +64,8 @@ public class ConfigUtil {
             return null;
         } else {
                 Class<?> configUtilClass = ConfigUtil.class;
-                Method method  = configUtilClass.getMethod("get" + RedisStringUtil.upperCaseFirst(configParam));
+                Method method  = configUtilClass.getDeclaredMethod(configParam);
+                method.setAccessible(true);
                 return (String) method.invoke(null, null);
         }
     }
@@ -82,7 +85,8 @@ public class ConfigUtil {
         configs.setProperty(configParam, newValue);
         Class<?> configUtilClass = ConfigUtil.class;
         try {
-            Method method = configUtilClass.getMethod("get" + RedisStringUtil.upperCaseFirst(configParam));
+            Method method = configUtilClass.getDeclaredMethod(configParam);
+            method.setAccessible(true);
             String check = ((String) method.invoke(null, null));
             if (newValue.equals(check)) {
                 return true;
@@ -96,8 +100,7 @@ public class ConfigUtil {
         }
     }
 
-
-    public static String getIp() {
+    private static String ip() {
         String address = configs.getProperty("ip");
         if (RedisStringUtil.isNullOrEmpty(address)) {
             return DEFAULT_IP;
@@ -105,7 +108,11 @@ public class ConfigUtil {
         return address;
     }
 
-    public static String getPort() {
+    public static String getIp() {
+        return ip();
+    }
+
+    private static String port() {
         int port;
         String strPort;
         try {
@@ -120,22 +127,42 @@ public class ConfigUtil {
         return strPort;
     }
 
-    public static String getRequirepass() {
+    public static int getPort() {
+        return Integer.parseInt(port());
+    }
+
+    private static String requirepass() {
         return configs.getProperty("requirepass", null);
     }
 
-    public static String getAofpath() {
+    public static String getRequirePass() {
+        return requirepass();
+    }
+
+    private static String aofpath() {
         return DEFAULT_AOF_PATH;
     }
 
-    public static String getAppendfilename() {
+    public static String getAofPath() {
+        return aofpath();
+    }
+
+    private static String appendfilename() {
         return configs.getProperty("appendfilename", DEFAULT_APPEND_FILE_NAME);
     }
-    public static String getAppendonly() {
+
+    public static String getAppendFileName() {
+        return appendfilename();
+    }
+    private static String appendonly() {
         return "true".equals(configs.getProperty("appendonly", DEFAULT_APPEND_ONLY))  ? "true"  : "false";
     }
 
-    public static String getDbnum() {
+    public static boolean getAppendOnly() {
+        return Boolean.parseBoolean(appendonly());
+    }
+
+    private static String dbnum() {
         int dbNum;
         String strDbNum;
         try {
@@ -150,11 +177,31 @@ public class ConfigUtil {
         return strDbNum;
     }
 
-    public static String getDatabasefilename() {
+    public static int getDbNum() {
+        return Integer.parseInt(dbnum());
+    }
+
+    private static String databasefilename() {
         return configs.getProperty("databasefilename", DEFAULT_DATABASE_FILE_NAME);
     }
 
-    public static String getRdbpath() {
+    public static String getDataBaseFileName() {
+        return databasefilename();
+    }
+
+    private static String rdbpath() {
         return DEFAULT_RDB_PATH;
+    }
+
+    public static String getRdbPath() {
+        return rdbpath();
+    }
+
+    private static String rdb() {
+        return "true".equals(configs.getProperty("rdb", DEFAULT_RDB))  ? "true"  : "false";
+    }
+
+    public static boolean getRdb() {
+        return Boolean.parseBoolean(rdb());
     }
 }

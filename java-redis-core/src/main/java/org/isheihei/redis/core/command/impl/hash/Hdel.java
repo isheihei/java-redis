@@ -1,7 +1,7 @@
 package org.isheihei.redis.core.command.impl.hash;
 
 import io.netty.channel.ChannelHandlerContext;
-import org.isheihei.redis.common.consts.ErrorsConsts;
+import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.command.WriteCommand;
@@ -61,7 +61,7 @@ public class Hdel extends WriteCommand {
                 throw new UnsupportedOperationException();
             }
         } else {
-            ctx.writeAndFlush(new Errors(ErrorsConsts.WRONG_TYPE_OPERATION));
+            ctx.writeAndFlush(new Errors(ErrorsConst.WRONG_TYPE_OPERATION));
         }
     }
 

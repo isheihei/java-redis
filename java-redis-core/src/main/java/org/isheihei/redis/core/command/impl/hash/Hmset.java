@@ -1,7 +1,7 @@
 package org.isheihei.redis.core.command.impl.hash;
 
 import io.netty.channel.ChannelHandlerContext;
-import org.isheihei.redis.common.consts.ErrorsConsts;
+import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.command.WriteCommand;
@@ -44,11 +44,11 @@ public class Hmset extends WriteCommand {
 
         fvLists = Arrays.stream(array).skip(2).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
         if (fvLists == null) {
-            ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
+            ctx.writeAndFlush(new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
             return;
         }
         if (fvLists.size() % 2 != 0) {
-            ctx.writeAndFlush(new Errors(String.format(ErrorsConsts.WRONG_ARGS_NUMBER, type().toString().toUpperCase())));
+            ctx.writeAndFlush(new Errors(String.format(ErrorsConst.WRONG_ARGS_NUMBER, type().toString().toUpperCase())));
             return;
         }
 
@@ -68,7 +68,7 @@ public class Hmset extends WriteCommand {
                 throw new UnsupportedOperationException();
             }
         } else {
-            ctx.writeAndFlush(new Errors(ErrorsConsts.WRONG_TYPE_OPERATION));
+            ctx.writeAndFlush(new Errors(ErrorsConst.WRONG_TYPE_OPERATION));
         }
     }
 

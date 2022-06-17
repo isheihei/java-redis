@@ -20,9 +20,11 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @ClassName: Rdb
@@ -33,9 +35,17 @@ import java.util.Map;
 public class Rdb implements Persist {
     private static final org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(Rdb.class);
 
-    private static final String suffix = ConfigUtil.getDatabasefilename();
+    private static final String suffix = ConfigUtil.getDataBaseFileName();
 
-    private String fileName = ConfigUtil.getRdbpath();
+    private long lastSave = 0;
+
+    /**
+     * 保存条件
+     * 900 1 ： 900s内对数据库进行了至少1次修改
+     */
+    private Map<Long, Long> saveParams = new HashMap<>();
+
+    private String fileName = ConfigUtil.getRdbPath();
 
     private List<RedisDB> dbs;
 
@@ -54,7 +64,12 @@ public class Rdb implements Persist {
 
 
     public Rdb(List<RedisDB> dbs) {
+        saveParams.put(900L, 1L);
+        saveParams.put(300L, 10L);
+        saveParams.put(60L, 10000L);
+//        saveParams.put(60L, 10000L);
         createFile();
+        lastSave = System.currentTimeMillis();
         this.dbs = dbs;
     }
 
@@ -76,6 +91,19 @@ public class Rdb implements Persist {
         if (file.exists()) {
             file.delete();
         }
+    }
+
+    public boolean satisfySaveParams() {
+        long dirtyCount = dbs.stream().mapToLong(RedisDB::getDirty).sum();
+        long interVal = TimeUnit.MICROSECONDS.toSeconds(System.currentTimeMillis() - lastSave);
+        boolean anyMatch = saveParams.entrySet().stream()
+                .filter(param -> param.getValue() <= dirtyCount)
+                .anyMatch(param -> param.getKey() > interVal);
+        return anyMatch;
+    }
+
+    public void resetDbDirty() {
+        dbs.forEach(db -> db.resetDirty());
     }
 
     /**
@@ -100,6 +128,7 @@ public class Rdb implements Persist {
      */
     @Override
     public void save() {
+        LOGGER.info("开始进行rdb持久化...");
         try {
             // 每次持久化需要创建新的文件
             deleteFile();
@@ -160,6 +189,9 @@ public class Rdb implements Persist {
             mappedByteBuffer.put(EOF);
             writeIndex += 1;
             channel.close();
+            lastSave = System.currentTimeMillis();
+            resetDbDirty();
+            LOGGER.info("rdb持久化完成");
         } catch (FileNotFoundException e) {
             LOGGER.error("未找到.rdb文件");
             throw new RuntimeException(e);
@@ -169,27 +201,6 @@ public class Rdb implements Persist {
         }
     }
 
-
-    /**
-     * RDB文件结构
-     * REDIS | db_version | databases | EOF | check_sum
-     *  5B   |   4B       |           | 1B  |  8B
-     *
-     * databases部分
-     *  SELECTDB | db_number | key_value_pairs
-     *    1B     |    4B     |
-     *
-     * key_value_pairs部分
-     *  EXPIRETIME_MS | ms | TYPE  | key | value
-     *      1B        | 8B |  1B   |
-     *
-     *  TYPE:
-     *  string 0
-     *  map    1
-     *  list   2
-     *  set    3
-     *  zset   4
-     */
     @Override
     public void load() {
         try {
@@ -277,6 +288,8 @@ public class Rdb implements Persist {
                     LOGGER.info("rdb数据全部加载完成");
                     return;
                 }
+                lastSave = System.currentTimeMillis();
+                deleteFile();
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();

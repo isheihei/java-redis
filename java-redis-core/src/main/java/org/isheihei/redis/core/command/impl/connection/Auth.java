@@ -1,7 +1,7 @@
 package org.isheihei.redis.core.command.impl.connection;
 
 import io.netty.channel.ChannelHandlerContext;
-import org.isheihei.redis.common.consts.ErrorsConsts;
+import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.common.util.ConfigUtil;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractCommand;
@@ -29,11 +29,11 @@ public class Auth extends AbstractCommand {
         if ((password = getBytesWrapper(ctx, array, 1)) == null) {
             return;
         }
-        if (password.toUtf8String().equals(ConfigUtil.getRequirepass())) {
+        if (password.toUtf8String().equals(ConfigUtil.getRequirePass())) {
             redisClient.setAuth(1);
             ctx.writeAndFlush(SimpleString.OK);
         } else {
-            ctx.writeAndFlush(new Errors(ErrorsConsts.INVALID_PASSWORD));
+            ctx.writeAndFlush(new Errors(ErrorsConst.INVALID_PASSWORD));
         }
     }
 }

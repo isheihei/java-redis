@@ -112,6 +112,9 @@ public interface RedisDB {
      */
     void delete(BytesWrapper key);
 
+    long getDirty();
+
+    void resetDirty();
     /**
      * @Description: 清空数据库
      * @Return: void
