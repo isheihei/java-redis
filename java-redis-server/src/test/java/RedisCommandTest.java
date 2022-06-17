@@ -5,7 +5,6 @@ import org.junit.Test;
 import redis.clients.jedis.Jedis;
 
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @ClassName: RedisCommandTest
@@ -21,6 +20,10 @@ public class RedisCommandTest {
     private static String LIST_KEY = "list_key";
 
     private static String HASH_KEY = "hash_key";
+
+    private static String SET_KEY1 = "set_key1";
+    private static String SET_KEY2 = "set_key2";
+    private static String SET_KEY3 = "set_key3";
 
     @Test
     public void commandTest() {
@@ -42,6 +45,7 @@ public class RedisCommandTest {
         jedis.clientSetname("test_client_name");    // client setname test_client_name
         Assert.assertEquals("test_client_name", jedis.clientGetname()); // client getname
 
+
         //  connection
         jedis.configSet("requirepass", "password"); // config set requirepass password
         Assert.assertEquals(OK, jedis.auth("password"));    // auth password
@@ -50,15 +54,17 @@ public class RedisCommandTest {
         Assert.assertEquals(OK, jedis.select(1));   //  select 1
         Assert.assertEquals(OK, jedis.select(0));   //  select 0
 
+
         //  string
         Assert.assertNull(jedis.get(STRING_KEY)); // get string_key
         Assert.assertEquals(OK, jedis.set(STRING_KEY, "string_value"));   // set string_key string_value
         Assert.assertEquals(OK, jedis.mset("s1", "v1", "s2", "v2"));    // mset s1 v1 s2 v2
         Assert.assertEquals("v1", jedis.mget("s1", "s2").get(0));   // mget s1 s2
         Assert.assertEquals("v2", jedis.mget("s1", "s2").get(1));   // mget s1 s2
-        Assert.assertEquals(Long.valueOf(2), jedis.append("s3", "v3"));
-        Assert.assertEquals(Long.valueOf(4), jedis.append("s3", "v3"));
+        Assert.assertEquals(2, jedis.append("s3", "v3").longValue());
+        Assert.assertEquals(4, jedis.append("s3", "v3").longValue());
         Assert.assertEquals("v3v3", jedis.get("s3"));
+
 
         //  list
         Assert.assertEquals(0, jedis.lrange(LIST_KEY, 0, 1).size());  // lange list_key 0 1
@@ -78,6 +84,7 @@ public class RedisCommandTest {
 
         jedis.lset(LIST_KEY, 0, "v6");// lset list_key 0 v6   //  当前列表：v6, v4
         Assert.assertEquals("v6", jedis.lrange(LIST_KEY, 0, 1).get(0)); // lange list_key 0 1
+
 
         // hash
         Assert.assertEquals(0, jedis.hkeys(HASH_KEY).size());   //  hkeys hash_key
@@ -103,10 +110,30 @@ public class RedisCommandTest {
         Assert.assertTrue(jedis.hmget(HASH_KEY, "field2", "field3").contains("v2"));
         Assert.assertTrue(jedis.hmget(HASH_KEY, "field2", "field3").contains("v3"));
         Assert.assertEquals(2, jedis.hmget(HASH_KEY, "field2", "field3").size());
-        try {
-            Thread.sleep(TimeUnit.SECONDS.toMillis(2));
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+
+
+        //  set
+        jedis.sadd(SET_KEY1, "v1", "v2");
+        jedis.sadd(SET_KEY2, "v1", "v3");
+        Assert.assertEquals(2, jedis.scard(SET_KEY1).longValue());
+        Assert.assertEquals(2, jedis.smembers(SET_KEY1).size());
+
+        Assert.assertTrue(jedis.sdiff(SET_KEY1, SET_KEY2).contains("v2"));
+        jedis.sdiffstore(SET_KEY3, SET_KEY1, SET_KEY2);
+        Assert.assertTrue(jedis.sismember(SET_KEY3, "v2"));
+
+        Assert.assertTrue(jedis.sinter(SET_KEY1, SET_KEY2).contains("v1"));
+        jedis.sinterstore(SET_KEY3, SET_KEY1, SET_KEY2);
+        Assert.assertTrue(jedis.sismember(SET_KEY3, "v1"));
+
+        Assert.assertTrue(jedis.sunion(SET_KEY1, SET_KEY2).contains("v1"));
+        Assert.assertTrue(jedis.sunion(SET_KEY1, SET_KEY2).contains("v2"));
+        Assert.assertTrue(jedis.sunion(SET_KEY1, SET_KEY2).contains("v3"));
+        jedis.sunionstore(SET_KEY3, SET_KEY1, SET_KEY2);
+        Assert.assertEquals(3, jedis.smembers(SET_KEY3).size());
+
+        jedis.srem(SET_KEY1, "v1");
+        Assert.assertFalse(jedis.sismember(SET_KEY1, "v1"));
+
     }
 }

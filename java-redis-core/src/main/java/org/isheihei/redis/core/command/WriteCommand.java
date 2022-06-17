@@ -50,7 +50,8 @@ public abstract class WriteCommand implements Command {
             aof.put(respArray);
         }
     }
-
+    @Override
+    public abstract CommandType type();
     /**
      * @Description: handle 处理操作
      * @Param: ctx
@@ -66,6 +67,4 @@ public abstract class WriteCommand implements Command {
      */
     public abstract void handleLoadAof(RedisClient redisClient);
 
-    @Override
-    public abstract CommandType type();
 }

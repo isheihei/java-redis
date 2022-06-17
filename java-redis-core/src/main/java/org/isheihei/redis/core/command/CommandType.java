@@ -5,31 +5,42 @@ import org.isheihei.redis.core.command.impl.connection.Echo;
 import org.isheihei.redis.core.command.impl.connection.Ping;
 import org.isheihei.redis.core.command.impl.connection.Quit;
 import org.isheihei.redis.core.command.impl.connection.Select;
-import org.isheihei.redis.core.command.impl.hash.Hdel;
-import org.isheihei.redis.core.command.impl.hash.Hexists;
-import org.isheihei.redis.core.command.impl.hash.Hget;
-import org.isheihei.redis.core.command.impl.hash.Hgetall;
-import org.isheihei.redis.core.command.impl.hash.Hkeys;
-import org.isheihei.redis.core.command.impl.hash.Hmget;
-import org.isheihei.redis.core.command.impl.hash.Hmset;
-import org.isheihei.redis.core.command.impl.hash.Hset;
-import org.isheihei.redis.core.command.impl.hash.Hvals;
+import org.isheihei.redis.core.command.impl.hash.HDel;
+import org.isheihei.redis.core.command.impl.hash.HExists;
+import org.isheihei.redis.core.command.impl.hash.HGet;
+import org.isheihei.redis.core.command.impl.hash.HGetAll;
+import org.isheihei.redis.core.command.impl.hash.HKeys;
+import org.isheihei.redis.core.command.impl.hash.HMGet;
+import org.isheihei.redis.core.command.impl.hash.HMSet;
+import org.isheihei.redis.core.command.impl.hash.HSet;
+import org.isheihei.redis.core.command.impl.hash.HVals;
 import org.isheihei.redis.core.command.impl.key.Expire;
-import org.isheihei.redis.core.command.impl.list.Lindex;
-import org.isheihei.redis.core.command.impl.list.Llen;
-import org.isheihei.redis.core.command.impl.list.Lpop;
-import org.isheihei.redis.core.command.impl.list.Lpush;
-import org.isheihei.redis.core.command.impl.list.Lrange;
-import org.isheihei.redis.core.command.impl.list.Lrem;
-import org.isheihei.redis.core.command.impl.list.Lset;
-import org.isheihei.redis.core.command.impl.list.Rpop;
-import org.isheihei.redis.core.command.impl.list.Rpush;
+import org.isheihei.redis.core.command.impl.list.LIndex;
+import org.isheihei.redis.core.command.impl.list.LLen;
+import org.isheihei.redis.core.command.impl.list.LPop;
+import org.isheihei.redis.core.command.impl.list.LPush;
+import org.isheihei.redis.core.command.impl.list.LRange;
+import org.isheihei.redis.core.command.impl.list.LRem;
+import org.isheihei.redis.core.command.impl.list.LSet;
+import org.isheihei.redis.core.command.impl.list.RPop;
+import org.isheihei.redis.core.command.impl.list.RPush;
 import org.isheihei.redis.core.command.impl.server.Client;
 import org.isheihei.redis.core.command.impl.server.Config;
+import org.isheihei.redis.core.command.impl.set.SAdd;
+import org.isheihei.redis.core.command.impl.set.SCard;
+import org.isheihei.redis.core.command.impl.set.SDiff;
+import org.isheihei.redis.core.command.impl.set.SDiffStore;
+import org.isheihei.redis.core.command.impl.set.SInter;
+import org.isheihei.redis.core.command.impl.set.SInterStore;
+import org.isheihei.redis.core.command.impl.set.SIsMember;
+import org.isheihei.redis.core.command.impl.set.SMembers;
+import org.isheihei.redis.core.command.impl.set.SRem;
+import org.isheihei.redis.core.command.impl.set.SUnion;
+import org.isheihei.redis.core.command.impl.set.SUnionStore;
 import org.isheihei.redis.core.command.impl.string.Append;
 import org.isheihei.redis.core.command.impl.string.Get;
-import org.isheihei.redis.core.command.impl.string.Mget;
-import org.isheihei.redis.core.command.impl.string.Mset;
+import org.isheihei.redis.core.command.impl.string.MGet;
+import org.isheihei.redis.core.command.impl.string.MSet;
 import org.isheihei.redis.core.command.impl.string.Set;
 import org.isheihei.redis.core.command.impl.string.SetEx;
 import org.isheihei.redis.core.command.impl.string.SetNx;
@@ -45,9 +56,10 @@ import java.util.function.Supplier;
 public enum CommandType {
     auth(Auth::new), client(Client::new), config(Config::new), echo(Echo::new), ping(Ping::new), quit(Quit::new), select(Select::new),
     expire(Expire::new),
-    get(Get::new), set(Set::new), mget(Mget::new), mset(Mset::new), append(Append::new), setex(SetEx::new), setnx(SetNx::new),
-    lpush(Lpush::new), lrange(Lrange::new), lrem(Lrem::new), rpush(Rpush::new), lpop(Lpop::new), rpop(Rpop::new), lset(Lset::new), lindex(Lindex::new), llen(Llen::new),
-    hdel(Hdel::new), hexists(Hexists::new), hget(Hget::new), hgetall(Hgetall::new), hkeys(Hkeys::new), hset(Hset::new), hmset(Hmset::new), hvals(Hvals::new), hmget(Hmget::new);
+    get(Get::new), set(Set::new), mget(MGet::new), mset(MSet::new), append(Append::new), setex(SetEx::new), setnx(SetNx::new),
+    lpush(LPush::new), lrange(LRange::new), lrem(LRem::new), rpush(RPush::new), lpop(LPop::new), rpop(RPop::new), lset(LSet::new), lindex(LIndex::new), llen(LLen::new),
+    hdel(HDel::new), hexists(HExists::new), hget(HGet::new), hgetall(HGetAll::new), hkeys(HKeys::new), hset(HSet::new), hmset(HMSet::new), hvals(HVals::new), hmget(HMGet::new),
+    sadd(SAdd::new), scard(SCard::new), sdiff(SDiff::new), smembers(SMembers::new), sismember(SIsMember::new), sdiffstore(SDiffStore::new), sinter(SInter::new), sinterstore(SInterStore::new), srem(SRem::new), sunion(SUnion::new), sunionstore(SUnionStore::new);
 
     // 操作类构造器
     private final Supplier<Command> supplier;

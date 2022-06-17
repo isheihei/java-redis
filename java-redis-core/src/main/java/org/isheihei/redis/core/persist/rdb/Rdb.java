@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @ClassName: Rdb
- * @Description: TODO
+ * @Description: Rdb持久化
  * @Date: 2022/6/16 15:45
  * @Author: isheihei
  */
@@ -50,7 +50,7 @@ public class Rdb implements Persist {
     private List<RedisDB> dbs;
 
 
-    private ByteBuf bufferPolled = ByteBufAllocator.DEFAULT.heapBuffer(8888);
+    private ByteBuf bufferPolled = ByteBufAllocator.DEFAULT.directBuffer(8888);
 
     private static final byte[] REDIS = new byte[]{(byte)'R', (byte)'E', (byte)'D', (byte)'I', (byte)'S'};
 
@@ -299,6 +299,4 @@ public class Rdb implements Persist {
             e.printStackTrace();
         }
     }
-
-
 }

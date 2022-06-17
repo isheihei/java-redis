@@ -13,13 +13,13 @@ import org.isheihei.redis.core.resp.impl.RespArray;
  */
 public abstract class AbstractCommand implements Command {
 
-    public RespArray arrays;
+    public RespArray respArray;
 
     public Resp[] array;
 
     @Override
     public void setContent(RespArray arrays) {
-        this.arrays = arrays;
+        this.respArray = arrays;
         this.array = arrays.getArray();
     }
 

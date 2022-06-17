@@ -30,7 +30,7 @@ public class Ping extends AbstractCommand {
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
         message = Arrays.stream(array).skip(1).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
-        if (message == null || message.size() == 0) {
+        if (message.size() == 0) {
             ctx.writeAndFlush(new SimpleString("PONG"));
         } else {
             ctx.writeAndFlush(new SimpleString(message.get(0).toUtf8String()));

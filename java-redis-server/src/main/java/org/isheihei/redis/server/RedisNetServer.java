@@ -228,8 +228,8 @@ public class RedisNetServer implements RedisServer {
             redisSingleEventExecutor.submit(() -> aof.load());
             serverCron.aof(aof);
         }
-        redisSingleEventExecutor.scheduleWithFixedDelay(serverCron, 100, 100, TimeUnit.MILLISECONDS);
-//        redisSingleEventExecutor.scheduleWithFixedDelay(serverCron, TimeUnit.SECONDS.toMillis(5), TimeUnit.SECONDS.toMillis(5), TimeUnit.MILLISECONDS);
+//        redisSingleEventExecutor.scheduleWithFixedDelay(serverCron, 100, 100, TimeUnit.MILLISECONDS);
+        redisSingleEventExecutor.scheduleWithFixedDelay(serverCron, TimeUnit.SECONDS.toMillis(5), TimeUnit.SECONDS.toMillis(1), TimeUnit.MILLISECONDS);
 
         try {
             ChannelFuture sync = serverBootstrap.bind().sync();

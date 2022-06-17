@@ -69,13 +69,13 @@ public class ServerCron implements Runnable{
             return;
         }
         if (System.currentTimeMillis() - lastAofTime > TimeUnit.SECONDS.toMillis(1)) {
-            lastAofTime = System.currentTimeMillis();
             aof.save();
+            lastAofTime = System.currentTimeMillis();
         }
     }
 
     private void rdbPersist() {
-        if (rdb.satisfySaveParams()) {
+        if (rdb != null && rdb.satisfySaveParams()) {
             rdb.save();
         }
     }

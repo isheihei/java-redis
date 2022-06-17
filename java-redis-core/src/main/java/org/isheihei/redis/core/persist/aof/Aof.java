@@ -1,7 +1,8 @@
 package org.isheihei.redis.core.persist.aof;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.PooledByteBufAllocator;
 import org.isheihei.redis.common.util.ConfigUtil;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.client.RedisNormalClient;
@@ -14,13 +15,9 @@ import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.RespArray;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.lang.reflect.Method;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,7 +36,7 @@ public class Aof implements Persist {
     private String fileName = ConfigUtil.getAofPath();
 
     private Deque<Resp> bufferQueue = new LinkedList<>();
-    private ByteBuf bufferPolled = ByteBufAllocator.DEFAULT.directBuffer(8888);
+    private ByteBuf bufferPolled = PooledByteBufAllocator.DEFAULT.directBuffer(8888);
 
     private RedisClient mockClient;
 
@@ -59,93 +56,56 @@ public class Aof implements Persist {
 
     @Override
     public void save() {
-        try {
-            RandomAccessFile randomAccessFile = new RandomAccessFile(fileName + suffix, "rw");
-            FileChannel channel = randomAccessFile.getChannel();
-            long len = channel.size();
-            int putIndex = (int) len;
+        if (bufferQueue.isEmpty()) {
+            LOGGER.info("aof缓冲队列为空");
+            return;
+        }
+        try (FileChannel channel = new RandomAccessFile(fileName + suffix, "rw").getChannel()){
+            LOGGER.info("开始rdb持久化...");
             do {
-                len = channel.size();
+                bufferPolled.clear();
+                long len = channel.size();
                 Resp resp = bufferQueue.peek();
-                if (resp == null) {
-                    randomAccessFile.close();
-                    return;
-                }
                 Resp.write(resp, bufferPolled);
                 int respLen = bufferPolled.readableBytes();
-                // TODO 取消循环写入 使用 ByteBuf.nioBuffer 直接写入
-                MappedByteBuffer mappedByteBuffer = channel.map(FileChannel.MapMode.READ_WRITE, 0, len + respLen);
+                MappedByteBuffer mappedByteBuffer = channel.map(FileChannel.MapMode.READ_WRITE, len, respLen);
+                mappedByteBuffer.put(ByteBufUtil.getBytes(bufferPolled));
 //                LOGGER.error("len " + len);
 //                LOGGER.error("mappedByteBuffer.position()" + mappedByteBuffer.position());
 //                LOGGER.error("mappedByteBuffer.capacity()" + mappedByteBuffer.capacity());
-                while (respLen > 0) {
-                    respLen--;
 //                    LOGGER.error("respLen" + respLen);
 //                    LOGGER.error("bufferPolled 可读 + " + bufferPolled.readableBytes());
 //                    LOGGER.error("putIndex" + putIndex);
-                    mappedByteBuffer.put(putIndex++, bufferPolled.readByte());
-                }
-                mappedByteBuffer.force();
-                clean(mappedByteBuffer);
                 bufferQueue.poll();
-                bufferPolled.clear();
-            } while (true);
-
-        } catch (IOException e) {
-            LOGGER.error("aof IOException ", e);
+            } while (!bufferQueue.isEmpty());
+            LOGGER.info("rdb持久化完成");
         } catch (Exception e) {
+            bufferPolled.release();
             LOGGER.error("aof Exception ", e);
         }
     }
 
     @Override
     public void load() {
-        try {
-            RandomAccessFile randomAccessFile = new RandomAccessFile(fileName + suffix, "rw");
-            FileChannel channel = randomAccessFile.getChannel();
+        try (FileChannel channel = new RandomAccessFile(fileName + suffix, "rw").getChannel()) {
             long len = channel.size();
+            if (len == 0) {
+                LOGGER.info("aof文件为空");
+                return;
+            }
             MappedByteBuffer mappedByteBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, len);
             bufferPolled.writeBytes(mappedByteBuffer);
-            while (bufferPolled.readableBytes() > 0){
-                Resp resp = null;
-                try {
-                    resp = Resp.decode(bufferPolled);
-                }catch (Exception e) {
-                    clean(mappedByteBuffer);
-                    randomAccessFile.close();
-                    bufferPolled.release();
-                    break;
-                }
+            while (bufferPolled.readableBytes() > 0) {
+                Resp resp = Resp.decode(bufferPolled);
                 Command command = CommandFactory.from((RespArray) resp);
                 WriteCommand writeCommand = (WriteCommand) command;
                 writeCommand.handleLoadAof(this.mockClient);
             }
-
-        } catch (IOException e) {
-            LOGGER.error("aof IOException ", e);
+            LOGGER.info("加载aof文件完成");
         } catch (Exception e) {
+            bufferPolled.release();
+            LOGGER.error("加载aof文件失败");
             LOGGER.error("aof Exception ", e);
         }
-    }
-
-    public static void clean(final MappedByteBuffer buffer) throws Exception {
-        if (buffer == null) {
-            return;
-        }
-        buffer.force();
-        AccessController.doPrivileged(new PrivilegedAction<Object>() {
-            @Override
-            public Object run() {
-                try {
-                    Method getCleanerMethod = buffer.getClass().getMethod("cleaner", new Class[0]);
-                    getCleanerMethod.setAccessible(true);
-                    sun.misc.Cleaner cleaner = (sun.misc.Cleaner) getCleanerMethod.invoke(buffer, new Object[0]);
-                    cleaner.clean();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return null;
-            }
-        });
     }
 }

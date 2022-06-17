@@ -1,14 +1,12 @@
 package org.isheihei.redis.core.command.impl.string;
 
 import io.netty.channel.ChannelHandlerContext;
-import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.command.WriteCommand;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.obj.impl.RedisStringObject;
-import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.impl.RespInt;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
@@ -41,22 +39,18 @@ public class Append extends WriteCommand {
         }
         RedisDB db = redisClient.getDb();
         RedisObject redisObject = db.get(key);
-        if (redisObject == null) {
+        if (redisObject == null || !(redisObject instanceof RedisStringObject)) {
             db.put(key, new RedisStringObject(value));
             ctx.writeAndFlush(new RespInt(value.length()));
-        }else {
-            if (redisObject instanceof RedisStringObject) {
-                RedisDataStruct data = redisObject.data();
-                if (data instanceof RedisDynamicString) {
-                    RedisDynamicString string = (RedisDynamicString) data;
-                    int length = string.append(value);
-                    ctx.writeAndFlush(new RespInt(length));
-                } else {
-                    throw new UnsupportedOperationException();
-                }
-            } else{
-                ctx.writeAndFlush(new Errors(ErrorsConst.WRONG_TYPE_OPERATION));
-            }
+            return;
+        }
+        RedisDataStruct data = redisObject.data();
+        if (data instanceof RedisDynamicString) {
+            RedisDynamicString string = (RedisDynamicString) data;
+            int length = string.append(value);
+            ctx.writeAndFlush(new RespInt(length));
+        } else {
+            throw new UnsupportedOperationException();
         }
     }
 
@@ -70,18 +64,15 @@ public class Append extends WriteCommand {
         }
         RedisDB db = redisClient.getDb();
         RedisObject redisObject = db.get(key);
-        if (redisObject == null) {
+        if (redisObject == null || redisObject instanceof RedisStringObject) {
             db.put(key, new RedisStringObject(value));
-        }else {
-            if (redisObject instanceof RedisStringObject) {
-                RedisDataStruct data = redisObject.data();
-                if (data instanceof RedisDynamicString) {
-                    RedisDynamicString string = (RedisDynamicString) data;
-                    int length = string.append(value);
-                } else {
-                    throw new UnsupportedOperationException();
-                }
-            }
+        }
+        RedisDataStruct data = redisObject.data();
+        if (data instanceof RedisDynamicString) {
+            RedisDynamicString string = (RedisDynamicString) data;
+            int length = string.append(value);
+        } else {
+            throw new UnsupportedOperationException();
         }
     }
 }

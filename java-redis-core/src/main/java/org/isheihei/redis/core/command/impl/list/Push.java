@@ -1,12 +1,14 @@
 package org.isheihei.redis.core.command.impl.list;
 
 import io.netty.channel.ChannelHandlerContext;
+import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.command.WriteCommand;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.obj.impl.RedisListObject;
+import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.impl.RespInt;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
@@ -49,17 +51,22 @@ public abstract class Push extends WriteCommand {
             redisObject = new RedisListObject();
             db.put(key, redisObject);
         }
-        RedisDataStruct data = redisObject.data();
-        if (data instanceof RedisDoubleLinkedList) {
-            RedisDoubleLinkedList list = (RedisDoubleLinkedList) data;
-            if (direct) {
-                list.lpush(values);
+        if (redisObject instanceof RedisListObject) {
+            RedisDataStruct data = redisObject.data();
+            if (data instanceof RedisDoubleLinkedList) {
+                RedisDoubleLinkedList list = (RedisDoubleLinkedList) data;
+                if (direct) {
+                    list.lpush(values);
+                } else {
+                    list.rpush(values);
+                }
+                ctx.writeAndFlush(new RespInt(list.size()));
             } else {
-                list.rpush(values);
+                throw  new UnsupportedOperationException();
             }
-            ctx.writeAndFlush(new RespInt(list.size()));
         } else {
-            throw  new UnsupportedOperationException();
+            ctx.writeAndFlush(new Errors(ErrorsConst.WRONG_TYPE_OPERATION));
+            return;
         }
     }
 
@@ -74,16 +81,18 @@ public abstract class Push extends WriteCommand {
             redisObject = new RedisListObject();
             db.put(key, redisObject);
         }
-        RedisDataStruct data = redisObject.data();
-        if (data instanceof RedisDoubleLinkedList) {
-            RedisDoubleLinkedList list = (RedisDoubleLinkedList) data;
-            if (direct) {
-                list.lpush(values);
+        if (redisObject instanceof RedisListObject) {
+            RedisDataStruct data = redisObject.data();
+            if (data instanceof RedisDoubleLinkedList) {
+                RedisDoubleLinkedList list = (RedisDoubleLinkedList) data;
+                if (direct) {
+                    list.lpush(values);
+                } else {
+                    list.rpush(values);
+                }
             } else {
-                list.rpush(values);
+                throw  new UnsupportedOperationException();
             }
-        } else {
-            throw  new UnsupportedOperationException();
         }
     }
 
