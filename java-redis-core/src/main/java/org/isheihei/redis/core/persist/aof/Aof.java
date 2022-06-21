@@ -8,7 +8,7 @@ import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.client.RedisNormalClient;
 import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandFactory;
-import org.isheihei.redis.core.command.WriteCommand;
+import org.isheihei.redis.core.command.AbstractWriteCommand;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.persist.Persist;
 import org.isheihei.redis.core.resp.Resp;
@@ -98,7 +98,7 @@ public class Aof implements Persist {
             while (bufferPolled.readableBytes() > 0) {
                 Resp resp = Resp.decode(bufferPolled);
                 Command command = CommandFactory.from((RespArray) resp);
-                WriteCommand writeCommand = (WriteCommand) command;
+                AbstractWriteCommand writeCommand = (AbstractWriteCommand) command;
                 writeCommand.handleLoadAof(this.mockClient);
             }
             LOGGER.info("加载aof文件完成");

@@ -16,7 +16,7 @@ public class RedisSetObject extends AbstractRedisObject {
     private RedisDataStruct set;
 
     public RedisSetObject() {
-        setEncoding(RedisDataStructType.redisSet);
+        setEncoding(RedisDataStructType.REDIS_SET);
         set = getEncoding().getSupplier().get();
     }
 

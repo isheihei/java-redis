@@ -5,7 +5,7 @@ import org.isheihei.redis.core.obj.AbstractRedisObject;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 import org.isheihei.redis.core.struct.RedisDataStructType;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
-import org.isheihei.redis.core.struct.impl.RedisDynamicString;
+import org.isheihei.redis.core.struct.impl.RedisString;
 
 /**
  * @ClassName: RedisStringObject
@@ -18,7 +18,7 @@ public class RedisStringObject extends AbstractRedisObject {
     private RedisDataStruct string;
 
     public RedisStringObject() {
-        setEncoding(RedisDataStructType.redisDynamicString);
+        setEncoding(RedisDataStructType.REDIS_STRING);
         string = getEncoding().getSupplier().get();
     }
 
@@ -34,8 +34,8 @@ public class RedisStringObject extends AbstractRedisObject {
     }
 
     public RedisStringObject(BytesWrapper stringValue) {
-        setEncoding(RedisDataStructType.redisDynamicString);
-        string = new RedisDynamicString(stringValue);
+        setEncoding(RedisDataStructType.REDIS_STRING);
+        string = new RedisString(stringValue);
     }
 
     @Override

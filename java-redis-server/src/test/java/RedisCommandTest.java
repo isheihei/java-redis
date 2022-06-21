@@ -5,6 +5,7 @@ import org.junit.Test;
 import redis.clients.jedis.Jedis;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @ClassName: RedisCommandTest
@@ -25,6 +26,8 @@ public class RedisCommandTest {
     private static String SET_KEY2 = "set_key2";
     private static String SET_KEY3 = "set_key3";
 
+    private static String Z_SET_KEY = "zset_key";
+
     @Test
     public void commandTest() {
         new RedisNetServer()
@@ -38,6 +41,7 @@ public class RedisCommandTest {
         Jedis jedis = new Jedis("127.0.0.1", 6379);
 
         // server
+        jedis.flushAll();
         jedis.configGet("no_exit_name");    // config get no_exit_name
         Assert.assertEquals(OK, jedis.configSet("port", "9090")); // config set port 9090
         Assert.assertEquals("9090", jedis.configGet("port").get(1));   // config get port
@@ -47,6 +51,7 @@ public class RedisCommandTest {
 
 
         //  connection
+        jedis.flushAll();
         jedis.configSet("requirepass", "password"); // config set requirepass password
         Assert.assertEquals(OK, jedis.auth("password"));    // auth password
         Assert.assertEquals("echo", jedis.echo("echo"));    //  echo echo
@@ -56,6 +61,7 @@ public class RedisCommandTest {
 
 
         //  string
+        jedis.flushAll();
         Assert.assertNull(jedis.get(STRING_KEY)); // get string_key
         Assert.assertEquals(OK, jedis.set(STRING_KEY, "string_value"));   // set string_key string_value
         Assert.assertEquals(OK, jedis.mset("s1", "v1", "s2", "v2"));    // mset s1 v1 s2 v2
@@ -67,6 +73,7 @@ public class RedisCommandTest {
 
 
         //  list
+        jedis.flushAll();
         Assert.assertEquals(0, jedis.lrange(LIST_KEY, 0, 1).size());  // lange list_key 0 1
         jedis.lpush(LIST_KEY, "v3");  // lpush list_key v3
         jedis.rpush(LIST_KEY, "v1");  // lpush list_key v1
@@ -87,6 +94,7 @@ public class RedisCommandTest {
 
 
         // hash
+        jedis.flushAll();
         Assert.assertEquals(0, jedis.hkeys(HASH_KEY).size());   //  hkeys hash_key
         Assert.assertEquals(0, jedis.hvals(HASH_KEY).size());   //   hvals hash_key
         Assert.assertEquals(0, jedis.hgetAll(HASH_KEY).size()); //  hgetall hash_key
@@ -113,6 +121,7 @@ public class RedisCommandTest {
 
 
         //  set
+        jedis.flushAll();
         jedis.sadd(SET_KEY1, "v1", "v2");
         jedis.sadd(SET_KEY2, "v1", "v3");
         Assert.assertEquals(2, jedis.scard(SET_KEY1).longValue());
@@ -134,6 +143,24 @@ public class RedisCommandTest {
 
         jedis.srem(SET_KEY1, "v1");
         Assert.assertFalse(jedis.sismember(SET_KEY1, "v1"));
+
+
+        // zset
+        jedis.flushAll();
+        Map<String, Double> members = new HashMap<String, Double>(){{put("a", 1.0);put("b", 2.0);put("c", 3.0);}};
+        jedis.zadd(Z_SET_KEY, 1.0, "a");
+        jedis.zadd(Z_SET_KEY, 2.0, "b");
+        jedis.zadd(Z_SET_KEY, 3.0, "c");
+        Assert.assertEquals(3, jedis.zcard(Z_SET_KEY).longValue());
+        Assert.assertEquals(2, jedis.zcount(Z_SET_KEY, 1.0, 3.0).longValue());
+        Assert.assertEquals(members.keySet(), jedis.zrange(Z_SET_KEY, 0, -1));
+        Assert.assertEquals(members.keySet(), jedis.zrangeByScore(Z_SET_KEY, 0, 4));
+        Assert.assertEquals(1, jedis.zrank(Z_SET_KEY, "b").longValue());
+        Assert.assertEquals(Double.valueOf(1.0), jedis.zscore(Z_SET_KEY, "a"));
+        Assert.assertEquals(1, jedis.zrem(Z_SET_KEY, "a").longValue());
+        Assert.assertEquals(2, jedis.zcard(Z_SET_KEY).longValue());
+
+
 
     }
 }

@@ -4,7 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
-import org.isheihei.redis.core.command.WriteCommand;
+import org.isheihei.redis.core.command.AbstractWriteCommand;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.impl.RedisStringObject;
 import org.isheihei.redis.core.resp.impl.BulkString;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * @Date: 2022/6/9 23:24
  * @Author: isheihei
  */
-public class MSet extends WriteCommand {
+public class MSet extends AbstractWriteCommand {
 
     private List<BytesWrapper> kvList;
 

@@ -12,7 +12,7 @@ import org.isheihei.redis.core.resp.impl.BulkString;
 import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
-import org.isheihei.redis.core.struct.impl.RedisDynamicString;
+import org.isheihei.redis.core.struct.impl.RedisString;
 
 /**
  * @ClassName: Get
@@ -44,8 +44,8 @@ public class Get  extends AbstractCommand {
 
         if (redisObject instanceof RedisStringObject) {
             RedisDataStruct data = redisObject.data();
-            if (data instanceof RedisDynamicString) {
-                RedisDynamicString value = (RedisDynamicString) data;
+            if (data instanceof RedisString) {
+                RedisString value = (RedisString) data;
                 ctx.writeAndFlush(new BulkString(value.getValue()));
             } else {
                 throw new UnsupportedOperationException();

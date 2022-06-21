@@ -7,19 +7,19 @@ import org.isheihei.redis.common.util.ByteUtil;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 
 /**
- * @ClassName: RedisDynamicString
+ * @ClassName: RedisString
  * @Description: Redis动态字符串数据类型
  * @Date: 2022/5/31 0:24
  * @Author: isheihei
  */
-public class RedisDynamicString implements RedisDataStruct {
+public class RedisString implements RedisDataStruct {
 
     private BytesWrapper value;
 
-    public RedisDynamicString(BytesWrapper value){
+    public RedisString(BytesWrapper value){
         this.value = value;
     }
-    public RedisDynamicString(){
+    public RedisString(){
 
     }
     public BytesWrapper getValue()

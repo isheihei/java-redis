@@ -4,7 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
-import org.isheihei.redis.core.command.WriteCommand;
+import org.isheihei.redis.core.command.AbstractWriteCommand;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.obj.impl.RedisListObject;
@@ -22,7 +22,7 @@ import java.util.List;
  * @Date: 2022/6/10 16:17
  * @Author: isheihei
  */
-public abstract class Push extends WriteCommand {
+public abstract class Push extends AbstractWriteCommand {
 
     @Override
     public abstract CommandType type();

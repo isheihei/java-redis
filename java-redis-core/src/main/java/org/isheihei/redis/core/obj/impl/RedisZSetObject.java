@@ -16,7 +16,7 @@ public class RedisZSetObject extends AbstractRedisObject {
     private RedisDataStruct zset;
 
     public RedisZSetObject() {
-        setEncoding(RedisDataStructType.redisSkipList);
+        setEncoding(RedisDataStructType.REDIS_Z_SET);
         zset = getEncoding().getSupplier().get();
     }
 

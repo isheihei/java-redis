@@ -82,4 +82,11 @@ public class RedisNormalClient implements RedisClient{
     public String getName() {
         return name;
     }
+
+    @Override
+    public void flushAll() {
+        for (RedisDB db : dbs) {
+            db.cleanAll();
+        }
+    }
 }

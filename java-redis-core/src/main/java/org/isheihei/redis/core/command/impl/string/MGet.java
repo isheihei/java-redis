@@ -13,7 +13,7 @@ import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.impl.RespArray;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
-import org.isheihei.redis.core.struct.impl.RedisDynamicString;
+import org.isheihei.redis.core.struct.impl.RedisString;
 
 import java.util.Arrays;
 import java.util.List;
@@ -51,8 +51,8 @@ public class MGet extends AbstractCommand {
                         BytesWrapper value = null;
                         if (redisObject instanceof RedisStringObject) {
                             RedisDataStruct data = redisObject.data();
-                            if (data instanceof RedisDynamicString) {
-                                value = ((RedisDynamicString) data).getValue();
+                            if (data instanceof RedisString) {
+                                value = ((RedisString) data).getValue();
                             }
                         }
                         return new BulkString(value);

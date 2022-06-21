@@ -53,4 +53,10 @@ public interface RedisClient {
      * @Author: isheihei
      */
     String getName();
+
+    /**
+     * @Description: 清空所有数据库
+     * @Author: isheihei
+     */
+    void flushAll();
 }

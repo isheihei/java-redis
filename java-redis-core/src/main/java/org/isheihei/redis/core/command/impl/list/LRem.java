@@ -4,7 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
-import org.isheihei.redis.core.command.WriteCommand;
+import org.isheihei.redis.core.command.AbstractWriteCommand;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.obj.impl.RedisListObject;
 import org.isheihei.redis.core.resp.impl.Errors;
@@ -19,7 +19,7 @@ import org.isheihei.redis.core.struct.impl.RedisDoubleLinkedList;
  * @Date: 2022/6/10 15:43
  * @Author: isheihei
  */
-public class LRem extends WriteCommand {
+public class LRem extends AbstractWriteCommand {
 
     private BytesWrapper key;
 

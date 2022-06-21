@@ -11,11 +11,11 @@ import java.util.function.Supplier;
  * @Author: isheihei
  */
 public enum RedisDataStructType {
-    redisDoubleLinkedList(RedisDoubleLinkedList::new),
-    redisMap(RedisMap::new),
-    redisDynamicString(RedisDynamicString::new),
-    redisSet(RedisSet::new),
-    redisSkipList(RedisSkipList::new);
+    REDIS_DOUBLE_LINKED_LIST(RedisDoubleLinkedList::new),
+    REDIS_MAP(RedisMap::new),
+    REDIS_STRING(RedisString::new),
+    REDIS_SET(RedisSet::new),
+    REDIS_Z_SET(RedisZSet::new);
 
     // 数据结构构造器
     private final Supplier<RedisDataStruct> supplier;

@@ -12,7 +12,7 @@ import org.isheihei.redis.core.resp.impl.RespArray;
  * @Date: 2022/6/13 20:48
  * @Author: isheihei
  */
-public abstract class WriteCommand implements Command {
+public abstract class AbstractWriteCommand implements Command {
 
     public RespArray respArray;
 

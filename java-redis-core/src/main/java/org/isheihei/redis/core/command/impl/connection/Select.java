@@ -4,7 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
-import org.isheihei.redis.core.command.WriteCommand;
+import org.isheihei.redis.core.command.AbstractWriteCommand;
 import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.impl.SimpleString;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
@@ -15,7 +15,7 @@ import org.isheihei.redis.core.struct.impl.BytesWrapper;
  * @Date: 2022/6/11 16:01
  * @Author: isheihei
  */
-public class Select extends WriteCommand {
+public class Select extends AbstractWriteCommand {
 
     private int index;
 

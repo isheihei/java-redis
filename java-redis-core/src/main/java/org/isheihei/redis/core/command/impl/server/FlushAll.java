@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractCommand;
 import org.isheihei.redis.core.command.CommandType;
+import org.isheihei.redis.core.resp.impl.SimpleString;
 
 /**
  * @ClassName: FlushAll
@@ -15,11 +16,12 @@ public class FlushAll extends AbstractCommand {
 
     @Override
     public CommandType type() {
-        return null;
+        return CommandType.flushall;
     }
 
     @Override
     public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
-
+        redisClient.flushAll();
+        ctx.writeAndFlush(SimpleString.OK);
     }
 }

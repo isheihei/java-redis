@@ -26,6 +26,7 @@ import org.isheihei.redis.core.command.impl.list.RPop;
 import org.isheihei.redis.core.command.impl.list.RPush;
 import org.isheihei.redis.core.command.impl.server.Client;
 import org.isheihei.redis.core.command.impl.server.Config;
+import org.isheihei.redis.core.command.impl.server.FlushAll;
 import org.isheihei.redis.core.command.impl.set.SAdd;
 import org.isheihei.redis.core.command.impl.set.SCard;
 import org.isheihei.redis.core.command.impl.set.SDiff;
@@ -44,6 +45,14 @@ import org.isheihei.redis.core.command.impl.string.MSet;
 import org.isheihei.redis.core.command.impl.string.Set;
 import org.isheihei.redis.core.command.impl.string.SetEx;
 import org.isheihei.redis.core.command.impl.string.SetNx;
+import org.isheihei.redis.core.command.impl.zset.ZAdd;
+import org.isheihei.redis.core.command.impl.zset.ZCard;
+import org.isheihei.redis.core.command.impl.zset.ZCount;
+import org.isheihei.redis.core.command.impl.zset.ZRange;
+import org.isheihei.redis.core.command.impl.zset.ZRangeByScore;
+import org.isheihei.redis.core.command.impl.zset.ZRank;
+import org.isheihei.redis.core.command.impl.zset.ZRem;
+import org.isheihei.redis.core.command.impl.zset.ZScore;
 
 import java.util.function.Supplier;
 
@@ -54,13 +63,13 @@ import java.util.function.Supplier;
  * @Author: isheihei
  */
 public enum CommandType {
-    auth(Auth::new), client(Client::new), config(Config::new), echo(Echo::new), ping(Ping::new), quit(Quit::new), select(Select::new),
+    auth(Auth::new), client(Client::new), config(Config::new), echo(Echo::new), ping(Ping::new), quit(Quit::new), select(Select::new),flushall(FlushAll::new),
     expire(Expire::new),
     get(Get::new), set(Set::new), mget(MGet::new), mset(MSet::new), append(Append::new), setex(SetEx::new), setnx(SetNx::new),
     lpush(LPush::new), lrange(LRange::new), lrem(LRem::new), rpush(RPush::new), lpop(LPop::new), rpop(RPop::new), lset(LSet::new), lindex(LIndex::new), llen(LLen::new),
     hdel(HDel::new), hexists(HExists::new), hget(HGet::new), hgetall(HGetAll::new), hkeys(HKeys::new), hset(HSet::new), hmset(HMSet::new), hvals(HVals::new), hmget(HMGet::new),
-    sadd(SAdd::new), scard(SCard::new), sdiff(SDiff::new), smembers(SMembers::new), sismember(SIsMember::new), sdiffstore(SDiffStore::new), sinter(SInter::new), sinterstore(SInterStore::new), srem(SRem::new), sunion(SUnion::new), sunionstore(SUnionStore::new);
-
+    sadd(SAdd::new), scard(SCard::new), sdiff(SDiff::new), smembers(SMembers::new), sismember(SIsMember::new), sdiffstore(SDiffStore::new), sinter(SInter::new), sinterstore(SInterStore::new), srem(SRem::new), sunion(SUnion::new), sunionstore(SUnionStore::new),
+    zadd(ZAdd::new), zcard(ZCard::new), zcount(ZCount::new), zrange(ZRange::new), zrangebyscore(ZRangeByScore::new), zrank(ZRank::new), zrem(ZRem::new), zscore(ZScore::new);
     // 操作类构造器
     private final Supplier<Command> supplier;
 

@@ -4,7 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
-import org.isheihei.redis.core.command.WriteCommand;
+import org.isheihei.redis.core.command.AbstractWriteCommand;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.obj.impl.RedisMapObject;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * @Date: 2022/6/11 15:15
  * @Author: isheihei
  */
-public class HMSet extends WriteCommand {
+public class HMSet extends AbstractWriteCommand {
     private BytesWrapper key;
 
     private List<BytesWrapper> fvLists;
@@ -41,17 +41,16 @@ public class HMSet extends WriteCommand {
         if ((key = getBytesWrapper(ctx, array, 1)) == null) {
             return;
         }
-
-        fvLists = Arrays.stream(array).skip(2).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
-        if (fvLists.size() == 0) {
+        if ((array.length - 2) == 0) {
             ctx.writeAndFlush(new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
             return;
         }
-        if (fvLists.size() % 2 != 0) {
+        if ((array.length - 2) % 2 != 0) {
             ctx.writeAndFlush(new Errors(String.format(ErrorsConst.WRONG_ARGS_NUMBER, type().toString().toUpperCase())));
             return;
         }
 
+        fvLists = Arrays.stream(array).skip(2).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
         RedisDB db = redisClient.getDb();
         RedisObject redisObject = db.get(key);
         if (redisObject == null) {

@@ -3,14 +3,14 @@ package org.isheihei.redis.core.command.impl.string;
 import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
-import org.isheihei.redis.core.command.WriteCommand;
+import org.isheihei.redis.core.command.AbstractWriteCommand;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.obj.impl.RedisStringObject;
 import org.isheihei.redis.core.resp.impl.RespInt;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
-import org.isheihei.redis.core.struct.impl.RedisDynamicString;
+import org.isheihei.redis.core.struct.impl.RedisString;
 
 /**
  * @ClassName: Append
@@ -18,7 +18,7 @@ import org.isheihei.redis.core.struct.impl.RedisDynamicString;
  * @Date: 2022/6/11 15:21
  * @Author: isheihei
  */
-public class Append extends WriteCommand {
+public class Append extends AbstractWriteCommand {
 
     private BytesWrapper key;
 
@@ -45,8 +45,8 @@ public class Append extends WriteCommand {
             return;
         }
         RedisDataStruct data = redisObject.data();
-        if (data instanceof RedisDynamicString) {
-            RedisDynamicString string = (RedisDynamicString) data;
+        if (data instanceof RedisString) {
+            RedisString string = (RedisString) data;
             int length = string.append(value);
             ctx.writeAndFlush(new RespInt(length));
         } else {
@@ -68,8 +68,8 @@ public class Append extends WriteCommand {
             db.put(key, new RedisStringObject(value));
         }
         RedisDataStruct data = redisObject.data();
-        if (data instanceof RedisDynamicString) {
-            RedisDynamicString string = (RedisDynamicString) data;
+        if (data instanceof RedisString) {
+            RedisString string = (RedisString) data;
             int length = string.append(value);
         } else {
             throw new UnsupportedOperationException();

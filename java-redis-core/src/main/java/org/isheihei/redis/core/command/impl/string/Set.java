@@ -3,7 +3,7 @@ package org.isheihei.redis.core.command.impl.string;
 import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
-import org.isheihei.redis.core.command.WriteCommand;
+import org.isheihei.redis.core.command.AbstractWriteCommand;
 import org.isheihei.redis.core.obj.impl.RedisStringObject;
 import org.isheihei.redis.core.resp.impl.SimpleString;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
@@ -14,7 +14,7 @@ import org.isheihei.redis.core.struct.impl.BytesWrapper;
  * @Date: 2022/6/9 23:23
  * @Author: isheihei
  */
-public class Set extends WriteCommand {
+public class Set extends AbstractWriteCommand {
 
     private BytesWrapper key;
 

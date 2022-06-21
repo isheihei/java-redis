@@ -16,7 +16,7 @@ public class RedisMapObject extends AbstractRedisObject {
     private RedisDataStruct map;
 
     public RedisMapObject() {
-        setEncoding(RedisDataStructType.redisMap);
+        setEncoding(RedisDataStructType.REDIS_MAP);
         map = getEncoding().getSupplier().get();
     }
 

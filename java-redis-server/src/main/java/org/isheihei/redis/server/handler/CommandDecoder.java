@@ -8,7 +8,7 @@ import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.common.util.TRACEID;
 import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandFactory;
-import org.isheihei.redis.core.command.WriteCommand;
+import org.isheihei.redis.core.command.AbstractWriteCommand;
 import org.isheihei.redis.core.persist.aof.Aof;
 import org.isheihei.redis.core.resp.impl.BulkString;
 import org.isheihei.redis.core.resp.impl.Errors;
@@ -58,8 +58,8 @@ public class CommandDecoder extends LengthFieldBasedFrameDecoder {
                 if (command == null) {
                     ctx.writeAndFlush(new Errors(String.format(ErrorsConst.UNKNOWN_COMMAND, ((BulkString) ((RespArray) resp).getArray()[0]).getContent().toUtf8String())));
                 } else {
-                    if (aof != null && command instanceof WriteCommand) {
-                        ((WriteCommand) command).setAof(aof);
+                    if (aof != null && command instanceof AbstractWriteCommand) {
+                        ((AbstractWriteCommand) command).setAof(aof);
                     }
                     return command;
                 }

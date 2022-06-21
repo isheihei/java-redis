@@ -36,7 +36,7 @@ public class Client extends AbstractCommand {
         if ((bytesSubCommand = getBytesWrapper(ctx, array, 1)) == null) {
             return;
         }
-        subCommand = bytesSubCommand.toUtf8String();
+        subCommand = bytesSubCommand.toUtf8String().toLowerCase();
         switch (subCommand) {
             case "setname":
                 if ((clientName = getStringSubCommandArgs(ctx, array, 2, subCommand)) == null) {

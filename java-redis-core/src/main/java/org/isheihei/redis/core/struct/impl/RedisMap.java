@@ -6,6 +6,7 @@ import org.isheihei.redis.core.struct.RedisDataStruct;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -24,7 +25,7 @@ public class RedisMap extends HashMap<BytesWrapper, BytesWrapper> implements Red
 
     public List<BytesWrapper> getAll() {
         int size = this.size();
-        List<BytesWrapper> list = new ArrayList<>(size * 2);
+        List<BytesWrapper> list = new LinkedList<>();
         Iterator<Entry<BytesWrapper, BytesWrapper>> iterator = this.entrySet().iterator();
         while (iterator.hasNext()) {
             Entry<BytesWrapper, BytesWrapper> next = iterator.next();

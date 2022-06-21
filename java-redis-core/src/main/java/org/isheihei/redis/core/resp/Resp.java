@@ -11,11 +11,14 @@ import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 /**
  * @ClassName: Resp
- * @Description: Redis Serialization Protocol协议
+ * @Description: Redis Serialization Protocol协议 TODO 读写byte
  * @Date: 2022/6/1 13:15
  * @Author: isheihei
  */
 public interface Resp {
+
+    org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(Resp.class);
+
     /**
      * @Description: 回写
      * @Param: resp 

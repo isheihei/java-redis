@@ -14,7 +14,7 @@ import org.isheihei.redis.core.struct.RedisDataStructType;
 public class RedisListObject extends AbstractRedisObject {
     private RedisDataStruct list;
     public RedisListObject() {
-        setEncoding(RedisDataStructType.redisDoubleLinkedList);
+        setEncoding(RedisDataStructType.REDIS_DOUBLE_LINKED_LIST);
         list = getEncoding().getSupplier().get();
     }
 

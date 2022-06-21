@@ -16,7 +16,7 @@ import java.util.Set;
  */
 public class RedisDBImpl implements RedisDB {
     private final Map<BytesWrapper, RedisObject> dict = new HashMap<>();
-//    private final ConcurrentHashMap<RedisDynamicString, RedisObject> dict = new ConcurrentHashMap<>();
+//    private final ConcurrentHashMap<RedisString, RedisObject> dict = new ConcurrentHashMap<>();
 
     //  过期字典
     private final Map<BytesWrapper, Long> expires = new HashMap<>();

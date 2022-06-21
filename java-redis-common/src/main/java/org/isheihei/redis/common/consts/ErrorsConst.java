@@ -26,4 +26,9 @@ public class ErrorsConst {
     public static final String VALUE_IS_NOT_INT = "ERR value is not an integer or out of range";
     public static final String INVALID_DB_INDEX = "ERR invalid DB index";
 
+    public static final String INVALID_FLOAT = "ERR value is not a valid float";
+
+    public static final String SYNTAX_ERROR = "ERR syntax error";
+
+    public static final String MIN_OR_MAX_NOT_FLOAT = "ERR min or max is not a float";
 }
