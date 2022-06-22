@@ -1,12 +1,13 @@
 package org.isheihei.redis.core.command.impl.set;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.command.AbstractWriteCommand;
+import org.isheihei.redis.core.command.CommandType;
+import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.obj.impl.RedisSetObject;
+import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.BulkString;
 import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.impl.RespInt;
@@ -36,61 +37,35 @@ public class SRem extends AbstractWriteCommand {
     }
 
     @Override
-    public void handleWrite(ChannelHandlerContext ctx, RedisClient redisClient) {
-        if ((key = getBytesWrapper(ctx, array, 1)) == null) {
-            return;
+    public Resp handleWrite(RedisClient redisClient) {
+        if ((key = getBytesWrapper(array, 1)) == null) {
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
         items = Arrays.stream(array)
                 .skip(2)
                 .map(resp -> ((BulkString) resp).getContent())
                 .collect(Collectors.toList());
         if (items.size() == 0) {
-            ctx.writeAndFlush(new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
-            return;
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
-        RedisObject redisObject = redisClient.getDb().get(key);
+        RedisDB db = redisClient.getDb();
+        RedisObject redisObject = db.get(key);
         if (redisObject == null) {
-            ctx.writeAndFlush(new RespInt(0));
-            return;
+            return new RespInt(0);
         }
         if (redisObject instanceof RedisSetObject) {
             RedisDataStruct data = redisObject.data();
             if (data instanceof RedisSet) {
                 RedisSet set = (RedisSet) data;
                 int res = set.rem(items);
-                ctx.writeAndFlush(new RespInt(res));
+                db.touchWatchKey(key);
+                db.plusDirty();
+                return new RespInt(res);
             } else {
                 throw new UnsupportedOperationException();
             }
         } else {
-            ctx.writeAndFlush(new Errors(ErrorsConst.WRONG_TYPE_OPERATION));
-        }
-    }
-
-    @Override
-    public void handleLoadAof(RedisClient redisClient) {
-        if ((key = getBytesWrapper(array, 1)) == null) {
-            return;
-        }
-        items = Arrays.stream(array)
-                .skip(2)
-                .map(resp -> ((BulkString) resp).getContent())
-                .collect(Collectors.toList());
-        if (items.size() == 0) {
-            return;
-        }
-        RedisObject redisObject = redisClient.getDb().get(key);
-        if (redisObject == null) {
-            return;
-        }
-        if (redisObject instanceof RedisSetObject) {
-            RedisDataStruct data = redisObject.data();
-            if (data instanceof RedisSet) {
-                RedisSet set = (RedisSet) data;
-                int res = set.rem(items);
-            } else {
-                throw new UnsupportedOperationException();
-            }
+            return new Errors(ErrorsConst.WRONG_TYPE_OPERATION);
         }
     }
 }

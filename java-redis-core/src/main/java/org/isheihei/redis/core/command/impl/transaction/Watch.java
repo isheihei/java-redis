@@ -1,14 +1,13 @@
-package org.isheihei.redis.core.command.impl.key;
+package org.isheihei.redis.core.command.impl.transaction;
 
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractCommand;
 import org.isheihei.redis.core.command.CommandType;
-import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.BulkString;
 import org.isheihei.redis.core.resp.impl.Errors;
-import org.isheihei.redis.core.resp.impl.RespInt;
+import org.isheihei.redis.core.resp.impl.SimpleString;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 import java.util.Arrays;
@@ -16,18 +15,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @ClassName: Exists
- * @Description: 检查给定 key 是否存在
- * @Date: 2022/6/11 15:41
+ * @ClassName: Watch
+ * @Description: 标记要监视的key
+ * @Date: 2022/6/22 15:50
  * @Author: isheihei
  */
-public class Exists extends AbstractCommand {
+public class Watch extends AbstractCommand {
 
     private List<BytesWrapper> keyList;
 
+
     @Override
     public CommandType type() {
-        return CommandType.exists;
+        return CommandType.watch;
     }
 
     @Override
@@ -36,8 +36,7 @@ public class Exists extends AbstractCommand {
         if (keyList.size() == 0) {
             return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
-        RedisDB db = redisClient.getDb();
-        int res = db.exist(keyList);
-        return new RespInt(res);
+        redisClient.getDb().watchKeys(keyList, redisClient);
+        return SimpleString.OK;
     }
 }

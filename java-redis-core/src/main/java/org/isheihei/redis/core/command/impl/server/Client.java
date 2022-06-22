@@ -1,11 +1,11 @@
 package org.isheihei.redis.core.command.impl.server;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.common.util.TRACEID;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractCommand;
 import org.isheihei.redis.core.command.CommandType;
+import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.BulkString;
 import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.impl.SimpleString;
@@ -29,32 +29,30 @@ public class Client extends AbstractCommand {
     }
 
     @Override
-    public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
+    public Resp handle(RedisClient redisClient) {
         String traceId = TRACEID.currentTraceId();
         LOGGER.debug("traceId:{} 当前的子命令是：{}" + traceId + subCommand);
         BytesWrapper bytesSubCommand;
-        if ((bytesSubCommand = getBytesWrapper(ctx, array, 1)) == null) {
-            return;
+        if ((bytesSubCommand = getBytesWrapper(array, 1)) == null) {
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
         subCommand = bytesSubCommand.toUtf8String().toLowerCase();
         switch (subCommand) {
             case "setname":
-                if ((clientName = getStringSubCommandArgs(ctx, array, 2, subCommand)) == null) {
-                    return;
+                if ((clientName = getStringSubCommandArgs(array, 2)) == null) {
+                    return new Errors(String.format(ErrorsConst.SUBCOMMAND_WRONG_ARGS_NUMBER, type().toString().toUpperCase(), subCommand));
                 }
                 redisClient.setName(clientName);
-                ctx.writeAndFlush(SimpleString.OK);
-                break;
+                return SimpleString.OK;
             case "getname":
                 String name = redisClient.getName();
                 if (name == null) {
-                    ctx.writeAndFlush(BulkString.NullBulkString);
+                    return BulkString.NullBulkString;
                 } else {
-                    ctx.writeAndFlush(new SimpleString(name));
+                    return new SimpleString(name);
                 }
-                break;
             default:
-                ctx.writeAndFlush(new Errors(String.format(ErrorsConst.CLIENT_SUB_COMMAND_ERROR)));
+                return new Errors(String.format(ErrorsConst.CLIENT_SUB_COMMAND_ERROR));
         }
     }
 }

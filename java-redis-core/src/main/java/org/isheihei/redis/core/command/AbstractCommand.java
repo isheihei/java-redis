@@ -1,6 +1,5 @@
 package org.isheihei.redis.core.command;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.RespArray;
@@ -27,6 +26,6 @@ public abstract class AbstractCommand implements Command {
     public abstract CommandType type();
 
     @Override
-    public abstract void handle(ChannelHandlerContext ctx, RedisClient redisClient);
+    public abstract Resp handle(RedisClient redisClient);
 
 }

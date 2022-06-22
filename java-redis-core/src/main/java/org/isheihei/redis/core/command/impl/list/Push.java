@@ -1,13 +1,13 @@
 package org.isheihei.redis.core.command.impl.list;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.command.AbstractWriteCommand;
+import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.obj.impl.RedisListObject;
+import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.impl.RespInt;
 import org.isheihei.redis.core.struct.RedisDataStruct;
@@ -28,21 +28,20 @@ public abstract class Push extends AbstractWriteCommand {
     public abstract CommandType type();
 
     @Override
-    public abstract void handleWrite(ChannelHandlerContext ctx, RedisClient redisClient);
-
-    @Override
-    public abstract void handleLoadAof(RedisClient redisClient);
+    public abstract Resp handleWrite(RedisClient redisClient);
 
     /**
      * @Description: 提取列表插入公共方法
-     * @Param: ctx
      * @Param: redisClient
-     * @Param: true：左，false：右
+     * @Param: direct
+     * @Param: key
+     * @Param: values
+     * @Return: Resp
      * @Author: isheihei
      */
-    public void lrPush(ChannelHandlerContext ctx, RedisClient redisClient, boolean direct, BytesWrapper key, List<BytesWrapper> values) {
+    public Resp lrPush(RedisClient redisClient, boolean direct, BytesWrapper key, List<BytesWrapper> values) {
         if (values.size() == 0) {
-            ctx.writeAndFlush(new RespInt(0));
+            return new RespInt(0);
         }
         RedisDB db = redisClient.getDb();
         RedisObject redisObject = db.get(key);
@@ -60,39 +59,14 @@ public abstract class Push extends AbstractWriteCommand {
                 } else {
                     list.rpush(values);
                 }
-                ctx.writeAndFlush(new RespInt(list.size()));
+                db.touchWatchKey(key);
+                db.plusDirty();
+                return new RespInt(list.size());
             } else {
                 throw  new UnsupportedOperationException();
             }
         } else {
-            ctx.writeAndFlush(new Errors(ErrorsConst.WRONG_TYPE_OPERATION));
-            return;
-        }
-    }
-
-    public void lrPush(RedisClient redisClient, boolean direct, BytesWrapper key, List<BytesWrapper> values) {
-        if (values.size() == 0) {
-            return;
-        }
-        RedisDB db = redisClient.getDb();
-        RedisObject redisObject = db.get(key);
-        if (redisObject == null) {
-            // 不存在列表 则创建
-            redisObject = new RedisListObject();
-            db.put(key, redisObject);
-        }
-        if (redisObject instanceof RedisListObject) {
-            RedisDataStruct data = redisObject.data();
-            if (data instanceof RedisDoubleLinkedList) {
-                RedisDoubleLinkedList list = (RedisDoubleLinkedList) data;
-                if (direct) {
-                    list.lpush(values);
-                } else {
-                    list.rpush(values);
-                }
-            } else {
-                throw  new UnsupportedOperationException();
-            }
+            return new Errors(ErrorsConst.WRONG_TYPE_OPERATION);
         }
     }
 

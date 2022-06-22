@@ -1,6 +1,5 @@
 package org.isheihei.redis.core.command.impl.string;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractCommand;
@@ -35,15 +34,14 @@ public class MGet extends AbstractCommand {
     }
 
     @Override
-    public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
+    public Resp handle(RedisClient redisClient) {
         keys = Arrays.stream(array).skip(1).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
-        if (keys.size() == 0 || keys == null) {
-            ctx.writeAndFlush(new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
-            return;
+        if (keys.size() == 0) {
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
         RedisDB db = redisClient.getDb();
         Resp[] array = keys.stream()
-                .map(key -> db.get(key))
+                .map(db::get)
                 .map(redisObject -> {
                     if (redisObject == null) {
                         return BulkString.NullBulkString;
@@ -59,7 +57,6 @@ public class MGet extends AbstractCommand {
                     }
                 })
                 .toArray(Resp[]::new);
-        ctx.writeAndFlush(new RespArray(array));
-
+        return new RespArray(array);
     }
 }

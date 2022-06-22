@@ -1,9 +1,9 @@
 package org.isheihei.redis.core.command.impl.server;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractCommand;
 import org.isheihei.redis.core.command.CommandType;
+import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.RespInt;
 
 /**
@@ -19,7 +19,7 @@ public class DbSize extends AbstractCommand {
     }
 
     @Override
-    public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
-        ctx.writeAndFlush(new RespInt(redisClient.getDb().size()));
+    public Resp handle(RedisClient redisClient) {
+        return new RespInt(redisClient.getDb().size());
     }
 }

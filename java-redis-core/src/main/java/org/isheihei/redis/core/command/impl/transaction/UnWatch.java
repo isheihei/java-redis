@@ -1,4 +1,4 @@
-package org.isheihei.redis.core.command.impl.server;
+package org.isheihei.redis.core.command.impl.transaction;
 
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractCommand;
@@ -7,20 +7,22 @@ import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.SimpleString;
 
 /**
- * @ClassName: BgSave
- * @Description: 后台保存DB
- * @Date: 2022/6/22 11:33
+ * @ClassName: UnWatch
+ * @Description: 取消 WATCH 命令对所有 key 的监视
+ * @Date: 2022/6/22 15:49
  * @Author: isheihei
  */
-public class BgSave extends AbstractCommand {
+public class UnWatch extends AbstractCommand {
 
     @Override
     public CommandType type() {
-        return CommandType.bgsave;
+        return CommandType.unwatch;
     }
 
     @Override
     public Resp handle(RedisClient redisClient) {
-        return new SimpleString("Background saving started");
+        redisClient.setDirtyCas(false);
+        redisClient.unWatchKeys(redisClient);
+        return SimpleString.OK;
     }
 }

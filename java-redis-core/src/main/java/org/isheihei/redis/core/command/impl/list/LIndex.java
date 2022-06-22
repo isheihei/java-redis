@@ -1,12 +1,12 @@
 package org.isheihei.redis.core.command.impl.list;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractCommand;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.obj.impl.RedisListObject;
+import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.BulkString;
 import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.struct.RedisDataStruct;
@@ -31,26 +31,24 @@ public class LIndex extends AbstractCommand {
     }
 
     @Override
-    public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
-        if ((key = getBytesWrapper(ctx, array, 1)) == null) {
-            return;
+    public Resp handle(RedisClient redisClient) {
+        if ((key = getBytesWrapper(array, 1)) == null) {
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
         BytesWrapper indexBytes;
-        if ((indexBytes = getBytesWrapper(ctx, array, 2)) == null) {
-            return;
+        if ((indexBytes = getBytesWrapper(array, 2)) == null) {
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
         try {
             index = Integer.parseInt(indexBytes.toUtf8String());
         } catch (NumberFormatException e) {
             LOGGER.error("参数无法转换为数字", e);
-            ctx.writeAndFlush(new Errors(ErrorsConst.VALUE_IS_NOT_INT));
-            return;
+            return new Errors(ErrorsConst.VALUE_IS_NOT_INT);
         }
 
         RedisObject redisObject = redisClient.getDb().get(key);
         if (redisObject == null) {
-            ctx.writeAndFlush(BulkString.NullBulkString);
-            return;
+            return BulkString.NullBulkString;
         }
         if (redisObject instanceof RedisListObject) {
             RedisDataStruct data = redisObject.data();
@@ -58,15 +56,15 @@ public class LIndex extends AbstractCommand {
                 RedisDoubleLinkedList list = (RedisDoubleLinkedList) data;
                 BytesWrapper value = list.index(index);
                 if (value == null) {
-                    ctx.writeAndFlush(BulkString.NullBulkString);
+                    return BulkString.NullBulkString;
                 } else {
-                    ctx.writeAndFlush(new BulkString(value));
+                    return new BulkString(value);
                 }
             } else {
                 throw new UnsupportedOperationException();
             }
         } else {
-            ctx.writeAndFlush(new Errors(ErrorsConst.WRONG_TYPE_OPERATION));
+            return new Errors(ErrorsConst.WRONG_TYPE_OPERATION);
         }
     }
 }

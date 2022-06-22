@@ -1,9 +1,11 @@
 package org.isheihei.redis.core.db;
 
+import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -21,6 +23,9 @@ public class RedisDBImpl implements RedisDB {
 
     //  过期字典
     private final Map<BytesWrapper, Long> expires = new HashMap<>();
+
+    // watch_keys
+    private final Map<BytesWrapper, List<RedisClient>> watchKeys = new HashMap<>();
 
     // 距离上一次 save 或 bgsave 后服务器进行了多少修改
     private long dirty = 0;
@@ -45,10 +50,38 @@ public class RedisDBImpl implements RedisDB {
         return expires;
     }
 
+    @Override
+    public void touchWatchKey(BytesWrapper key) {
+        if (watchKeys.containsKey(key)) {
+            for (RedisClient client : watchKeys.get(key)) {
+                client.setDirtyCas(true);
+            }
+        }
+    }
+
+    @Override
+    public void watchKeys(List<BytesWrapper> keys, RedisClient redisClient) {
+        keys.forEach(key -> {
+            if (watchKeys.containsKey(key)) {
+                watchKeys.get(key).add(redisClient);
+            } else {
+                LinkedList<RedisClient> clients = new LinkedList<>();
+                clients.add(redisClient);
+                watchKeys.put(key, clients);
+            }
+        });
+    }
+
+    @Override
+    public void unWatchKeys(RedisClient redisClient) {
+        for (Map.Entry<BytesWrapper, List<RedisClient>> next : watchKeys.entrySet()) {
+            next.getValue().remove(redisClient);
+        }
+    }
+
 
     @Override
     public boolean exist(BytesWrapper key) {
-
         RedisObject redisObject = dict.get(key);
         if (redisObject == null) {
             return false;
@@ -146,9 +179,7 @@ public class RedisDBImpl implements RedisDB {
     @Override
     public boolean isExpired(BytesWrapper key) {
         if (expires.containsKey(key)) {
-            if (expires.get(key) < System.currentTimeMillis()) {
-                return true;
-            }
+            return expires.get(key) < System.currentTimeMillis();
         }
         return false;
     }
@@ -194,6 +225,16 @@ public class RedisDBImpl implements RedisDB {
     }
 
     @Override
+    public void plusDirty() {
+        dirty++;
+    }
+
+    @Override
+    public void plusDirty(int plus) {
+        dirty += plus;
+    }
+
+    @Override
     public void resetDirty() {
         dirty = 0;
     }
@@ -201,6 +242,10 @@ public class RedisDBImpl implements RedisDB {
     @Override
     public void flushDb() {
         dirty += dict.size();
+        for (Map.Entry<BytesWrapper, List<RedisClient>> bytesWrapperListEntry : watchKeys.entrySet()) {
+            bytesWrapperListEntry.getValue().forEach(redisClient -> redisClient.setDirtyCas(true));
+        }
+        plusDirty(dict.size());
         dict.clear();
         expires.clear();
     }

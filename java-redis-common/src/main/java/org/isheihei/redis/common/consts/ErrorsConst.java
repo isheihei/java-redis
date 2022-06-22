@@ -31,4 +31,7 @@ public class ErrorsConst {
     public static final String SYNTAX_ERROR = "ERR syntax error";
 
     public static final String MIN_OR_MAX_NOT_FLOAT = "ERR min or max is not a float";
+    public static final String MULTI_CAN_NOT_NESTED = "ERR MULTI calls can not be nested";
+    public static final String EXEC_WITHOUT_MULTI = "ERR EXEC without MULTI";
+    public static final String DISCARD_WITHOUT_MULTI = "ERR DISCARD without MULTI";
 }

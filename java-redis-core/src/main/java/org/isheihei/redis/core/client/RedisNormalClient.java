@@ -1,8 +1,11 @@
 package org.isheihei.redis.core.client;
 
+import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.db.RedisDB;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.UUID;
 
 /**
@@ -27,8 +30,13 @@ public class RedisNormalClient implements RedisClient{
     // 当前使用的数据库索引
     private int dbIndex = 0;
 
-    // 标志，可以i有多个，暂不实现
-//    private String[] flags;
+    // 事务标志 true表示开启了一个事务
+    private boolean flag = false;
+
+    private final Queue<Command> multiCmd = new LinkedList<>();
+
+    // 事务安全性标志 false表示安全
+    private boolean dirtyCas = false;
 
     // 是否通过了身份验证，0：未通过，1：通过
     private int authenticated = 0;
@@ -56,6 +64,41 @@ public class RedisNormalClient implements RedisClient{
     }
 
     @Override
+    public void setFlag(boolean flag) {
+        this.flag = flag;
+    }
+
+    @Override
+    public boolean getFlag() {
+        return this.flag;
+    }
+
+    @Override
+    public void setDirtyCas(boolean dirtyCas) {
+        this.dirtyCas = dirtyCas;
+    }
+
+    @Override
+    public boolean getDirtyCas() {
+        return dirtyCas;
+    }
+
+    @Override
+    public void addCommand(Command command) {
+        multiCmd.add(command);
+    }
+
+    @Override
+    public void flushCommand() {
+        multiCmd.clear();
+    }
+
+    @Override
+    public Command getCommand() {
+        return multiCmd.poll();
+    }
+
+    @Override
     public int getAuth() {
         return authenticated;
     }
@@ -78,7 +121,15 @@ public class RedisNormalClient implements RedisClient{
     @Override
     public void flushAll() {
         for (RedisDB db : dbs) {
+            db.plusDirty(db.size());
             db.flushDb();
+        }
+    }
+
+    @Override
+    public void unWatchKeys(RedisClient redisClient) {
+        for (RedisDB db : dbs) {
+            db.unWatchKeys(redisClient);
         }
     }
 }

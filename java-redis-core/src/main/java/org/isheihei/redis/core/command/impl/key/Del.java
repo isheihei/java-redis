@@ -1,11 +1,11 @@
 package org.isheihei.redis.core.command.impl.key;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractWriteCommand;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.db.RedisDB;
+import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.BulkString;
 import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.impl.RespInt;
@@ -31,24 +31,14 @@ public class Del extends AbstractWriteCommand {
     }
 
     @Override
-    public void handleWrite(ChannelHandlerContext ctx, RedisClient redisClient) {
+    public Resp handleWrite(RedisClient redisClient) {
         keyList = Arrays.stream(array).skip(1).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
         if (keyList.size() == 0) {
-            ctx.writeAndFlush(new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
-            return;
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
         RedisDB db = redisClient.getDb();
         int delete = db.delete(keyList);
-        ctx.writeAndFlush(new RespInt(delete));
-    }
-
-    @Override
-    public void handleLoadAof(RedisClient redisClient) {
-        keyList = Arrays.stream(array).skip(1).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
-        if (keyList.size() == 0) {
-            return;
-        }
-        RedisDB db = redisClient.getDb();
-        int delete = db.delete(keyList);
+        db.plusDirty();
+        return new RespInt(delete);
     }
 }

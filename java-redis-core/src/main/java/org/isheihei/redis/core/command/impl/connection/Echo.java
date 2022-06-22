@@ -1,10 +1,12 @@
 package org.isheihei.redis.core.command.impl.connection;
 
-import io.netty.channel.ChannelHandlerContext;
+import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractCommand;
 import org.isheihei.redis.core.command.CommandType;
+import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.BulkString;
+import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 /**
@@ -24,10 +26,10 @@ public class Echo extends AbstractCommand {
 
 
     @Override
-    public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
-        if ((message = getBytesWrapper(ctx, array, 1)) == null) {
-            return;
+    public Resp handle(RedisClient redisClient) {
+        if ((message = getBytesWrapper(array, 1)) == null) {
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
-        ctx.writeAndFlush(new BulkString(message));
+        return new BulkString(message);
     }
 }

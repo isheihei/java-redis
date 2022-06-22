@@ -1,6 +1,5 @@
 package org.isheihei.redis.core.command;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.persist.aof.Aof;
 import org.isheihei.redis.core.resp.Resp;
@@ -29,11 +28,11 @@ public abstract class AbstractWriteCommand implements Command {
     }
 
     @Override
-    public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
-        handleWrite(ctx, redisClient);
+    public Resp handle(RedisClient redisClient) {
         if (aofOn) {
             putAof();
         }
+        return handleWrite(redisClient);
     }
 
     public void setAof(Aof aof) {
@@ -52,19 +51,23 @@ public abstract class AbstractWriteCommand implements Command {
     }
     @Override
     public abstract CommandType type();
+
+
     /**
      * @Description: handle 处理操作
-     * @Param: ctx
      * @Param: redisClient
+     * @Return: Resp
      * @Author: isheihei
      */
-    public abstract void handleWrite(ChannelHandlerContext ctx, RedisClient redisClient);
+    public abstract Resp handleWrite(RedisClient redisClient);
 
     /**
      * @Description: aof 载入操作
      * @Param: redisClient
      * @Author: isheihei
      */
-    public abstract void handleLoadAof(RedisClient redisClient);
+    public void handleLoadAof(RedisClient redisClient) {
+        handleWrite(redisClient);
+    }
 
 }

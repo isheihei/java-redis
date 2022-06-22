@@ -1,10 +1,13 @@
 package org.isheihei.redis.core.command.impl.string;
 
-import io.netty.channel.ChannelHandlerContext;
+import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.command.AbstractWriteCommand;
+import org.isheihei.redis.core.command.CommandType;
+import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.impl.RedisStringObject;
+import org.isheihei.redis.core.resp.Resp;
+import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.impl.SimpleString;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
@@ -26,27 +29,18 @@ public class Set extends AbstractWriteCommand {
     }
 
     @Override
-    public void handleWrite(ChannelHandlerContext ctx, RedisClient redisClient) {
-        if ((key = getBytesWrapper(ctx, array, 1)) == null) {
-            return;
-        }
-        if ((value = getBytesWrapper(ctx, array, 2)) == null) {
-            return;
-        }
-        RedisStringObject stringObject = new RedisStringObject(value);
-        redisClient.getDb().put(key, stringObject);
-        ctx.writeAndFlush(SimpleString.OK);
-    }
-
-    @Override
-    public void handleLoadAof(RedisClient redisClient) {
+    public Resp handleWrite(RedisClient redisClient) {
         if ((key = getBytesWrapper(array, 1)) == null) {
-            return;
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
         if ((value = getBytesWrapper(array, 2)) == null) {
-            return;
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
         RedisStringObject stringObject = new RedisStringObject(value);
-        redisClient.getDb().put(key, stringObject);
+        RedisDB db = redisClient.getDb();
+        db.put(key, stringObject);
+        db.touchWatchKey(key);
+        db.plusDirty();
+        return SimpleString.OK;
     }
 }

@@ -1,10 +1,10 @@
 package org.isheihei.redis.core.command.impl.connection;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.command.AbstractWriteCommand;
+import org.isheihei.redis.core.command.CommandType;
+import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.impl.SimpleString;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
@@ -24,45 +24,22 @@ public class Select extends AbstractWriteCommand {
         return CommandType.select;
     }
 
-
     @Override
-    public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
-        BytesWrapper indexBytes;
-        if ((indexBytes = getBytesWrapper(ctx, array, 1)) == null) {
-            ctx.writeAndFlush(new Errors(ErrorsConst.INVALID_DB_INDEX));
-            return;
-        }
-        try {
-            index = Integer.parseInt(indexBytes.toUtf8String());
-        } catch (NumberFormatException e) {
-            LOGGER.error("数据库索引不是整数类型");
-            ctx.writeAndFlush(new Errors(ErrorsConst.INVALID_DB_INDEX));
-            return;
-        }
-        if (redisClient.setDb(index)) {
-            ctx.writeAndFlush(SimpleString.OK);
-        } else {
-            ctx.writeAndFlush(new Errors(ErrorsConst.INVALID_DB_INDEX));
-        }
-    }
-
-    @Override
-    public void handleWrite(ChannelHandlerContext ctx, RedisClient redisClient) {
-
-    }
-
-    @Override
-    public void handleLoadAof(RedisClient redisClient) {
+    public Resp handleWrite(RedisClient redisClient) {
         BytesWrapper indexBytes;
         if ((indexBytes = getBytesWrapper(array, 1)) == null) {
-            return;
+            return  new Errors(ErrorsConst.INVALID_DB_INDEX);
         }
         try {
             index = Integer.parseInt(indexBytes.toUtf8String());
         } catch (NumberFormatException e) {
             LOGGER.error("数据库索引不是整数类型");
-            return;
+            return new Errors(ErrorsConst.INVALID_DB_INDEX);
         }
-        redisClient.setDb(index);
+        if (redisClient.setDb(index)) {
+            return SimpleString.OK;
+        } else {
+            return new Errors(ErrorsConst.INVALID_DB_INDEX);
+        }
     }
 }

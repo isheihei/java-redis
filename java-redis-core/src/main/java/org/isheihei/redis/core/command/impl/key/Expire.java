@@ -1,11 +1,11 @@
 package org.isheihei.redis.core.command.impl.key;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.command.AbstractWriteCommand;
+import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.db.RedisDB;
+import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.BulkString;
 import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.impl.RespArray;
@@ -33,29 +33,27 @@ public class Expire extends AbstractWriteCommand {
     }
 
     @Override
-    public void handleWrite(ChannelHandlerContext ctx, RedisClient redisClient) {
-        if ((key = getBytesWrapper(ctx, array, 1)) == null) {
-            return;
+    public Resp handleWrite(RedisClient redisClient) {
+        if ((key = getBytesWrapper(array, 1)) == null) {
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
         BytesWrapper bytesExpireAt;
-        if ((bytesExpireAt = getBytesWrapper(ctx, array, 2)) == null) {
-            return;
+        if ((bytesExpireAt = getBytesWrapper(array, 2)) == null) {
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
         try {
             long timeout = Long.parseLong(bytesExpireAt.toUtf8String());
             expireAt = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(timeout);
         } catch (NumberFormatException e) {
             LOGGER.error("参数无法转换为时间戳", e);
-            ctx.writeAndFlush(new Errors(ErrorsConst.VALUE_IS_NOT_INT));
-            return;
+            return new Errors(ErrorsConst.VALUE_IS_NOT_INT);
         }
         RedisDB db = redisClient.getDb();
         if (db.get(key) == null) {
-            ctx.writeAndFlush(new RespInt(0));
-            return;
+            return new RespInt(0);
         }
         int res = db.expire(key, expireAt);
-        ctx.writeAndFlush(new RespInt(res));
+        return new RespInt(res);
     }
 
     @Override
@@ -68,9 +66,8 @@ public class Expire extends AbstractWriteCommand {
             return;
         }
         try {
-            long timeout = Long.parseLong(bytesExpireAt.toUtf8String());
             // aof 载入时直接载入绝对时间
-            expireAt = timeout;
+            expireAt = Long.parseLong(bytesExpireAt.toUtf8String());
         } catch (NumberFormatException e) {
             LOGGER.error("参数无法转换为时间戳", e);
             return;

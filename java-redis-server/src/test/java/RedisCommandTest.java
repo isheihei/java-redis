@@ -3,6 +3,7 @@ import org.isheihei.redis.server.channel.SingleChannelSelectStrategy;
 import org.junit.Assert;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Transaction;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,30 +16,26 @@ import java.util.Map;
  */
 public class RedisCommandTest {
     private static final String OK = "OK";
-
     private static final String STRING_KEY = "string_key";
-
     private static final String LIST_KEY = "list_key";
-
     private static final String HASH_KEY = "hash_key";
-
     private static final String SET_KEY1 = "set_key1";
     private static final String SET_KEY2 = "set_key2";
     private static final String SET_KEY3 = "set_key3";
-
     private static final String Z_SET_KEY = "zset_key";
 
     @Test
     public void commandTest() {
         new RedisNetServer()
                 .ip("0.0.0.0")
-                .port(6379)
+                .port(6389)
                 .channelOption(new SingleChannelSelectStrategy())
                 .dbNum(16)
                 .aof(false)
+                .rdb(false)
                 .init()
                 .start();
-        Jedis jedis = new Jedis("127.0.0.1", 6379);
+        Jedis jedis = new Jedis("127.0.0.1", 6389);
 
         // server
         jedis.flushAll();
@@ -159,5 +156,20 @@ public class RedisCommandTest {
         Assert.assertEquals(Double.valueOf(1.0), jedis.zscore(Z_SET_KEY, "a"));
         Assert.assertEquals(1, jedis.zrem(Z_SET_KEY, "a").longValue());
         Assert.assertEquals(2, jedis.zcard(Z_SET_KEY).longValue());
+
+        // transaction
+        jedis.flushAll();
+        jedis.watch(STRING_KEY);
+        jedis.set(STRING_KEY, "value");
+        Transaction transaction1 = jedis.multi();
+        transaction1.get(STRING_KEY);
+        Assert.assertNull(transaction1.exec().get(0));
+        jedis.watch(STRING_KEY);
+        Transaction transaction2 = jedis.multi();
+        transaction2.get(STRING_KEY);
+        Assert.assertEquals("value", transaction2.exec().get(0));
+        Transaction transaction3 = jedis.multi();
+        transaction3.get(STRING_KEY);
+        Assert.assertEquals(OK, transaction3.discard());
     }
 }

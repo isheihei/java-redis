@@ -1,6 +1,5 @@
 package org.isheihei.redis.core.command.impl.zset;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractCommand;
@@ -41,21 +40,24 @@ public class ZRangeByScore extends AbstractCommand {
     }
 
     @Override
-    public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
-        if ((key = getBytesWrapper(ctx, array, 1)) == null) {
-            return;
+    public Resp handle(RedisClient redisClient) {
+        if ((key = getBytesWrapper(array, 1)) == null) {
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
         BytesWrapper minBytes;
         BytesWrapper maxBytes;
-        if ((minBytes = getBytesWrapper(ctx, array, 2)) == null) return;
-        if ((maxBytes = getBytesWrapper(ctx, array, 3)) == null) return;
+        if ((minBytes = getBytesWrapper(array, 2)) == null) {
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
+        }
+        if ((maxBytes = getBytesWrapper(array, 3)) == null) {
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
+        }
         try {
             min = Double.parseDouble(minBytes.toUtf8String());
             max = Double.parseDouble(maxBytes.toUtf8String());
         } catch (NumberFormatException e) {
             LOGGER.error("参数无法转换为数字", e);
-            ctx.writeAndFlush(new Errors(ErrorsConst.MIN_OR_MAX_NOT_FLOAT));
-            return;
+            return new Errors(ErrorsConst.MIN_OR_MAX_NOT_FLOAT);
         }
         BytesWrapper arg = getBytesWrapper(array, 4);
         if (arg != null) {
@@ -66,20 +68,19 @@ public class ZRangeByScore extends AbstractCommand {
 
         RedisObject redisObject = redisClient.getDb().get(key);
         if (redisObject == null) {
-            ctx.writeAndFlush(new RespInt(0));
-            return;
+            return new RespInt(0);
         }
         if (redisObject instanceof RedisZSetObject) {
             RedisDataStruct data = redisObject.data();
             if (data instanceof RedisZSet) {
                 RedisZSet zSet = (RedisZSet) data;
                 List<BytesWrapper> res = zSet.zRangeByScores(min, max, withScores);
-                ctx.writeAndFlush(new RespArray(res.stream().map(BulkString::new).toArray(Resp[]::new)));
+                return new RespArray(res.stream().map(BulkString::new).toArray(Resp[]::new));
             } else {
                 throw new UnsupportedOperationException();
             }
         } else {
-            ctx.writeAndFlush(new Errors(ErrorsConst.WRONG_TYPE_OPERATION));
+            return new Errors(ErrorsConst.WRONG_TYPE_OPERATION);
         }
     }
 }

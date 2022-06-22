@@ -1,9 +1,11 @@
 package org.isheihei.redis.core.command.impl.list;
 
-import io.netty.channel.ChannelHandlerContext;
+import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
+import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.BulkString;
+import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 import java.util.Arrays;
@@ -27,16 +29,11 @@ public class RPush extends Push{
     }
 
     @Override
-    public void handleWrite(ChannelHandlerContext ctx, RedisClient redisClient) {
-        if ((key = getBytesWrapper(ctx, array, 1)) == null) return;
+    public Resp handleWrite(RedisClient redisClient) {
+        if ((key = getBytesWrapper(array, 1)) == null) {
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
+        }
         values = Arrays.stream(array).skip(2).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
-        lrPush(ctx, redisClient, false, key, values);
-    }
-
-    @Override
-    public void handleLoadAof(RedisClient redisClient) {
-        if ((key = getBytesWrapper(array, 1)) == null) return;
-        values = Arrays.stream(array).skip(2).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
-        lrPush(redisClient, false, key, values);
+        return lrPush(redisClient, false, key, values);
     }
 }

@@ -1,9 +1,9 @@
 package org.isheihei.redis.core.command.impl.server;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractWriteCommand;
 import org.isheihei.redis.core.command.CommandType;
+import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.SimpleString;
 
 /**
@@ -20,14 +20,9 @@ public class FlushAll extends AbstractWriteCommand {
     }
 
     @Override
-    public void handleWrite(ChannelHandlerContext ctx, RedisClient redisClient) {
+    public Resp handleWrite(RedisClient redisClient) {
         redisClient.flushAll();
-        ctx.writeAndFlush(SimpleString.OK);
-    }
-
-    @Override
-    public void handleLoadAof(RedisClient redisClient) {
-        redisClient.flushAll();
+        return SimpleString.OK;
     }
 
 }

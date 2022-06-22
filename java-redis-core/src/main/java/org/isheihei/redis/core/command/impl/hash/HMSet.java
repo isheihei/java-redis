@@ -1,13 +1,13 @@
 package org.isheihei.redis.core.command.impl.hash;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.command.AbstractWriteCommand;
+import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.obj.impl.RedisMapObject;
+import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.BulkString;
 import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.impl.SimpleString;
@@ -36,18 +36,16 @@ public class HMSet extends AbstractWriteCommand {
     }
 
     @Override
-    public void handleWrite(ChannelHandlerContext ctx, RedisClient redisClient) {
+    public Resp handleWrite(RedisClient redisClient) {
         // TODO 原子性未实现
-        if ((key = getBytesWrapper(ctx, array, 1)) == null) {
-            return;
+        if ((key = getBytesWrapper(array, 1)) == null) {
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
         if ((array.length - 2) == 0) {
-            ctx.writeAndFlush(new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
-            return;
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
         if ((array.length - 2) % 2 != 0) {
-            ctx.writeAndFlush(new Errors(String.format(ErrorsConst.WRONG_ARGS_NUMBER, type().toString().toUpperCase())));
-            return;
+            return new Errors(String.format(ErrorsConst.WRONG_ARGS_NUMBER, type().toString().toUpperCase()));
         }
 
         fvLists = Arrays.stream(array).skip(2).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
@@ -62,44 +60,14 @@ public class HMSet extends AbstractWriteCommand {
             if (data instanceof RedisMap) {
                 RedisMap map = ((RedisMap) redisObject.data());
                 map.mset(fvLists);
-                ctx.writeAndFlush(SimpleString.OK);
+                db.touchWatchKey(key);
+                db.plusDirty();
+                return SimpleString.OK;
             } else {
                 throw new UnsupportedOperationException();
             }
         } else {
-            ctx.writeAndFlush(new Errors(ErrorsConst.WRONG_TYPE_OPERATION));
-        }
-    }
-
-    @Override
-    public void handleLoadAof(RedisClient redisClient) {
-        // TODO 原子性未实现
-        if ((key = getBytesWrapper(array, 1)) == null) {
-            return;
-        }
-
-        fvLists = Arrays.stream(array).skip(2).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
-        if (fvLists.size() == 0) {
-            return;
-        }
-        if (fvLists.size() % 2 != 0) {
-            return;
-        }
-
-        RedisDB db = redisClient.getDb();
-        RedisObject redisObject = db.get(key);
-        if (redisObject == null) {
-            redisObject = new RedisMapObject();
-            db.put(key, redisObject);
-        }
-        if (redisObject instanceof RedisMapObject) {
-            RedisDataStruct data = redisObject.data();
-            if (data instanceof RedisMap) {
-                RedisMap map = ((RedisMap) redisObject.data());
-                map.mset(fvLists);
-            } else {
-                throw new UnsupportedOperationException();
-            }
+            return new Errors(ErrorsConst.WRONG_TYPE_OPERATION);
         }
     }
 }

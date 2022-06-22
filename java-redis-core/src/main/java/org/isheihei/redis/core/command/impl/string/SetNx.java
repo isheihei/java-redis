@@ -1,12 +1,14 @@
 package org.isheihei.redis.core.command.impl.string;
 
-import io.netty.channel.ChannelHandlerContext;
+import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractWriteCommand;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.obj.impl.RedisStringObject;
+import org.isheihei.redis.core.resp.Resp;
+import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.impl.RespInt;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 import org.isheihei.redis.core.struct.impl.RedisString;
@@ -29,42 +31,24 @@ public class SetNx extends AbstractWriteCommand {
     }
 
     @Override
-    public void handleWrite(ChannelHandlerContext ctx, RedisClient redisClient) {
-        if ((key = getBytesWrapper(ctx, array, 1)) == null) {
-            return;
-        }
-        if ((value = getBytesWrapper(ctx, array, 2)) == null) {
-            return;
-        }
-
-        RedisDB db = redisClient.getDb();
-        RedisObject redisObject = db.get(key);
-        if (redisObject == null) {
-            ctx.writeAndFlush(new RespInt(0));
-            return;
-        }
-        RedisStringObject redisStringObject = new RedisStringObject();
-        ((RedisString) redisStringObject.data()).setValue(value);
-        db.put(key, redisStringObject);
-        ctx.writeAndFlush(new RespInt(1));
-    }
-
-    @Override
-    public void handleLoadAof(RedisClient redisClient) {
+    public Resp handleWrite(RedisClient redisClient) {
         if ((key = getBytesWrapper(array, 1)) == null) {
-            return;
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
         if ((value = getBytesWrapper(array, 2)) == null) {
-            return;
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
 
         RedisDB db = redisClient.getDb();
         RedisObject redisObject = db.get(key);
         if (redisObject == null) {
-            return;
+            return new RespInt(0);
         }
         RedisStringObject redisStringObject = new RedisStringObject();
         ((RedisString) redisStringObject.data()).setValue(value);
         db.put(key, redisStringObject);
+        db.touchWatchKey(key);
+        db.plusDirty();
+        return new RespInt(1);
     }
 }

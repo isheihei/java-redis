@@ -10,6 +10,11 @@ import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.command.impl.server.BgSave;
 import org.isheihei.redis.core.command.impl.server.Save;
+import org.isheihei.redis.core.command.impl.transaction.Discard;
+import org.isheihei.redis.core.command.impl.transaction.Exec;
+import org.isheihei.redis.core.command.impl.transaction.Multi;
+import org.isheihei.redis.core.command.impl.transaction.UnWatch;
+import org.isheihei.redis.core.command.impl.transaction.Watch;
 import org.isheihei.redis.core.persist.rdb.Rdb;
 import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.impl.SimpleString;
@@ -35,30 +40,40 @@ public class CommandHandler extends SimpleChannelInboundHandler<Command> {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, Command command) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, Command command) {
         try {
             // 如果开启了认证功能，所有命令执行前需要检查认证是否成功
             if (ConfigUtil.getRequirePass() != null && client.getAuth() == 0 && command.type() != CommandType.auth) {
                 ctx.writeAndFlush(new Errors(ErrorsConst.NO_AUTH));
-            } else {
-                if (command instanceof Save) {
-                    if (rdb == null) {
-                        ctx.writeAndFlush(new SimpleString("rdb close"));
-                        return;
-                    }
-                    rdb.save();
-                    ctx.writeAndFlush(SimpleString.OK);
-                    return;
-                } else if (command instanceof BgSave) {
-                    if (rdb == null) {
-                        ctx.writeAndFlush(new SimpleString("rdb close"));
-                        return;
-                    }
-                    rdb.bgSave();
-                    ctx.writeAndFlush(new SimpleString("Background saving started"));
-                    return;
+                return;
+            }
+            if (client.getFlag()) {
+                if (command instanceof Exec || command instanceof Watch || command instanceof UnWatch || command instanceof Discard) {
+                    ctx.writeAndFlush(command.handle(client));
+                } else if (command instanceof Multi) {
+                    ctx.writeAndFlush(new Errors(ErrorsConst.MULTI_CAN_NOT_NESTED));
+                } else {
+                    client.addCommand(command);
+                    ctx.writeAndFlush(new SimpleString("QUEUED"));
                 }
-                command.handle(ctx, client);
+            } else {
+                if (command instanceof Exec) {
+                    ctx.writeAndFlush(new Errors(ErrorsConst.EXEC_WITHOUT_MULTI));
+                } else if (command instanceof Discard) {
+                    ctx.writeAndFlush(new Errors(ErrorsConst.DISCARD_WITHOUT_MULTI));
+                } else if (command instanceof Save) {
+                    if (rdb != null) {
+                        rdb.save();
+                    }
+                    ctx.writeAndFlush(command.handle(client));
+                } else if (command instanceof BgSave) {
+                    if (rdb != null) {
+                        rdb.bgSave();
+                    }
+                    ctx.writeAndFlush(command.handle(client));
+                } else {
+                    ctx.writeAndFlush(command.handle(client));
+                }
             }
         } catch (Exception e) {
             LOGGER.error("执行命令出错", e);

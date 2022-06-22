@@ -1,5 +1,6 @@
 package org.isheihei.redis.core.db;
 
+import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
@@ -23,11 +24,34 @@ public interface RedisDB {
 
     int size();
 
-
     Map<BytesWrapper, RedisObject> dict();
 
     Map<BytesWrapper, Long> expires();
 
+
+    /**
+     * @Description: key如果在某个客户端列表中，更改其事务安全性标识
+     * @Param: key
+     * @Author: isheihei
+     */
+    void touchWatchKey(BytesWrapper key);
+
+    /**
+     * @Description: 添加检视key
+     * @Param: key
+     * @Param: redisClient
+     * @Author: isheihei
+     */
+    void watchKeys(List<BytesWrapper> key, RedisClient redisClient);
+
+
+    /**
+     * @Description: 接触客户端的所有监视key
+     * @Param: key
+     * @Param: redisClient
+     * @Author: isheihei
+     */
+    void unWatchKeys(RedisClient redisClient);
     /**
      * @Description: 判断某个键是否存在
      * @Param: key
@@ -124,6 +148,10 @@ public interface RedisDB {
     int delete(List<BytesWrapper> keyList);
 
     long getDirty();
+
+    void plusDirty();
+
+    void plusDirty(int plus);
 
     void resetDirty();
     /**

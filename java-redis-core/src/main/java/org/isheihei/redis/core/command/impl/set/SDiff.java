@@ -1,8 +1,8 @@
 package org.isheihei.redis.core.command.impl.set;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
+import org.isheihei.redis.core.resp.Resp;
 
 /**
  * @ClassName: SDiff
@@ -17,7 +17,7 @@ public class SDiff extends SetsCommand {
     }
 
     @Override
-    public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
-        setsCommand(ctx, redisClient, 0);
+    public Resp handle(RedisClient redisClient) {
+        return setsCommand(redisClient, 0);
     }
 }

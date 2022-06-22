@@ -1,6 +1,5 @@
 package org.isheihei.redis.core.command.impl.server;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.common.util.ConfigUtil;
 import org.isheihei.redis.common.util.TRACEID;
@@ -37,18 +36,18 @@ public class Config extends AbstractCommand {
     }
 
     @Override
-    public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
+    public Resp handle(RedisClient redisClient) {
         String traceId = TRACEID.currentTraceId();
         LOGGER.debug("traceId:{} 当前的子命令是：{}" + traceId + subCommand);
         BytesWrapper bytesSubCommand;
-        if ((bytesSubCommand = getBytesWrapper(ctx, array, 1)) == null) {
-            return;
+        if ((bytesSubCommand = getBytesWrapper(array, 1)) == null) {
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
         subCommand = bytesSubCommand.toUtf8String().toLowerCase();
         switch (subCommand) {
             case "get":
-                if ((configParam = getStringSubCommandArgs(ctx, array, 2, subCommand)) == null) {
-                    return;
+                if ((configParam = getStringSubCommandArgs(array, 2)) == null) {
+                    return new Errors(String.format(ErrorsConst.SUBCOMMAND_WRONG_ARGS_NUMBER, type().toString().toUpperCase(), subCommand));
                 }
                 String configValue = null;
                 try {
@@ -57,32 +56,29 @@ public class Config extends AbstractCommand {
                     LOGGER.error("获取配置属性错误");
                 }
                 if (configValue == null) {
-                    ctx.writeAndFlush(new RespArray(new Resp[0]));
+                    return new RespArray(new Resp[0]);
                 } else {
                     ArrayList<BulkString> list = new ArrayList<>();
                     list.add(new BulkString(new BytesWrapper((configParam.getBytes(CHARSET)))));
                     list.add(new BulkString(new BytesWrapper(configValue.getBytes(CHARSET))));
-                    RespArray arrays = new RespArray(list.toArray(new Resp[list.size()]));
-                    ctx.writeAndFlush(arrays);
+                    return new RespArray(list.toArray(new Resp[list.size()]));
                 }
-                break;
             case "set":
-                if ((configParam = getStringSubCommandArgs(ctx, array, 2, subCommand)) == null) {
-                    return;
+                if ((configParam = getStringSubCommandArgs(array, 2)) == null) {
+                    return new Errors(String.format(ErrorsConst.SUBCOMMAND_WRONG_ARGS_NUMBER, type().toString().toUpperCase(), subCommand));
                 }
-                if ((newConfigValue = getStringSubCommandArgs(ctx, array, 3, subCommand)) == null) {
-                    return;
+                if ((newConfigValue = getStringSubCommandArgs(array, 3)) == null) {
+                    return new Errors(String.format(ErrorsConst.SUBCOMMAND_WRONG_ARGS_NUMBER, type().toString().toUpperCase(), subCommand));
                 }
-                boolean state = false;
+                boolean state;
                 state = ConfigUtil.setConfig(configParam, newConfigValue);
                 if (state) {
-                    ctx.writeAndFlush(SimpleString.OK);
+                    return SimpleString.OK;
                 } else {
-                    ctx.writeAndFlush(new Errors(String.format(ErrorsConst.UNSUPOORT_CONFIG, configParam)));
+                    return new Errors(String.format(ErrorsConst.UNSUPOORT_CONFIG, configParam));
                 }
-                break;
             default:
-                ctx.writeAndFlush(new Errors(String.format(ErrorsConst.CONFIG_SUB_COMMAND_ERROR)));
+                return new Errors(String.format(ErrorsConst.CONFIG_SUB_COMMAND_ERROR));
         }
     }
 }

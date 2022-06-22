@@ -1,12 +1,12 @@
 package org.isheihei.redis.core.command.impl.zset;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractCommand;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.obj.impl.RedisZSetObject;
+import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.BulkString;
 import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.impl.RespInt;
@@ -32,18 +32,17 @@ public class ZRank extends AbstractCommand {
     }
 
     @Override
-    public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
-        if ((key = getBytesWrapper(ctx, array, 1)) == null) {
-            return;
+    public Resp handle(RedisClient redisClient) {
+        if ((key = getBytesWrapper(array, 1)) == null) {
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
-        if ((member = getBytesWrapper(ctx, array, 2)) == null) {
-            return;
+        if ((member = getBytesWrapper(array, 2)) == null) {
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
 
         RedisObject redisObject = redisClient.getDb().get(key);
         if (redisObject == null) {
-            ctx.writeAndFlush(BulkString.NullBulkString);
-            return;
+            return BulkString.NullBulkString;
         }
 
         if (redisObject instanceof RedisZSetObject) {
@@ -52,17 +51,15 @@ public class ZRank extends AbstractCommand {
                 RedisZSet zSet = (RedisZSet) data;
                 Integer rank = zSet.zRank(member);
                 if (rank != null) {
-                    ctx.writeAndFlush(new RespInt(rank));
-                    return;
+                    return new RespInt(rank);
                 } else {
-                    ctx.writeAndFlush(BulkString.NullBulkString);
-                    return;
+                    return BulkString.NullBulkString;
                 }
             } else {
                 throw new UnsupportedOperationException();
             }
         } else {
-            ctx.writeAndFlush(new Errors(ErrorsConst.WRONG_TYPE_OPERATION));
+            return new Errors(ErrorsConst.WRONG_TYPE_OPERATION);
         }
     }
 }

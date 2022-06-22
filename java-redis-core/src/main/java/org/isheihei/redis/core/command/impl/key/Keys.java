@@ -1,6 +1,5 @@
 package org.isheihei.redis.core.command.impl.key;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractCommand;
 import org.isheihei.redis.core.command.CommandType;
@@ -24,8 +23,8 @@ public class Keys extends AbstractCommand {
     }
 
     @Override
-    public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
+    public Resp handle(RedisClient redisClient) {
         Set<BytesWrapper> keys = redisClient.getDb().keys();
-        ctx.writeAndFlush(new RespArray(keys.stream().map(BulkString::new).toArray(Resp[]::new)));
+        return new RespArray(keys.stream().map(BulkString::new).toArray(Resp[]::new));
     }
 }

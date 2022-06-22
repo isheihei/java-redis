@@ -1,8 +1,8 @@
 package org.isheihei.redis.core.command.impl.set;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.CommandType;
+import org.isheihei.redis.core.resp.Resp;
 
 /**
  * @ClassName: SInterStore
@@ -18,13 +18,8 @@ public class SInterStore extends SetStoreCommand {
     }
 
     @Override
-    public void handleWrite(ChannelHandlerContext ctx, RedisClient redisClient) {
-        setsStoreCommand(ctx, redisClient, 1);
-    }
-
-    @Override
-    public void handleLoadAof(RedisClient redisClient) {
-        loadRdbSetsStoreCommand(redisClient, 1);
+    public Resp handleWrite(RedisClient redisClient) {
+        return setsStoreCommand(redisClient, 1);
     }
 
 }

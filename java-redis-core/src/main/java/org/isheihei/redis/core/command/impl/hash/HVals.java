@@ -1,6 +1,5 @@
 package org.isheihei.redis.core.command.impl.hash;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractCommand;
@@ -33,27 +32,26 @@ public class HVals extends AbstractCommand {
     }
 
     @Override
-    public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
-        if ((key = getBytesWrapper(ctx, array, 1)) == null) {
-            return;
+    public Resp handle(RedisClient redisClient) {
+        if ((key = getBytesWrapper(array, 1)) == null) {
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
 
         RedisObject redisObject = redisClient.getDb().get(key);
         if (redisObject == null) {
-            ctx.writeAndFlush(new RespArray(new Resp[0]));
-            return;
+            return new RespArray(new Resp[0]);
         }
         if (redisObject instanceof RedisMapObject) {
             RedisDataStruct data = redisObject.data();
             if (data instanceof RedisMap) {
                 RedisMap map = (RedisMap) data;
                 List<BytesWrapper> res = map.vals();
-                ctx.writeAndFlush(new RespArray(res.stream().map(BulkString::new).toArray(Resp[]::new)));
+                return new RespArray(res.stream().map(BulkString::new).toArray(Resp[]::new));
             } else {
                 throw new UnsupportedOperationException();
             }
         } else {
-            ctx.writeAndFlush(new Errors(ErrorsConst.WRONG_TYPE_OPERATION));
+            return new Errors(ErrorsConst.WRONG_TYPE_OPERATION);
         }
     }
 }

@@ -1,6 +1,5 @@
 package org.isheihei.redis.core.command.impl.set;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractCommand;
@@ -31,33 +30,30 @@ public class SMembers extends AbstractCommand {
     }
 
     @Override
-    public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
-        if ((key = getBytesWrapper(ctx, array, 1)) == null) {
-            return;
+    public Resp handle(RedisClient redisClient) {
+        if ((key = getBytesWrapper(array, 1)) == null) {
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
         if (getBytesWrapper(array, 2) != null) {
             SIsMember sismember = new SIsMember();
             sismember.setContent(respArray);
-            sismember.handle(ctx, redisClient);
-            return;
+            return sismember.handle(redisClient);
         }
 
         RedisObject redisObject = redisClient.getDb().get(key);
         if (redisObject == null) {
-            ctx.writeAndFlush(new RespArray(new Resp[0]));
-            return;
+            return new RespArray(new Resp[0]);
         }
         if (redisObject instanceof RedisSetObject) {
             RedisDataStruct data = redisObject.data();
             if (data instanceof RedisSet) {
                 RedisSet set = (RedisSet) data;
-                ctx.writeAndFlush(new RespArray(set.stream().map(BulkString::new).toArray(Resp[]::new)));
-                return;
+                return new RespArray(set.stream().map(BulkString::new).toArray(Resp[]::new));
             } else {
                 throw new UnsupportedOperationException();
             }
         } else {
-            ctx.writeAndFlush(new Errors(ErrorsConst.WRONG_TYPE_OPERATION));
+            return new Errors(ErrorsConst.WRONG_TYPE_OPERATION);
         }
     }
 }

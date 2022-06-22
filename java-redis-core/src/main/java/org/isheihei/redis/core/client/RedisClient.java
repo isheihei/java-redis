@@ -1,5 +1,6 @@
 package org.isheihei.redis.core.client;
 
+import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.db.RedisDB;
 
 /**
@@ -17,7 +18,6 @@ public interface RedisClient {
      */
     RedisDB getDb();
 
-
     /**
      * @Description: 设置当前客户端使用的数据库
      * @Param: dbIndex
@@ -25,6 +25,54 @@ public interface RedisClient {
      */
     boolean setDb(int dbIndex);
 
+    /**
+     * @Description: 设置事务标志
+     * @Param: flag
+     * @Author: isheihei
+     */
+    void setFlag(boolean flag);
+
+    /**
+     * @Description: 获取事务标志
+     * @Param: flag
+     * @Return: boolean
+     * @Author: isheihei
+     */
+    boolean getFlag();
+
+    /**
+     * @Description: 设置事务安全性标志
+     * @Param: dirtyCas
+     * @Author: isheihei
+     */
+    void setDirtyCas(boolean dirtyCas);
+
+    /**
+     * @Description: 获取事务安全性标志
+     * @Return: boolean
+     * @Author: isheihei
+     */
+    boolean getDirtyCas();
+
+    /**
+     * @Description: 向事务队列添加一条命令
+     * @Param: command
+     * @Author: isheihei
+     */
+    void addCommand(Command command);
+
+    /**
+     * @Description: 清空事务队列
+     * @Author: isheihei
+     */
+    void flushCommand();
+
+    /**
+     * @Description: 事务队列中取出一个命令
+     * @Return:
+     * @Author: isheihei
+     */
+    Command getCommand();
     /**
      * @Description: 获取标志认证标志
      * @Return: int
@@ -59,4 +107,6 @@ public interface RedisClient {
      * @Author: isheihei
      */
     void flushAll();
+
+    void unWatchKeys(RedisClient redisClient);
 }

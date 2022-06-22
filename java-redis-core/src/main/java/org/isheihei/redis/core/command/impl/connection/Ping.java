@@ -1,9 +1,9 @@
 package org.isheihei.redis.core.command.impl.connection;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractCommand;
 import org.isheihei.redis.core.command.CommandType;
+import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.BulkString;
 import org.isheihei.redis.core.resp.impl.SimpleString;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
@@ -28,14 +28,12 @@ public class Ping extends AbstractCommand {
     }
 
     @Override
-    public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
+    public Resp handle(RedisClient redisClient) {
         message = Arrays.stream(array).skip(1).map(resp -> ((BulkString) resp).getContent()).collect(Collectors.toList());
         if (message.size() == 0) {
-            ctx.writeAndFlush(new SimpleString("PONG"));
+            return new SimpleString("PONG");
         } else {
-            ctx.writeAndFlush(new SimpleString(message.get(0).toUtf8String()));
+            return new SimpleString(message.get(0).toUtf8String());
         }
-        // 立即回复
-        ctx.flush();
     }
 }

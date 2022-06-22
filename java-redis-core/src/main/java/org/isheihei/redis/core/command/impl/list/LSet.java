@@ -1,13 +1,13 @@
 package org.isheihei.redis.core.command.impl.list;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.command.AbstractWriteCommand;
+import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.obj.impl.RedisListObject;
+import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.impl.SimpleString;
 import org.isheihei.redis.core.struct.RedisDataStruct;
@@ -34,24 +34,28 @@ public class LSet extends AbstractWriteCommand {
     }
 
     @Override
-    public void handleWrite(ChannelHandlerContext ctx, RedisClient redisClient) {
-        if ((key = getBytesWrapper(ctx, array, 1)) == null) return;
+    public Resp handleWrite(RedisClient redisClient) {
+        if ((key = getBytesWrapper(array, 1)) == null) {
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
+        }
         BytesWrapper bytesIndex;
-        if ((bytesIndex = getBytesWrapper(ctx, array, 2)) == null) return;
+        if ((bytesIndex = getBytesWrapper(array, 2)) == null) {
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
+        }
         try {
             index = Integer.parseInt(bytesIndex.toUtf8String());
         } catch (NumberFormatException e) {
             LOGGER.error("参数无法转换为数字", e);
-            ctx.writeAndFlush(new Errors(ErrorsConst.VALUE_IS_NOT_INT));
-            return;
+            return new Errors(ErrorsConst.VALUE_IS_NOT_INT);
         }
-        if ((element = getBytesWrapper(ctx, array, 3)) == null) return;
+        if ((element = getBytesWrapper(array, 3)) == null){
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
+        }
 
         RedisDB db = redisClient.getDb();
         RedisObject redisObject = db.get(key);
         if (redisObject == null) {
-            ctx.writeAndFlush(new Errors(ErrorsConst.NO_SUCH_KEY));
-            return;
+            return new Errors(ErrorsConst.NO_SUCH_KEY);
         }
         if (redisObject instanceof RedisListObject) {
             RedisDataStruct data = redisObject.data();
@@ -59,44 +63,17 @@ public class LSet extends AbstractWriteCommand {
                 RedisDoubleLinkedList list = (RedisDoubleLinkedList) data;
                 boolean flag = list.lset(index, element);
                 if (flag) {
-                    ctx.writeAndFlush(SimpleString.OK);
+                    db.touchWatchKey(key);
+                    db.plusDirty();
+                    return SimpleString.OK;
                 } else {
-                    ctx.writeAndFlush(new Errors(ErrorsConst.INDEX_OUT_OF_RANGE));
+                    return new Errors(ErrorsConst.INDEX_OUT_OF_RANGE);
                 }
             } else {
                 throw new UnsupportedOperationException();
             }
         } else {
-            ctx.writeAndFlush(new Errors(ErrorsConst.WRONG_TYPE_OPERATION));
-        }
-    }
-
-    @Override
-    public void handleLoadAof(RedisClient redisClient) {
-        if ((key = getBytesWrapper(array, 1)) == null) return;
-        BytesWrapper bytesIndex;
-        if ((bytesIndex = getBytesWrapper(array, 2)) == null) return;
-        try {
-            index = Integer.parseInt(bytesIndex.toUtf8String());
-        } catch (NumberFormatException e) {
-            LOGGER.error("参数无法转换为数字", e);
-            return;
-        }
-        if ((element = getBytesWrapper(array, 3)) == null) return;
-
-        RedisDB db = redisClient.getDb();
-        RedisObject redisObject = db.get(key);
-        if (redisObject == null) {
-            return;
-        }
-        if (redisObject instanceof RedisListObject) {
-            RedisDataStruct data = redisObject.data();
-            if (data instanceof RedisDoubleLinkedList) {
-                RedisDoubleLinkedList list = (RedisDoubleLinkedList) data;
-                boolean flag = list.lset(index, element);
-            } else {
-                throw new UnsupportedOperationException();
-            }
+            return new Errors(ErrorsConst.WRONG_TYPE_OPERATION);
         }
     }
 }

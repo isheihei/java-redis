@@ -1,13 +1,13 @@
 package org.isheihei.redis.core.command.impl.zset;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.command.AbstractWriteCommand;
+import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.obj.impl.RedisZSetObject;
+import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.impl.RespInt;
 import org.isheihei.redis.core.struct.RedisDataStruct;
@@ -36,17 +36,15 @@ public class ZAdd extends AbstractWriteCommand {
     }
 
     @Override
-    public void handleWrite(ChannelHandlerContext ctx, RedisClient redisClient) {
-        if ((key = getBytesWrapper(ctx, array, 1)) == null) {
-            return;
+    public Resp handleWrite(RedisClient redisClient) {
+        if ((key = getBytesWrapper(array, 1)) == null) {
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
         if ((array.length - 2) == 0) {
-            ctx.writeAndFlush(new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
-            return;
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
         if ((array.length - 2) % 2 != 0) {
-            ctx.writeAndFlush(new Errors(ErrorsConst.SYNTAX_ERROR));
-            return;
+            return new Errors(ErrorsConst.SYNTAX_ERROR);
         }
 
         zNodeList = new LinkedList<>();
@@ -57,8 +55,7 @@ public class ZAdd extends AbstractWriteCommand {
                 zNodeList.add(new ZNode(score, member));
             } catch (NumberFormatException e) {
                 LOGGER.error("score 转换为浮点数错误");
-                ctx.writeAndFlush(new Errors(String.format(ErrorsConst.INVALID_FLOAT)));
-                return;
+                return new Errors(String.format(ErrorsConst.INVALID_FLOAT));
             }
         }
 
@@ -75,55 +72,14 @@ public class ZAdd extends AbstractWriteCommand {
             if (data instanceof RedisZSet) {
                 RedisZSet zSet = (RedisZSet) data;
                 int res = zSet.zAdd(zNodeList);
-                ctx.writeAndFlush(new RespInt(res));
+                db.touchWatchKey(key);
+                db.plusDirty();
+                return new RespInt(res);
             } else {
                 throw new UnsupportedOperationException();
             }
         } else {
-            ctx.writeAndFlush(new Errors(ErrorsConst.WRONG_TYPE_OPERATION));
-        }
-    }
-
-    @Override
-    public void handleLoadAof(RedisClient redisClient) {
-        if ((key = getBytesWrapper(array, 1)) == null) {
-            return;
-        }
-        if ((array.length - 2) == 0) {
-            return;
-        }
-        if ((array.length - 2) % 2 != 0) {
-            return;
-        }
-
-        zNodeList = new LinkedList<>();
-        for (int i = 2; i < array.length; i += 2) {
-            try {
-                double score = Double.parseDouble(getBytesWrapper(array, i).toUtf8String());
-                BytesWrapper member = getBytesWrapper(array, i + 1);
-                zNodeList.add(new ZNode(score, member));
-            } catch (NumberFormatException e) {
-                LOGGER.error("score 转换为浮点数错误");
-                return;
-            }
-        }
-
-        // 如果 key 不存在 则创建
-        RedisDB db = redisClient.getDb();
-        RedisObject redisObject = db.get(key);
-        if (redisObject == null) {
-            redisObject = new RedisZSetObject();
-            db.put(key, redisObject);
-        }
-
-        if (redisObject instanceof RedisZSetObject) {
-            RedisDataStruct data = redisObject.data();
-            if (data instanceof RedisZSet) {
-                RedisZSet zSet = (RedisZSet) data;
-                int res = zSet.zAdd(zNodeList);
-            } else {
-                throw new UnsupportedOperationException();
-            }
+            return new Errors(ErrorsConst.WRONG_TYPE_OPERATION);
         }
     }
 }

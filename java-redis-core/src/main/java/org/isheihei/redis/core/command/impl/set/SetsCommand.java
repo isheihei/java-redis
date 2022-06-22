@@ -1,6 +1,5 @@
 package org.isheihei.redis.core.command.impl.set;
 
-import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractCommand;
@@ -30,19 +29,18 @@ public abstract class SetsCommand extends AbstractCommand {
 
     /**
      * @Description: 处理集合交并差
-     * @Param: ctx
      * @Param: redisClient
-     * @Param: flag  0:diff, 1:inter, 2:union
+     * @Param: flag
+     * @Return: Resp
      * @Author: isheihei
      */
-    public void setsCommand(ChannelHandlerContext ctx, RedisClient redisClient, int flag) {
+    public Resp setsCommand(RedisClient redisClient, int flag) {
         keyList = Arrays.stream(array)
                 .skip(1)
                 .map(resp -> ((BulkString) resp).getContent())
                 .collect(Collectors.toList());
         if (keyList.size() == 0) {
-            ctx.writeAndFlush(new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString())));
-            return;
+            return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));
         }
 
         RedisDB db = redisClient.getDb();
@@ -60,8 +58,7 @@ public abstract class SetsCommand extends AbstractCommand {
                         throw new UnsupportedOperationException();
                     }
                 } else {
-                    ctx.writeAndFlush(new Errors(ErrorsConst.WRONG_TYPE_OPERATION));
-                    return;
+                    return new Errors(ErrorsConst.WRONG_TYPE_OPERATION);
                 }
             } else {
                 redisSet = new RedisSet();
@@ -83,6 +80,6 @@ public abstract class SetsCommand extends AbstractCommand {
                 }
             }
         }
-        ctx.writeAndFlush(new RespArray(diffSet.stream().map(BulkString::new).toArray(Resp[]::new)));
+        return new RespArray(diffSet.stream().map(BulkString::new).toArray(Resp[]::new));
     }
 }
