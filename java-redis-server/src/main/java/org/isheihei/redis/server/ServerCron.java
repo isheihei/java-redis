@@ -18,8 +18,6 @@ import java.util.concurrent.TimeUnit;
 public class ServerCron implements Runnable{
     org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(ServerCron.class);
 
-    // TODO 持久化操作放到子线程或者子进程进行
-
     private List<RedisDB> dbs;
     private ExpireStrategy expireStrategy = null;
 

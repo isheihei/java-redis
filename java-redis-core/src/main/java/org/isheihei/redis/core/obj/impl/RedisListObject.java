@@ -24,7 +24,12 @@ public class RedisListObject extends AbstractRedisObject {
     }
 
     @Override
-    public byte getType() {
+    public String getType() {
+        return "list";
+    }
+
+    @Override
+    public byte getCode() {
         return (byte) 2;
     }
 

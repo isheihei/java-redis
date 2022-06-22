@@ -33,19 +33,11 @@ public class RedisNormalClient implements RedisClient{
     // 是否通过了身份验证，0：未通过，1：通过
     private int authenticated = 0;
 
-    // 创建客户端的时间
-    private long ctime;
-
-    // 客户端与服务器最后一次进行互动的时间
-    private long lastInteraction;
-
     public RedisNormalClient(String addr, int fd, List<RedisDB> dbs) {
         this.addr = addr;
         this.fd = fd;
         this.dbs = dbs;
         this.name = addr + ":" + UUID.randomUUID();
-        ctime = System.currentTimeMillis();
-        lastInteraction = System.currentTimeMillis();
     }
 
     @Override
@@ -86,7 +78,7 @@ public class RedisNormalClient implements RedisClient{
     @Override
     public void flushAll() {
         for (RedisDB db : dbs) {
-            db.cleanAll();
+            db.flushDb();
         }
     }
 }

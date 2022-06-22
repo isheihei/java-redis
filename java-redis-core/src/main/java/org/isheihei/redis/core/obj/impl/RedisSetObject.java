@@ -26,7 +26,12 @@ public class RedisSetObject extends AbstractRedisObject {
     }
 
     @Override
-    public byte getType() {
+    public String getType() {
+        return "set";
+    }
+
+    @Override
+    public byte getCode() {
         return (byte) 3;
     }
 

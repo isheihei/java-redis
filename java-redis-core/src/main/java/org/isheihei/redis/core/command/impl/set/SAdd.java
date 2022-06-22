@@ -86,7 +86,7 @@ public class SAdd extends AbstractWriteCommand {
             RedisDataStruct data = redisObject.data();
             if (data instanceof RedisSet) {
                 RedisSet set = (RedisSet) data;
-                int res = set.addItems(items);
+                set.addItems(items);
                 return;
             } else {
                 throw new UnsupportedOperationException();

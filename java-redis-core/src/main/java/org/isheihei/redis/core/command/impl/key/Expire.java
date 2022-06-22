@@ -43,7 +43,6 @@ public class Expire extends AbstractWriteCommand {
         }
         try {
             long timeout = Long.parseLong(bytesExpireAt.toUtf8String());
-            // TODO aof 重写时要使用绝对时间 不能使用相对时间
             expireAt = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(timeout);
         } catch (NumberFormatException e) {
             LOGGER.error("参数无法转换为时间戳", e);

@@ -158,6 +158,7 @@ public class RedisNetServer implements RedisServer {
             this.aof = new Aof(dbs);
         }
 
+        // 初始化rdb
         if (dataBase) {
             this.rdb = new Rdb(dbs);
         }
@@ -208,7 +209,7 @@ public class RedisNetServer implements RedisServer {
 //                                /*心跳,管理长连接*/
 //                                new IdleStateHandler(0, 0, 20)
                         );
-                        channelPipeline.addLast(redisSingleEventExecutor, new CommandHandler(client));
+                        channelPipeline.addLast(redisSingleEventExecutor, new CommandHandler(client, rdb));
                     }
                 });
 

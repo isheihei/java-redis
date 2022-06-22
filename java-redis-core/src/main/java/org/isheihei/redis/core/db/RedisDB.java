@@ -3,6 +3,7 @@ package org.isheihei.redis.core.db;
 import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -34,6 +35,8 @@ public interface RedisDB {
      * @Author: isheihei
      */
     boolean exist(BytesWrapper key);
+
+    int exist(List<BytesWrapper> keyList);
 
     /**
      * @Description: put一个键值对
@@ -112,6 +115,14 @@ public interface RedisDB {
      */
     void delete(BytesWrapper key);
 
+    /**
+     * @Description: 删除一批键
+     * @Param: keyList
+     * @Return: int 成功删除的个数
+     * @Author: isheihei
+     */
+    int delete(List<BytesWrapper> keyList);
+
     long getDirty();
 
     void resetDirty();
@@ -120,5 +131,7 @@ public interface RedisDB {
      * @Return: void
      * @Author: isheihei
      */
-    void cleanAll();
+    void flushDb();
+
+    boolean reName(BytesWrapper oldKey, BytesWrapper newKey);
 }

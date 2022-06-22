@@ -16,7 +16,9 @@ public interface RedisObject {
 
     RedisDataStructType getEncoding();
 
-    byte getType();
+    String getType();
+
+    byte getCode();
 
     long getLru();
 
@@ -33,4 +35,5 @@ public interface RedisObject {
     byte[] objectToBytes();
 
     void loadRdb(ByteBuf bufferPolled);
+
 }

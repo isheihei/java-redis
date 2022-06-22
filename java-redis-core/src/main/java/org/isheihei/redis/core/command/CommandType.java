@@ -14,7 +14,14 @@ import org.isheihei.redis.core.command.impl.hash.HMGet;
 import org.isheihei.redis.core.command.impl.hash.HMSet;
 import org.isheihei.redis.core.command.impl.hash.HSet;
 import org.isheihei.redis.core.command.impl.hash.HVals;
+import org.isheihei.redis.core.command.impl.key.Del;
+import org.isheihei.redis.core.command.impl.key.Exists;
 import org.isheihei.redis.core.command.impl.key.Expire;
+import org.isheihei.redis.core.command.impl.key.Keys;
+import org.isheihei.redis.core.command.impl.key.Persist;
+import org.isheihei.redis.core.command.impl.key.Rename;
+import org.isheihei.redis.core.command.impl.key.Ttl;
+import org.isheihei.redis.core.command.impl.key.Type;
 import org.isheihei.redis.core.command.impl.list.LIndex;
 import org.isheihei.redis.core.command.impl.list.LLen;
 import org.isheihei.redis.core.command.impl.list.LPop;
@@ -24,9 +31,13 @@ import org.isheihei.redis.core.command.impl.list.LRem;
 import org.isheihei.redis.core.command.impl.list.LSet;
 import org.isheihei.redis.core.command.impl.list.RPop;
 import org.isheihei.redis.core.command.impl.list.RPush;
+import org.isheihei.redis.core.command.impl.server.BgSave;
 import org.isheihei.redis.core.command.impl.server.Client;
 import org.isheihei.redis.core.command.impl.server.Config;
+import org.isheihei.redis.core.command.impl.server.DbSize;
 import org.isheihei.redis.core.command.impl.server.FlushAll;
+import org.isheihei.redis.core.command.impl.server.FlushDb;
+import org.isheihei.redis.core.command.impl.server.Save;
 import org.isheihei.redis.core.command.impl.set.SAdd;
 import org.isheihei.redis.core.command.impl.set.SCard;
 import org.isheihei.redis.core.command.impl.set.SDiff;
@@ -63,8 +74,8 @@ import java.util.function.Supplier;
  * @Author: isheihei
  */
 public enum CommandType {
-    auth(Auth::new), client(Client::new), config(Config::new), echo(Echo::new), ping(Ping::new), quit(Quit::new), select(Select::new),flushall(FlushAll::new),
-    expire(Expire::new),
+    auth(Auth::new), client(Client::new), config(Config::new), echo(Echo::new), ping(Ping::new), quit(Quit::new), select(Select::new),flushall(FlushAll::new), dbsize(DbSize::new), flushdb(FlushDb::new),bgsave(BgSave::new), save(Save::new),
+    expire(Expire::new),del(Del::new), exists(Exists::new), keys(Keys::new), persist(Persist::new), rename(Rename::new), ttl(Ttl::new), type(Type::new),
     get(Get::new), set(Set::new), mget(MGet::new), mset(MSet::new), append(Append::new), setex(SetEx::new), setnx(SetNx::new),
     lpush(LPush::new), lrange(LRange::new), lrem(LRem::new), rpush(RPush::new), lpop(LPop::new), rpop(RPop::new), lset(LSet::new), lindex(LIndex::new), llen(LLen::new),
     hdel(HDel::new), hexists(HExists::new), hget(HGet::new), hgetall(HGetAll::new), hkeys(HKeys::new), hset(HSet::new), hmset(HMSet::new), hvals(HVals::new), hmget(HMGet::new),

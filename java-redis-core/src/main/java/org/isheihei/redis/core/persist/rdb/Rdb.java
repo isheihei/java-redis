@@ -127,7 +127,7 @@ public class Rdb implements Persist {
      *  zset   4
      */
     @Override
-    public void save() {
+    public synchronized void save() {
         LOGGER.info("开始进行rdb持久化...");
         try {
             // 每次持久化需要创建新的文件
@@ -165,7 +165,7 @@ public class Rdb implements Persist {
                     } else {
                         mappedByteBuffer.putLong(0L); // NULL * 4
                     }
-                    mappedByteBuffer.put(value.getType()); // 1
+                    mappedByteBuffer.put(value.getCode()); // 1
                     writeIndex += 10;
 
                     int nextLen = nextKey.length();
@@ -298,5 +298,9 @@ public class Rdb implements Persist {
             LOGGER.error("rdb文件加载失败");
             e.printStackTrace();
         }
+    }
+
+    public void bgSave() {
+        new Thread(this::save).start();
     }
 }

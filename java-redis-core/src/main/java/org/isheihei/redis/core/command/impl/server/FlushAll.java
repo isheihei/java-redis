@@ -2,17 +2,17 @@ package org.isheihei.redis.core.command.impl.server;
 
 import io.netty.channel.ChannelHandlerContext;
 import org.isheihei.redis.core.client.RedisClient;
-import org.isheihei.redis.core.command.AbstractCommand;
+import org.isheihei.redis.core.command.AbstractWriteCommand;
 import org.isheihei.redis.core.command.CommandType;
 import org.isheihei.redis.core.resp.impl.SimpleString;
 
 /**
  * @ClassName: FlushAll
- * @Description: TODO
+ * @Description: 清空整个 Redis 中的数据
  * @Date: 2022/6/11 23:51
  * @Author: isheihei
  */
-public class FlushAll extends AbstractCommand {
+public class FlushAll extends AbstractWriteCommand {
 
     @Override
     public CommandType type() {
@@ -20,8 +20,14 @@ public class FlushAll extends AbstractCommand {
     }
 
     @Override
-    public void handle(ChannelHandlerContext ctx, RedisClient redisClient) {
+    public void handleWrite(ChannelHandlerContext ctx, RedisClient redisClient) {
         redisClient.flushAll();
         ctx.writeAndFlush(SimpleString.OK);
     }
+
+    @Override
+    public void handleLoadAof(RedisClient redisClient) {
+        redisClient.flushAll();
+    }
+
 }

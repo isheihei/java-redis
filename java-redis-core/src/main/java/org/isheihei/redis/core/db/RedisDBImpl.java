@@ -4,6 +4,7 @@ import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -47,6 +48,7 @@ public class RedisDBImpl implements RedisDB {
 
     @Override
     public boolean exist(BytesWrapper key) {
+
         RedisObject redisObject = dict.get(key);
         if (redisObject == null) {
             return false;
@@ -55,6 +57,20 @@ public class RedisDBImpl implements RedisDB {
             redisObject.updateLfu();
             return true;
         }
+    }
+
+    @Override
+    public int exist(List<BytesWrapper> keyList) {
+        int res = 0;
+        for (BytesWrapper key : keyList) {
+            RedisObject redisObject = dict.get(key);
+            if (redisObject != null) {
+                redisObject.refreshLru();
+                redisObject.updateLfu();
+                res++;
+            }
+        }
+        return res;
     }
 
     @Override
@@ -72,7 +88,7 @@ public class RedisDBImpl implements RedisDB {
         } else if (isExpired(key)){
             expires.remove(key);
             dict.remove(key);
-            // TODO aof 追加一条删除命令
+            // TODO aof 应该追加一条删除命令
             return null;
         } else {
             redisObject.refreshLru();
@@ -106,11 +122,7 @@ public class RedisDBImpl implements RedisDB {
 
     @Override
     public Long getTtl(BytesWrapper key) {
-        if (expires.containsKey(key)) {
-            return expires.get(key);
-        } else {
-            return null;
-        }
+        return expires.get(key);
     }
 
     @Override
@@ -123,9 +135,11 @@ public class RedisDBImpl implements RedisDB {
                 dirty++;
                 redisObject.refreshLru();
                 redisObject.updateLfu();
+                expires.remove(key);
+                return 1;
+            } else {
+                return 0;
             }
-            expires.remove(key);
-            return 1;
         }
     }
 
@@ -155,9 +169,23 @@ public class RedisDBImpl implements RedisDB {
 
     @Override
     public void delete(BytesWrapper key) {
-        dirty++;
-        expires.remove(key);
-        dict.remove(key);
+        if (dict.remove(key) != null) {
+            dirty++;
+            expires.remove(key);
+        }
+    }
+
+    @Override
+    public int delete(List<BytesWrapper> keyList) {
+        int res = 0;
+        for (BytesWrapper key : keyList) {
+            if (dict.remove(key) != null) {
+                expires.remove(key);
+                dirty++;
+                res++;
+            }
+        }
+        return res;
     }
 
     @Override
@@ -171,9 +199,28 @@ public class RedisDBImpl implements RedisDB {
     }
 
     @Override
-    public void cleanAll() {
+    public void flushDb() {
         dirty += dict.size();
         dict.clear();
         expires.clear();
+    }
+
+    @Override
+    public boolean reName(BytesWrapper oldKey, BytesWrapper newKey) {
+        RedisObject redisObject = dict.get(oldKey);
+        if (redisObject != null) {
+            if (dict.containsKey(newKey)) {
+                expires.remove(newKey);
+            }
+            dict.remove(oldKey);
+            expires.remove(oldKey);
+            dirty++;
+            redisObject.refreshLru();
+            redisObject.updateLfu();
+            dict.put(newKey, redisObject);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

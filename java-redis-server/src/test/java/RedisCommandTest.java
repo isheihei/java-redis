@@ -14,19 +14,19 @@ import java.util.Map;
  * @Author: isheihei
  */
 public class RedisCommandTest {
-    private static String OK = "OK";
+    private static final String OK = "OK";
 
-    private static String STRING_KEY = "string_key";
+    private static final String STRING_KEY = "string_key";
 
-    private static String LIST_KEY = "list_key";
+    private static final String LIST_KEY = "list_key";
 
-    private static String HASH_KEY = "hash_key";
+    private static final String HASH_KEY = "hash_key";
 
-    private static String SET_KEY1 = "set_key1";
-    private static String SET_KEY2 = "set_key2";
-    private static String SET_KEY3 = "set_key3";
+    private static final String SET_KEY1 = "set_key1";
+    private static final String SET_KEY2 = "set_key2";
+    private static final String SET_KEY3 = "set_key3";
 
-    private static String Z_SET_KEY = "zset_key";
+    private static final String Z_SET_KEY = "zset_key";
 
     @Test
     public void commandTest() {
@@ -159,8 +159,5 @@ public class RedisCommandTest {
         Assert.assertEquals(Double.valueOf(1.0), jedis.zscore(Z_SET_KEY, "a"));
         Assert.assertEquals(1, jedis.zrem(Z_SET_KEY, "a").longValue());
         Assert.assertEquals(2, jedis.zcard(Z_SET_KEY).longValue());
-
-
-
     }
 }

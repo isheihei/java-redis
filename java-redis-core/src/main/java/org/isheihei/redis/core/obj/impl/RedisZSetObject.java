@@ -26,7 +26,12 @@ public class RedisZSetObject extends AbstractRedisObject {
     }
 
     @Override
-    public byte getType() {
+    public String getType() {
+        return "zset";
+    }
+
+    @Override
+    public byte getCode() {
         return (byte) 4;
     }
 

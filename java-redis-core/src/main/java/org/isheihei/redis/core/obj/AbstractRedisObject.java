@@ -48,7 +48,10 @@ public abstract class AbstractRedisObject implements RedisObject{
     }
 
     @Override
-    public abstract byte getType();
+    public abstract String getType();
+
+    @Override
+    public abstract byte getCode();
 
     @Override
     public long getLru() {

@@ -26,7 +26,12 @@ public class RedisMapObject extends AbstractRedisObject {
     }
 
     @Override
-    public byte getType() {
+    public String getType() {
+        return "hash";
+    }
+
+    @Override
+    public byte getCode() {
         return (byte) 1;
     }
 

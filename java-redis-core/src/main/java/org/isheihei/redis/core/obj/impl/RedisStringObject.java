@@ -29,7 +29,12 @@ public class RedisStringObject extends AbstractRedisObject {
     }
 
     @Override
-    public byte getType() {
+    public String getType() {
+        return "string";
+    }
+
+    @Override
+    public byte getCode() {
         return (byte) 0;
     }
 

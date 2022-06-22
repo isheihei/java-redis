@@ -2,7 +2,7 @@ package org.isheihei.redis.common.consts;
 
 /**
  * @ClassName: ErrorsConst
- * @Description: TODO 重构成类的形式
+ * @Description: 错误返回信息
  * @Date: 2022/6/8 23:18
  * @Author: isheihei
  */

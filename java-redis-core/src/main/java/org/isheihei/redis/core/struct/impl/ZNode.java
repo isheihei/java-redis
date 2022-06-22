@@ -2,7 +2,7 @@ package org.isheihei.redis.core.struct.impl;
 
 /**
  * @ClassName: ZNode
- * @Description: TODO
+ * @Description: ZSet节点类
  * @Date: 2022/6/18 5:52
  * @Author: isheihei
  */
