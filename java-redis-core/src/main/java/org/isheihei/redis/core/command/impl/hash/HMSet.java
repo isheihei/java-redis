@@ -59,7 +59,7 @@ public class HMSet extends AbstractWriteCommand {
             RedisDataStruct data = redisObject.data();
             if (data instanceof RedisMap) {
                 RedisMap map = ((RedisMap) redisObject.data());
-                map.mset(fvLists);
+                map.mSet(fvLists);
                 db.touchWatchKey(key);
                 db.plusDirty();
                 return SimpleString.OK;

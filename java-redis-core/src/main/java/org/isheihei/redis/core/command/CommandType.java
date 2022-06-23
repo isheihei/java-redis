@@ -95,8 +95,6 @@ public enum CommandType {
         this.supplier = supplier;
     }
 
-    //
-
     /**
      * @Description: 获取一个操作类实例对象
      * @Return: Supplier<Command>

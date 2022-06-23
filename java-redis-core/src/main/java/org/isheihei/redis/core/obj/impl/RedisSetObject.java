@@ -13,7 +13,7 @@ import org.isheihei.redis.core.struct.RedisDataStructType;
  */
 public class RedisSetObject extends AbstractRedisObject {
 
-    private RedisDataStruct set;
+    private final RedisDataStruct set;
 
     public RedisSetObject() {
         setEncoding(RedisDataStructType.REDIS_SET);
@@ -42,11 +42,11 @@ public class RedisSetObject extends AbstractRedisObject {
 
     @Override
     public byte[] objectToBytes() {
-        return new byte[0];
+        return set.toBytes();
     }
 
     @Override
-    public void loadRdb(ByteBuf bufferPolled) {
-
+    public void loadRdb(ByteBuf byteBuf) {
+        set.loadRdb(byteBuf);
     }
 }

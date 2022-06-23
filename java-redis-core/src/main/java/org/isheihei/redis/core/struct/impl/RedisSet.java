@@ -1,6 +1,8 @@
 package org.isheihei.redis.core.struct.impl;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufUtil;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 
 import java.util.HashSet;
@@ -14,22 +16,11 @@ import java.util.Set;
  * @Author: isheihei
  */
 public class RedisSet extends HashSet<BytesWrapper> implements RedisDataStruct {
-    // TODO
-    @Override
-    public byte[] toBytes() {
-        return new byte[0];
-    }
-
-    // TODO
-    @Override
-    public void loadRdb(ByteBuf bufferPolled) {
-    }
 
     public int addItems(List<BytesWrapper> items) {
-
         return (int) items.stream()
-                .map(item -> this.add(item))
-                .filter(item -> item == true)
+                .map(this::add)
+                .filter(item -> item)
                 .count();
     }
 
@@ -49,8 +40,29 @@ public class RedisSet extends HashSet<BytesWrapper> implements RedisDataStruct {
 
     public int rem(List<BytesWrapper> items) {
         return (int) items.stream()
-                .map(item -> this.remove(item))
-                .filter(res -> res == true)
+                .map(this::remove)
+                .filter(res -> res)
                 .count();
+    }
+
+    @Override
+    public byte[] toBytes() {
+        ByteBuf byteBuf = ByteBufAllocator.DEFAULT.buffer();
+        this.forEach(item -> {
+            byte[] array = item.getByteArray();
+            byteBuf.writeInt(array.length);
+            byteBuf.writeBytes(array);
+        });
+        return ByteBufUtil.getBytes(byteBuf);
+    }
+
+    @Override
+    public void loadRdb(ByteBuf byteBuf) {
+        while (byteBuf.readableBytes() > 0) {
+            int len = byteBuf.readInt();
+            byte[] array = new byte[len];
+            byteBuf.readBytes(array);
+            this.add(new BytesWrapper(array));
+        }
     }
 }

@@ -13,7 +13,7 @@ import org.isheihei.redis.core.struct.RedisDataStructType;
  */
 public class RedisMapObject extends AbstractRedisObject {
 
-    private RedisDataStruct map;
+    private final RedisDataStruct map;
 
     public RedisMapObject() {
         setEncoding(RedisDataStructType.REDIS_MAP);
@@ -42,12 +42,12 @@ public class RedisMapObject extends AbstractRedisObject {
 
     @Override
     public byte[] objectToBytes() {
-        return new byte[0];
+        return map.toBytes();
     }
 
     @Override
-    public void loadRdb(ByteBuf bufferPolled) {
-
+    public void loadRdb(ByteBuf byteBuf) {
+        map.loadRdb(byteBuf);
     }
 
 

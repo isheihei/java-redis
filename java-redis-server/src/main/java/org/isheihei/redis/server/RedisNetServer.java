@@ -33,7 +33,6 @@ import org.isheihei.redis.server.handler.ResponseEncoder;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -47,9 +46,6 @@ public class RedisNetServer implements RedisServer {
 
     private static final Logger LOGGER = Logger.getLogger(RedisNetServer.class);
 
-    // 客户端列表
-    private final ConcurrentHashMap<Integer, RedisClient> clients = new ConcurrentHashMap<>();
-
     private final AtomicInteger clientId = new AtomicInteger(0);
 
     private String ip = ConfigUtil.getIp();
@@ -61,9 +57,6 @@ public class RedisNetServer implements RedisServer {
 
     // 数据库数量
     private int dbNum = ConfigUtil.getDbNum();
-
-    // 修改计数器
-    private AtomicInteger dirty = new AtomicInteger();
 
     // aof缓冲区
     private Aof aof;
@@ -176,8 +169,9 @@ public class RedisNetServer implements RedisServer {
             channelOption.boss().shutdownGracefully();
             channelOption.selectors().shutdownGracefully();
             redisSingleEventExecutor.shutdownGracefully();
-        } catch (Exception ignored) {
-            LOGGER.warn("Exception!", ignored);
+            System.exit(0);
+        } catch (Exception e) {
+            LOGGER.warn("Exception!", e);
         }
     }
 
@@ -199,7 +193,6 @@ public class RedisNetServer implements RedisServer {
                         // 初始化客户端
                         int id = clientId.incrementAndGet();
                         RedisClient client = new RedisNormalClient(socketChannel.localAddress().toString(), id, dbs);
-                        clients.put(id, client);
 
                         //  初始化 channel
                         ChannelPipeline channelPipeline = socketChannel.pipeline();

@@ -3,9 +3,6 @@ package org.isheihei.redis.core.resp.impl;
 import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-
 /**
  * @ClassName: BulkString
  * @Description: RESP多行字符串
@@ -14,7 +11,6 @@ import java.nio.charset.StandardCharsets;
  */
 public class BulkString implements Resp {
     public static final BulkString NullBulkString = new BulkString(null);
-    static final Charset CHARSET = StandardCharsets.UTF_8;
     BytesWrapper content;
 
     public BulkString(BytesWrapper content) {

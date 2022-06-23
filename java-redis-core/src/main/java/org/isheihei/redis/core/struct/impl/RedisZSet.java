@@ -1,6 +1,8 @@
 package org.isheihei.redis.core.struct.impl;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufUtil;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 
 import java.util.Iterator;
@@ -20,14 +22,6 @@ import static org.isheihei.redis.core.command.Command.CHARSET;
  * @Author: isheihei
  */
 public class RedisZSet extends TreeSet<ZNode> implements RedisDataStruct {
-
-    @Override
-    public byte[] toBytes() {
-        return new byte[0];
-    }
-    @Override
-    public void loadRdb(ByteBuf bufferPolled) {
-    }
 
     public int zAdd(List<ZNode> zNodeList) {
         return (int) zNodeList.stream()
@@ -91,7 +85,7 @@ public class RedisZSet extends TreeSet<ZNode> implements RedisDataStruct {
     public List<BytesWrapper> zRangeByScores(double min, double max, boolean withScores) {
         SortedSet<ZNode> zNodes = zSubSet(min, true, max, true);
         LinkedList<BytesWrapper> resList = new LinkedList<>();
-        zNodes.stream().forEach(zNode -> {
+        zNodes.forEach(zNode -> {
             resList.add(zNode.getMember());
             if (withScores) {
                 resList.add(new BytesWrapper(String.valueOf(zNode.getScore()).getBytes(CHARSET)));
@@ -105,7 +99,7 @@ public class RedisZSet extends TreeSet<ZNode> implements RedisDataStruct {
         boolean match = this.stream().map(zNode ->  {
             rank.getAndIncrement();
             return zNode.getMember();
-        }).anyMatch(m -> member.equals(m));
+        }).anyMatch(member::equals);
         return match ? rank.decrementAndGet() : null;
     }
 
@@ -124,13 +118,35 @@ public class RedisZSet extends TreeSet<ZNode> implements RedisDataStruct {
     }
 
     public Double zSCore(BytesWrapper member) {
-        Iterator<ZNode> iterator = this.iterator();
-        while (iterator.hasNext()) {
-            ZNode next = iterator.next();
+        for (ZNode next : this) {
             if (member.equals(next.getMember())) {
                 return next.getScore();
             }
         }
         return null;
+    }
+
+    @Override
+    public byte[] toBytes() {
+        ByteBuf byteBuf = ByteBufAllocator.DEFAULT.buffer();
+        this.forEach(zNode -> {
+            double score = zNode.getScore();
+            byte[] member = zNode.getMember().getByteArray();
+            byteBuf.writeDouble(score);
+            byteBuf.writeInt(member.length);
+            byteBuf.writeBytes(member);
+        });
+        return ByteBufUtil.getBytes(byteBuf);
+    }
+
+    @Override
+    public void loadRdb(ByteBuf byteBuf) {
+        while (byteBuf.readableBytes() > 0) {
+            double score = byteBuf.readDouble();
+            int memberLen = byteBuf.readInt();
+            byte[] array = new byte[memberLen];
+            byteBuf.readBytes(array);
+            this.add(new ZNode(score, new BytesWrapper(array)));
+        }
     }
 }

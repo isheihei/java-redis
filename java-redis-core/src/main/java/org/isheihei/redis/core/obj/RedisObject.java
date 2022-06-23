@@ -34,6 +34,6 @@ public interface RedisObject {
 
     byte[] objectToBytes();
 
-    void loadRdb(ByteBuf bufferPolled);
+    void loadRdb(ByteBuf byteBuf);
 
 }

@@ -1,9 +1,8 @@
 package org.isheihei.redis.core.struct.impl;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufUtil;
-import io.netty.buffer.Unpooled;
-import org.isheihei.redis.common.util.ByteUtil;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 
 /**
@@ -44,17 +43,14 @@ public class RedisString implements RedisDataStruct {
 
     @Override
     public byte[] toBytes() {
-        ByteBuf byteBuf = Unpooled.buffer();
-        byteBuf.writeBytes(ByteUtil.intToBytes(value.length()));
+        ByteBuf byteBuf = ByteBufAllocator.DEFAULT.buffer();
         byteBuf.writeBytes(value.getByteArray());
         return ByteBufUtil.getBytes(byteBuf);
     }
 
     @Override
-    public void loadRdb(ByteBuf bufferPolled) {
-        int len = bufferPolled.getInt(0);
-        bufferPolled.readerIndex(4);
-        value = new BytesWrapper(ByteBufUtil.getBytes(bufferPolled));
-        int i = 0;
+    public void loadRdb(ByteBuf byteBuf) {
+        byteBuf.readerIndex();
+        value = new BytesWrapper(ByteBufUtil.getBytes(byteBuf));
     }
 }

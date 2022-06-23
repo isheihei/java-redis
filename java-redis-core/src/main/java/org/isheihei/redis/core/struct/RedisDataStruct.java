@@ -11,5 +11,5 @@ import io.netty.buffer.ByteBuf;
 public interface RedisDataStruct {
     byte[] toBytes();
 
-    void loadRdb(ByteBuf bufferPolled);
+    void loadRdb(ByteBuf byteBuf);
 }

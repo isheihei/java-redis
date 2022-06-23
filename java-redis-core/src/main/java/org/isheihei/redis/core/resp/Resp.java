@@ -1,6 +1,7 @@
 package org.isheihei.redis.core.resp;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.PooledByteBufAllocator;
 import org.isheihei.redis.core.resp.impl.BulkString;
 import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.impl.RespArray;
@@ -9,15 +10,20 @@ import org.isheihei.redis.core.resp.impl.RespType;
 import org.isheihei.redis.core.resp.impl.SimpleString;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+
 /**
  * @ClassName: Resp
- * @Description: Redis Serialization Protocol协议 TODO 读写byte
+ * @Description: Redis Serialization Protocol协议
  * @Date: 2022/6/1 13:15
  * @Author: isheihei
  */
 public interface Resp {
 
     org.apache.log4j.Logger LOGGER = org.apache.log4j.Logger.getLogger(Resp.class);
+
+    Charset CHARSET = StandardCharsets.UTF_8;
 
     /**
      * @Description: 回写
@@ -30,26 +36,17 @@ public interface Resp {
         if (resp instanceof SimpleString) {
             buffer.writeByte(RespType.STATUS.getCode());
             String content = ((SimpleString) resp).getContent();
-            char[] charArray = content.toCharArray();
-            for (char each : charArray) {
-                buffer.writeByte((byte) each);
-            }
+            buffer.writeBytes(content.getBytes(CHARSET));
             writeEof(buffer);
         } else if (resp instanceof Errors) {
             buffer.writeByte(RespType.ERROR.getCode());
             String content = ((Errors) resp).getContent();
-            char[] charArray = content.toCharArray();
-            for (char each : charArray) {
-                buffer.writeByte((byte) each);
-            }
+            buffer.writeBytes(content.getBytes(CHARSET));
             writeEof(buffer);
         } else if (resp instanceof RespInt) {
             buffer.writeByte(RespType.INTEGER.getCode());
             String content = String.valueOf(((RespInt) resp).getValue());
-            char[] charArray = content.toCharArray();
-            for (char each : charArray) {
-                buffer.writeByte((byte) each);
-            }
+            buffer.writeBytes(content.getBytes(CHARSET));
             writeEof(buffer);
         } else if (resp instanceof BulkString) {
             buffer.writeByte(RespType.BULK.getCode());
@@ -67,10 +64,7 @@ public interface Resp {
             } else {
                 // 正常编码："foobar" 的编码为 "$6\r\nfoobar\r\n"，其中 6 是字节数
                 String length = String.valueOf(content.getByteArray().length);
-                char[] charArray = length.toCharArray();
-                for (char each : charArray) {
-                    buffer.writeByte((byte) each);
-                }
+                buffer.writeBytes(length.getBytes(CHARSET));
                 writeEof(buffer);
                 buffer.writeBytes(content.getByteArray());
                 writeEof(buffer);
@@ -79,10 +73,7 @@ public interface Resp {
             buffer.writeByte(RespType.MULTYBULK.getCode());
             Resp[] array = ((RespArray) resp).getArray();
             String length = String.valueOf(array.length);
-            char[] charArray = length.toCharArray();
-            for (char each : charArray) {
-                buffer.writeByte((byte) each);
-            }
+            buffer.writeBytes(length.getBytes(CHARSET));
             writeEof(buffer);
             for (Resp each : array) {
                 write(each, buffer);
@@ -103,15 +94,15 @@ public interface Resp {
             throw new IllegalStateException("没有读取到完整的命令");
         }
 
-        char c = (char) buffer.readByte();
-        if (c == RespType.STATUS.getCode()) {
+        byte b =buffer.readByte();
+        if (b == RespType.STATUS.getCode()) {
             return new SimpleString(getString(buffer));
-        } else if (c == RespType.ERROR.getCode()) {
+        } else if (b == RespType.ERROR.getCode()) {
             return new Errors(getString(buffer));
-        } else if (c == RespType.INTEGER.getCode()) {
+        } else if (b == RespType.INTEGER.getCode()) {
             int value = getNumber(buffer);
             return new RespInt(value);
-        } else if (c == RespType.BULK.getCode()) {
+        } else if (b == RespType.BULK.getCode()) {
             int length = getNumber(buffer);
             if (buffer.readableBytes() < length + 2) {
                 throw new IllegalStateException("没有读取到完整的命令");
@@ -127,7 +118,7 @@ public interface Resp {
                 throw new IllegalStateException("没有读取到完整的命令");
             }
             return new BulkString(new BytesWrapper(content));
-        } else if (c == RespType.MULTYBULK.getCode()) {
+        } else if (b == RespType.MULTYBULK.getCode()) {
             int numOfElement = getNumber(buffer);
             Resp[] array = new Resp[numOfElement];
             for (int i = 0; i < numOfElement; i++) {
@@ -147,18 +138,18 @@ public interface Resp {
      * @Author: isheihei
      */
     static int getNumber(ByteBuf buffer) {
-        char t;
-        t = (char) buffer.readByte();
+        byte b;
+        b = buffer.readByte();
         boolean positive = true;
         int value = 0;
         // 错误（Errors）： 响应的首字节是 "-"
-        if (t == RespType.ERROR.getCode()) {
+        if (b == RespType.ERROR.getCode()) {
             positive = false;
         } else {
-            value = t - RespType.ZERO.getCode();
+            value = b - RespType.ZERO.getCode();
         }
-        while (buffer.readableBytes() > 0 && (t = (char) buffer.readByte()) != RespType.R.getCode()) {
-            value = value * 10 + (t - RespType.ZERO.getCode());
+        while (buffer.readableBytes() > 0 && (b = buffer.readByte()) != RespType.R.getCode()) {
+            value = value * 10 + (b - RespType.ZERO.getCode());
         }
         if (buffer.readableBytes() == 0 || buffer.readByte() != RespType.N.getCode()) {
             throw new IllegalStateException("没有读取到完整的命令");
@@ -176,18 +167,17 @@ public interface Resp {
      * @Author: isheihei
      */
     static String getString(ByteBuf buffer) {
-        char c;
-        StringBuilder builder = new StringBuilder();
-
+        byte b;
+        ByteBuf byteBuf = PooledByteBufAllocator.DEFAULT.directBuffer();
         // 以终止符 /R 为结束标志
-        while (buffer.readableBytes() > 0 && (c = (char) buffer.readByte()) != RespType.R.getCode()) {
-            builder.append(c);
+        while (buffer.readableBytes() > 0 && (b = buffer.readByte()) != RespType.R.getCode()) {
+            byteBuf.writeByte(b);
         }
         // /R 后面必须紧接 /N
         if (buffer.readableBytes() == 0 || buffer.readableBytes() != RespType.N.getCode()) {
             throw new IllegalStateException("没有读取到完整的命令");
         }
-        return builder.toString();
+        return byteBuf.toString(CHARSET);
     }
 
     /**

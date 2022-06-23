@@ -6,9 +6,9 @@ import io.netty.buffer.PooledByteBufAllocator;
 import org.isheihei.redis.common.util.ConfigUtil;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.client.RedisNormalClient;
+import org.isheihei.redis.core.command.AbstractWriteCommand;
 import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandFactory;
-import org.isheihei.redis.core.command.AbstractWriteCommand;
 import org.isheihei.redis.core.db.RedisDB;
 import org.isheihei.redis.core.persist.Persist;
 import org.isheihei.redis.core.resp.Resp;
@@ -33,12 +33,12 @@ public class Aof implements Persist {
 
     private static final String suffix = ConfigUtil.getAppendFileName();
 
-    private String fileName = ConfigUtil.getAofPath();
+    private final String fileName = ConfigUtil.getAofPath();
 
-    private Deque<Resp> bufferQueue = new LinkedList<>();
-    private ByteBuf bufferPolled = PooledByteBufAllocator.DEFAULT.directBuffer(8888);
+    private final Deque<Resp> bufferQueue = new LinkedList<>();
+    private final ByteBuf bufferPolled = PooledByteBufAllocator.DEFAULT.directBuffer(8888);
 
-    private RedisClient mockClient;
+    private final RedisClient mockClient;
 
     public Aof(List<RedisDB> dbs) {
         File file = new File(this.fileName + suffix);
@@ -57,7 +57,6 @@ public class Aof implements Persist {
     @Override
     public void save() {
         if (bufferQueue.isEmpty()) {
-            LOGGER.info("aof缓冲队列为空");
             return;
         }
         try (FileChannel channel = new RandomAccessFile(fileName + suffix, "rw").getChannel()){
@@ -98,8 +97,10 @@ public class Aof implements Persist {
             while (bufferPolled.readableBytes() > 0) {
                 Resp resp = Resp.decode(bufferPolled);
                 Command command = CommandFactory.from((RespArray) resp);
-                AbstractWriteCommand writeCommand = (AbstractWriteCommand) command;
-                writeCommand.handleLoadAof(this.mockClient);
+                if (command != null) {
+                    AbstractWriteCommand writeCommand = (AbstractWriteCommand) command;
+                    writeCommand.handleLoadAof(this.mockClient);
+                }
             }
             LOGGER.info("加载aof文件完成");
         } catch (Exception e) {

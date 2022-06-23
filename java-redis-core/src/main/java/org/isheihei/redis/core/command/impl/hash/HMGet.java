@@ -52,7 +52,7 @@ public class HMGet extends AbstractCommand {
             RedisDataStruct data = redisObject.data();
             if (data instanceof RedisMap) {
                 RedisMap map = (RedisMap) data;
-                List<BytesWrapper> res = map.mget(fields);
+                List<BytesWrapper> res = map.mGet(fields);
                 return new RespArray(res.stream().map(BulkString::new).toArray(Resp[]::new));
             } else {
                 throw new UnsupportedOperationException();

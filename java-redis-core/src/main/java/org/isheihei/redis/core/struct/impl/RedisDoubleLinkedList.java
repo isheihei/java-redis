@@ -1,6 +1,8 @@
 package org.isheihei.redis.core.struct.impl;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufUtil;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 
 import java.util.LinkedList;
@@ -33,16 +35,16 @@ public class RedisDoubleLinkedList extends LinkedList<BytesWrapper> implements R
         if (start > end) {
             return resList;
         }
-        this.stream().skip(start).limit(end - start + 1).forEach(item -> resList.add(item));
+        this.stream().skip(start).limit(end - start + 1).forEach(resList::add);
         return resList;
     }
 
     public void rpush(List<BytesWrapper> values) {
-        values.stream().forEach(value -> this.offerLast(value));
+        values.forEach(this::offerLast);
     }
 
     public void lpush(List<BytesWrapper> values) {
-        values.stream().forEach(value -> this.offerFirst(value));
+        values.forEach(this::offerFirst);
 
     }
 
@@ -109,11 +111,22 @@ public class RedisDoubleLinkedList extends LinkedList<BytesWrapper> implements R
 
     @Override
     public byte[] toBytes() {
-        return new byte[0];
+        ByteBuf byteBuf = ByteBufAllocator.DEFAULT.buffer();
+        this.forEach(item -> {
+            byte[] array = item.getByteArray();
+            byteBuf.writeInt(array.length);
+            byteBuf.writeBytes(array);
+        });
+        return ByteBufUtil.getBytes(byteBuf);
     }
 
     @Override
-    public void loadRdb(ByteBuf bufferPolled) {
-
+    public void loadRdb(ByteBuf byteBuf) {
+        while (byteBuf.readableBytes() > 0) {
+            int len = byteBuf.readInt();
+            byte[] array = new byte[len];
+            byteBuf.readBytes(array);
+            this.add(new BytesWrapper(array));
+        }
     }
 }

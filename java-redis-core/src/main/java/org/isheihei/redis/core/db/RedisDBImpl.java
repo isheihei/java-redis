@@ -5,11 +5,11 @@ import org.isheihei.redis.core.obj.RedisObject;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
  * @ClassName: RedisDB
@@ -24,8 +24,8 @@ public class RedisDBImpl implements RedisDB {
     //  过期字典
     private final Map<BytesWrapper, Long> expires = new HashMap<>();
 
-    // watch_keys
-    private final Map<BytesWrapper, List<RedisClient>> watchKeys = new HashMap<>();
+    // watch_keys 客户端使用弱引用对象 当客户端在事务执行中意外关闭的时候 会自动gc 防止占用内存
+    private final Map<BytesWrapper, WeakHashMap<RedisClient, Boolean>> watchKeys = new HashMap<>();
 
     // 距离上一次 save 或 bgsave 后服务器进行了多少修改
     private long dirty = 0;
@@ -52,10 +52,9 @@ public class RedisDBImpl implements RedisDB {
 
     @Override
     public void touchWatchKey(BytesWrapper key) {
-        if (watchKeys.containsKey(key)) {
-            for (RedisClient client : watchKeys.get(key)) {
-                client.setDirtyCas(true);
-            }
+        WeakHashMap<RedisClient, Boolean> map = watchKeys.get(key);
+        if (map != null) {
+            map.forEach((redisClient, aBoolean) -> redisClient.setDirtyCas(true));
         }
     }
 
@@ -63,10 +62,10 @@ public class RedisDBImpl implements RedisDB {
     public void watchKeys(List<BytesWrapper> keys, RedisClient redisClient) {
         keys.forEach(key -> {
             if (watchKeys.containsKey(key)) {
-                watchKeys.get(key).add(redisClient);
+                watchKeys.get(key).put(redisClient, true);
             } else {
-                LinkedList<RedisClient> clients = new LinkedList<>();
-                clients.add(redisClient);
+                WeakHashMap<RedisClient, Boolean> clients = new WeakHashMap<>();
+                clients.put(redisClient, true);
                 watchKeys.put(key, clients);
             }
         });
@@ -74,8 +73,8 @@ public class RedisDBImpl implements RedisDB {
 
     @Override
     public void unWatchKeys(RedisClient redisClient) {
-        for (Map.Entry<BytesWrapper, List<RedisClient>> next : watchKeys.entrySet()) {
-            next.getValue().remove(redisClient);
+        for (Map.Entry<BytesWrapper, WeakHashMap<RedisClient, Boolean>> mapEntry : watchKeys.entrySet()) {
+            mapEntry.getValue().remove(redisClient);
         }
     }
 
@@ -242,8 +241,8 @@ public class RedisDBImpl implements RedisDB {
     @Override
     public void flushDb() {
         dirty += dict.size();
-        for (Map.Entry<BytesWrapper, List<RedisClient>> bytesWrapperListEntry : watchKeys.entrySet()) {
-            bytesWrapperListEntry.getValue().forEach(redisClient -> redisClient.setDirtyCas(true));
+        for (Map.Entry<BytesWrapper, WeakHashMap<RedisClient, Boolean>> mapEntry : watchKeys.entrySet()) {
+            mapEntry.getValue().forEach((redisClient, aBoolean) -> redisClient.setDirtyCas(true));
         }
         plusDirty(dict.size());
         dict.clear();

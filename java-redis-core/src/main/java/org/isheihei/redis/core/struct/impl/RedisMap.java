@@ -1,6 +1,8 @@
 package org.isheihei.redis.core.struct.impl;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufUtil;
 import org.isheihei.redis.core.struct.RedisDataStruct;
 
 import java.util.ArrayList;
@@ -19,18 +21,15 @@ import java.util.stream.Collectors;
  */
 public class RedisMap extends HashMap<BytesWrapper, BytesWrapper> implements RedisDataStruct {
     public int del(List<BytesWrapper> fields) {
-        long count = fields.stream().map(field -> this.remove(field)).filter(Objects::nonNull).count();
+        long count = fields.stream().map(this::remove).filter(Objects::nonNull).count();
         return (int) count;
     }
 
     public List<BytesWrapper> getAll() {
-        int size = this.size();
         List<BytesWrapper> list = new LinkedList<>();
-        Iterator<Entry<BytesWrapper, BytesWrapper>> iterator = this.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Entry<BytesWrapper, BytesWrapper> next = iterator.next();
-            list.add(next.getKey());
-            list.add(next.getValue());
+        for (Entry<BytesWrapper, BytesWrapper> entry : entrySet()) {
+            list.add(entry.getKey());
+            list.add(entry.getValue());
         }
         return list;
     }
@@ -39,7 +38,7 @@ public class RedisMap extends HashMap<BytesWrapper, BytesWrapper> implements Red
         return new ArrayList<>(this.keySet());
     }
 
-    public void mset(List<BytesWrapper> fvLists) {
+    public void mSet(List<BytesWrapper> fvLists) {
         Iterator<BytesWrapper> iterator = fvLists.iterator();
         while (iterator.hasNext()) {
             this.put(iterator.next(), iterator.next());
@@ -50,17 +49,34 @@ public class RedisMap extends HashMap<BytesWrapper, BytesWrapper> implements Red
         return new ArrayList<>(this.values());
     }
 
-    public List<BytesWrapper> mget(List<BytesWrapper> fields) {
-        return fields.stream().map(field -> this.get(field)).collect(Collectors.toList());
+    public List<BytesWrapper> mGet(List<BytesWrapper> fields) {
+        return fields.stream().map(this::get).collect(Collectors.toList());
     }
 
     @Override
     public byte[] toBytes() {
-        return new byte[0];
+        ByteBuf byteBuf = ByteBufAllocator.DEFAULT.buffer();
+        for (Entry<BytesWrapper, BytesWrapper> entry : this.entrySet()) {
+            byte[] key = entry.getKey().getByteArray();
+            byte[] value = entry.getValue().getByteArray();
+            byteBuf.writeInt(key.length);
+            byteBuf.writeBytes(key);
+            byteBuf.writeInt(value.length);
+            byteBuf.writeBytes(value);
+        }
+        return ByteBufUtil.getBytes(byteBuf);
     }
 
     @Override
-    public void loadRdb(ByteBuf bufferPolled) {
-
+    public void loadRdb(ByteBuf byteBuf) {
+        while (byteBuf.readableBytes() > 0) {
+            int keyLen = byteBuf.readInt();
+            byte[] key = new byte[keyLen];
+            byteBuf.readBytes(key);
+            int valueLen = byteBuf.readInt();
+            byte[] value = new byte[valueLen];
+            byteBuf.readBytes(value);
+            this.put(new BytesWrapper(key), new BytesWrapper(value));
+        }
     }
 }

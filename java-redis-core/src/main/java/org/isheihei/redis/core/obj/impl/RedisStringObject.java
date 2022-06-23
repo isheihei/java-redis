@@ -15,7 +15,7 @@ import org.isheihei.redis.core.struct.impl.RedisString;
  */
 public class RedisStringObject extends AbstractRedisObject {
 
-    private RedisDataStruct string;
+    private final RedisDataStruct string;
 
     public RedisStringObject() {
         setEncoding(RedisDataStructType.REDIS_STRING);
@@ -54,7 +54,7 @@ public class RedisStringObject extends AbstractRedisObject {
     }
 
     @Override
-    public void loadRdb(ByteBuf bufferPolled) {
-        string.loadRdb(bufferPolled);
+    public void loadRdb(ByteBuf byteBuf) {
+        string.loadRdb(byteBuf);
     }
 }

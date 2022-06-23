@@ -8,6 +8,7 @@ import org.isheihei.redis.common.util.ConfigUtil;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandType;
+import org.isheihei.redis.core.command.impl.connection.Quit;
 import org.isheihei.redis.core.command.impl.server.BgSave;
 import org.isheihei.redis.core.command.impl.server.Save;
 import org.isheihei.redis.core.command.impl.transaction.Discard;
@@ -29,9 +30,9 @@ public class CommandHandler extends SimpleChannelInboundHandler<Command> {
 
     private static final Logger LOGGER = Logger.getLogger(CommandHandler.class);
 
-    private RedisClient client;
+    private final RedisClient client;
 
-    private Rdb rdb;
+    private final Rdb rdb;
 
     public CommandHandler(RedisClient client, Rdb rdb) {
         super();
@@ -42,6 +43,10 @@ public class CommandHandler extends SimpleChannelInboundHandler<Command> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Command command) {
         try {
+            if (command instanceof Quit) {
+                ctx.close();
+                return;
+            }
             // 如果开启了认证功能，所有命令执行前需要检查认证是否成功
             if (ConfigUtil.getRequirePass() != null && client.getAuth() == 0 && command.type() != CommandType.auth) {
                 ctx.writeAndFlush(new Errors(ErrorsConst.NO_AUTH));
