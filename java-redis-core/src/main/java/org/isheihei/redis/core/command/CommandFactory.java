@@ -1,7 +1,6 @@
 package org.isheihei.redis.core.command;
 
 import org.apache.log4j.Logger;
-import org.isheihei.redis.common.util.TRACEID;
 import org.isheihei.redis.core.resp.impl.BulkString;
 import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.RespArray;
@@ -42,7 +41,7 @@ public class CommandFactory {
         String commandName = ((BulkString) array[0]).getContent().toUtf8String().toLowerCase();
         Supplier<Command> supplier = commandMap.get(commandName);
         if (supplier == null) {
-            LOGGER.debug("traceId:" + TRACEID.currentTraceId() + " 不支持的命令：" + commandName);
+            LOGGER.debug(" 不支持的命令：" + commandName);
             return null;
         } else {
             try {
@@ -50,7 +49,7 @@ public class CommandFactory {
                 command.setContent(respArray);
                 return command;
             } catch (Throwable e) {
-                LOGGER.debug("traceId:"+TRACEID.currentTraceId()+" 不支持的命令：{},数据读取异常"+commandName);
+                LOGGER.debug(" 不支持的命令：{},数据读取异常" + commandName);
                 e.printStackTrace();
                 return null;
             }
@@ -67,13 +66,13 @@ public class CommandFactory {
         String commandName = string.getContent().toLowerCase();
         Supplier<Command> supplier = commandMap.get(commandName);
         if (supplier == null) {
-            LOGGER.debug("traceId:" + TRACEID.currentTraceId() + " 不支持的命令：" + commandName);
+            LOGGER.debug(" 不支持的命令：" + commandName);
             return null;
         } else {
             try {
                 return supplier.get();
             } catch (Throwable e) {
-                LOGGER.debug("traceId:"+TRACEID.currentTraceId()+" 不支持的命令：{},数据读取异常"+commandName);
+                LOGGER.debug(" 不支持的命令：{},数据读取异常" + commandName);
                 e.printStackTrace();
                 return null;
             }

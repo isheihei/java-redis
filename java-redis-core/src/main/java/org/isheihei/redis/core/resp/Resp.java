@@ -6,7 +6,6 @@ import org.isheihei.redis.core.resp.impl.BulkString;
 import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.impl.RespArray;
 import org.isheihei.redis.core.resp.impl.RespInt;
-import org.isheihei.redis.core.resp.impl.RespType;
 import org.isheihei.redis.core.resp.impl.SimpleString;
 import org.isheihei.redis.core.struct.impl.BytesWrapper;
 

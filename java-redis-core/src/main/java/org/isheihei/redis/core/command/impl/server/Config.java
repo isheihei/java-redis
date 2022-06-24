@@ -2,7 +2,6 @@ package org.isheihei.redis.core.command.impl.server;
 
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.common.util.ConfigUtil;
-import org.isheihei.redis.common.util.TRACEID;
 import org.isheihei.redis.core.client.RedisClient;
 import org.isheihei.redis.core.command.AbstractCommand;
 import org.isheihei.redis.core.command.CommandType;
@@ -37,8 +36,7 @@ public class Config extends AbstractCommand {
 
     @Override
     public Resp handle(RedisClient redisClient) {
-        String traceId = TRACEID.currentTraceId();
-        LOGGER.debug("traceId:{} 当前的子命令是：{}" + traceId + subCommand);
+        LOGGER.debug("当前的子命令是：{}" + subCommand);
         BytesWrapper bytesSubCommand;
         if ((bytesSubCommand = getBytesWrapper(array, 1)) == null) {
             return new Errors(String.format(ErrorsConst.COMMAND_WRONG_ARGS_NUMBER, type().toString()));

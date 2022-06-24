@@ -15,13 +15,11 @@ import org.isheihei.redis.core.resp.Resp;
 public class ResponseEncoder extends MessageToByteEncoder<Resp> {
 
     @Override
-    protected void encode(ChannelHandlerContext channelHandlerContext, Resp resp, ByteBuf byteBuf) throws Exception {
+    protected void encode(ChannelHandlerContext ctx, Resp resp, ByteBuf out) {
         try {
-            Resp.write(resp, byteBuf);
-            byteBuf.writeBytes(byteBuf);
+            Resp.write(resp, out);
         } catch (Exception e) {
-            channelHandlerContext.close();
+            ctx.close();
         }
     }
-
 }

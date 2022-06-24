@@ -79,14 +79,39 @@ import java.util.function.Supplier;
  * @Author: isheihei
  */
 public enum CommandType {
-    auth(Auth::new), client(Client::new), config(Config::new), echo(Echo::new), ping(Ping::new), quit(Quit::new), select(Select::new), flushall(FlushAll::new), dbsize(DbSize::new), flushdb(FlushDb::new), bgsave(BgSave::new), save(Save::new),
-    expire(Expire::new), del(Del::new), exists(Exists::new), keys(Keys::new), persist(Persist::new), rename(Rename::new), ttl(Ttl::new), type(Type::new),
+    //  connection
+    auth(Auth::new), client(Client::new), config(Config::new), echo(Echo::new), ping(Ping::new), quit(Quit::new),
+    select(Select::new), flushall(FlushAll::new), dbsize(DbSize::new), flushdb(FlushDb::new), bgsave(BgSave::new),
+    save(Save::new),
+
+    //  key
+    expire(Expire::new), del(Del::new), exists(Exists::new), keys(Keys::new), persist(Persist::new),
+    rename(Rename::new), ttl(Ttl::new), type(Type::new),
+
+    //  transaction
     multi(Multi::new), exec(Exec::new), unwatch(UnWatch::new), watch(Watch::new), discard(Discard::new),
-    get(Get::new), set(Set::new), mget(MGet::new), mset(MSet::new), append(Append::new), setex(SetEx::new), setnx(SetNx::new),
-    lpush(LPush::new), lrange(LRange::new), lrem(LRem::new), rpush(RPush::new), lpop(LPop::new), rpop(RPop::new), lset(LSet::new), lindex(LIndex::new), llen(LLen::new),
-    hdel(HDel::new), hexists(HExists::new), hget(HGet::new), hgetall(HGetAll::new), hkeys(HKeys::new), hset(HSet::new), hmset(HMSet::new), hvals(HVals::new), hmget(HMGet::new),
-    sadd(SAdd::new), scard(SCard::new), sdiff(SDiff::new), smembers(SMembers::new), sismember(SIsMember::new), sdiffstore(SDiffStore::new), sinter(SInter::new), sinterstore(SInterStore::new), srem(SRem::new), sunion(SUnion::new), sunionstore(SUnionStore::new),
-    zadd(ZAdd::new), zcard(ZCard::new), zcount(ZCount::new), zrange(ZRange::new), zrangebyscore(ZRangeByScore::new), zrank(ZRank::new), zrem(ZRem::new), zscore(ZScore::new),
+
+    //  string
+    get(Get::new), set(Set::new), mget(MGet::new), mset(MSet::new), append(Append::new), setex(SetEx::new),
+    setnx(SetNx::new),
+
+    //  list
+    lpush(LPush::new), lrange(LRange::new), lrem(LRem::new), rpush(RPush::new), lpop(LPop::new), rpop(RPop::new),
+    lset(LSet::new), lindex(LIndex::new), llen(LLen::new),
+
+    //  hash
+    hdel(HDel::new), hexists(HExists::new), hget(HGet::new), hgetall(HGetAll::new), hkeys(HKeys::new), hset(HSet::new),
+    hmset(HMSet::new), hvals(HVals::new), hmget(HMGet::new),
+
+    //  set
+    sadd(SAdd::new), scard(SCard::new), sdiff(SDiff::new), smembers(SMembers::new), sismember(SIsMember::new),
+    sdiffstore(SDiffStore::new), sinter(SInter::new), sinterstore(SInterStore::new), srem(SRem::new),
+    sunion(SUnion::new), sunionstore(SUnionStore::new),
+
+    //  zset
+
+    zadd(ZAdd::new), zcard(ZCard::new), zcount(ZCount::new), zrange(ZRange::new), zrangebyscore(ZRangeByScore::new),
+    zrank(ZRank::new), zrem(ZRem::new), zscore(ZScore::new),
     ;
     // 操作类构造器
     private final Supplier<Command> supplier;

@@ -1,4 +1,4 @@
-package org.isheihei.redis.core.resp.impl;
+package org.isheihei.redis.core.resp;
 
 /**
  * @ClassName: RespType

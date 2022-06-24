@@ -5,14 +5,13 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import org.apache.log4j.Logger;
 import org.isheihei.redis.common.consts.ErrorsConst;
-import org.isheihei.redis.common.util.TRACEID;
+import org.isheihei.redis.core.command.AbstractWriteCommand;
 import org.isheihei.redis.core.command.Command;
 import org.isheihei.redis.core.command.CommandFactory;
-import org.isheihei.redis.core.command.AbstractWriteCommand;
 import org.isheihei.redis.core.persist.aof.Aof;
+import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.BulkString;
 import org.isheihei.redis.core.resp.impl.Errors;
-import org.isheihei.redis.core.resp.Resp;
 import org.isheihei.redis.core.resp.impl.RespArray;
 import org.isheihei.redis.core.resp.impl.SimpleString;
 
@@ -35,13 +34,12 @@ public class CommandDecoder extends LengthFieldBasedFrameDecoder {
     }
 
     public CommandDecoder() {
-        super(MAX_FRAME_LENGTH, 0, 4);
+        // 读取完整数据包
+        super(MAX_FRAME_LENGTH, 0, 0);
     }
 
     @Override
-    public Object decode(ChannelHandlerContext ctx, ByteBuf in) throws Exception {
-
-        TRACEID.newTraceId();
+    public Object decode(ChannelHandlerContext ctx, ByteBuf in) {
         while (in.readableBytes() != 0) {
             int mark = in.readerIndex();
             try {

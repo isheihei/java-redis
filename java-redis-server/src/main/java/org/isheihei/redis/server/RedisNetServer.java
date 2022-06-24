@@ -181,11 +181,6 @@ public class RedisNetServer implements RedisServer {
                 .handler(new LoggingHandler(LogLevel.INFO))
                 .option(ChannelOption.SO_BACKLOG, 1024)
                 .option(ChannelOption.SO_REUSEADDR, true)
-                //false
-//                .option(ChannelOption.SO_KEEPALIVE, PropertiesUtil.getTcpKeepAlive())
-//                .childOption(ChannelOption.TCP_NODELAY, true)
-//                .childOption(ChannelOption.SO_SNDBUF, 65535)
-//                .childOption(ChannelOption.SO_RCVBUF, 65535)
                 .localAddress(new InetSocketAddress(ip, port))
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
@@ -198,9 +193,7 @@ public class RedisNetServer implements RedisServer {
                         ChannelPipeline channelPipeline = socketChannel.pipeline();
                         channelPipeline.addLast(
                                 new ResponseEncoder(),
-                                new CommandDecoder(aof)//,
-//                                /*心跳,管理长连接*/
-//                                new IdleStateHandler(0, 0, 20)
+                                new CommandDecoder(aof)
                         );
                         channelPipeline.addLast(redisSingleEventExecutor, new CommandHandler(client, rdb));
                     }
@@ -222,9 +215,7 @@ public class RedisNetServer implements RedisServer {
             redisSingleEventExecutor.submit(() -> aof.load());
             serverCron.aof(aof);
         }
-//        redisSingleEventExecutor.scheduleWithFixedDelay(serverCron, 100, 100, TimeUnit.MILLISECONDS);
-        redisSingleEventExecutor.scheduleWithFixedDelay(serverCron, TimeUnit.SECONDS.toMillis(5), TimeUnit.SECONDS.toMillis(1), TimeUnit.MILLISECONDS);
-
+        redisSingleEventExecutor.scheduleWithFixedDelay(serverCron, 100, 100, TimeUnit.MILLISECONDS);
         try {
             ChannelFuture sync = serverBootstrap.bind().sync();
             LOGGER.info(sync.channel().localAddress().toString());

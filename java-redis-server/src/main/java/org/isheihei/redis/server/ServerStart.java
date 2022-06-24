@@ -10,7 +10,7 @@ public class ServerStart {
                 .channelOption(new SingleChannelSelectStrategy())
                 .dbNum(16)
                 .aof(false)
-                .rdb(true);
+                .rdb(false);
 
         //  JVM 最大内存 可以通过 -Xmx 进行设置
         for (int i = 0; i < args.length; i++) {
