@@ -44,7 +44,6 @@ public interface RedisDB {
      */
     void watchKeys(List<BytesWrapper> key, RedisClient redisClient);
 
-
     /**
      * @Description: 接触客户端的所有监视key
      * @Param: key
@@ -52,6 +51,7 @@ public interface RedisDB {
      * @Author: isheihei
      */
     void unWatchKeys(RedisClient redisClient);
+
     /**
      * @Description: 判断某个键是否存在
      * @Param: key

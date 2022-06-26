@@ -210,7 +210,7 @@ public class Rdb implements Persist {
                 LOGGER.info("rdb文件为空");
                 return;
             }
-            MappedByteBuffer mappedByteBuffer = channel.map(FileChannel.MapMode.READ_WRITE, 0, 9);
+            MappedByteBuffer mappedByteBuffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, 9);
             for (int i = 0; i < 5; i++) {
                 if (REDIS[i] != mappedByteBuffer.get()) {
                     LOGGER.error("rdb文件魔数错误");
@@ -226,7 +226,7 @@ public class Rdb implements Persist {
 
 
             while (true){
-                mappedByteBuffer = channel.map(FileChannel.MapMode.READ_WRITE, readIndex, 1);
+                mappedByteBuffer = channel.map(FileChannel.MapMode.READ_ONLY, readIndex, 1);
                 if (SELECTDB != mappedByteBuffer.get()) {
                     LOGGER.info("数据库已经加载完成");
                     break;
@@ -234,13 +234,13 @@ public class Rdb implements Persist {
                 readIndex += 1;
 
 
-                mappedByteBuffer = channel.map(FileChannel.MapMode.READ_WRITE, readIndex, 4);
+                mappedByteBuffer = channel.map(FileChannel.MapMode.READ_ONLY, readIndex, 4);
                 int dbIndex = mappedByteBuffer.getInt();
                 RedisDB db = dbs.get(dbIndex);
                 readIndex += 4;
 
-                while (EOF != channel.map(FileChannel.MapMode.READ_WRITE, readIndex, 1).get(0)) {
-                    mappedByteBuffer = channel.map(FileChannel.MapMode.READ_WRITE, readIndex, 14);
+                while (EOF != channel.map(FileChannel.MapMode.READ_ONLY, readIndex, 1).get(0)) {
+                    mappedByteBuffer = channel.map(FileChannel.MapMode.READ_ONLY, readIndex, 14);
                     if (EXPIRETIME_MS != mappedByteBuffer.get()) {
                         LOGGER.error("rdb文件格式错误");
                         throw new IOException();
@@ -262,7 +262,7 @@ public class Rdb implements Persist {
                     int keyLen = mappedByteBuffer.getInt();
                     readIndex += 14;
 
-                    mappedByteBuffer = channel.map(FileChannel.MapMode.READ_WRITE, readIndex, keyLen);
+                    mappedByteBuffer = channel.map(FileChannel.MapMode.READ_ONLY, readIndex, keyLen);
                     bufferPolled.writeBytes(mappedByteBuffer);
                     readIndex += keyLen;
                     byte[] keyBytes = ByteBufUtil.getBytes(bufferPolled);
@@ -273,17 +273,17 @@ public class Rdb implements Persist {
                     db.expire(key, ttl);    // ttl 为0即不设置过期
 
 
-                    mappedByteBuffer = channel.map(FileChannel.MapMode.READ_WRITE, readIndex, 4);
+                    mappedByteBuffer = channel.map(FileChannel.MapMode.READ_ONLY, readIndex, 4);
                     int valueLen = mappedByteBuffer.getInt();
                     readIndex += 4;
 
-                    mappedByteBuffer = channel.map(FileChannel.MapMode.READ_WRITE, readIndex, valueLen);
+                    mappedByteBuffer = channel.map(FileChannel.MapMode.READ_ONLY, readIndex, valueLen);
                     bufferPolled.writeBytes(mappedByteBuffer);
                     redisObject.loadRdb(bufferPolled);
                     bufferPolled.clear();
                     readIndex += valueLen;
                 }
-                if (EOF != channel.map(FileChannel.MapMode.READ_WRITE, readIndex, 1).get(0)) {
+                if (EOF != channel.map(FileChannel.MapMode.READ_ONLY, readIndex, 1).get(0)) {
                     channel.close();
                     LOGGER.info("rdb数据全部加载完成");
                     return;

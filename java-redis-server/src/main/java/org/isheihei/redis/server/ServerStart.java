@@ -1,5 +1,7 @@
 package org.isheihei.redis.server;
 
+import org.isheihei.redis.core.evict.Evict;
+import org.isheihei.redis.core.expired.Expire;
 import org.isheihei.redis.server.channel.SingleChannelSelectStrategy;
 
 public class ServerStart {
@@ -9,6 +11,8 @@ public class ServerStart {
                 .port(6379)
                 .channelOption(new SingleChannelSelectStrategy())
                 .dbNum(16)
+                .evictStrategy(Evict.NO_EVICT())
+                .expireStrategy(Expire.DEFAULT_EXPIRE_STRATEGY())
                 .aof(false)
                 .rdb(false);
 
