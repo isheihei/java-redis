@@ -1,19 +1,25 @@
+
+
+![Java-Redis](log.jpg)
+
 # Java-Redis
+
+[![GitHub](https://img.shields.io/github/license/isheihei/java-redis?color=%23b4bf5f)](https://github.com/isheihei/java-redis/blob/main/LICENSE)
 
 目前基于Java语言实现的功能最完整的Redis-Server，适用于Java程序员学习并实践Redis缓存底层原理。
 
-**核心内容**
+## **特点**
 
 - 基于netty nio
-- 还原 **RESP** 协议支持redis-cli，jedis等客户端操作
-- 拥有五种数据对象，支持六十多个常用操作命令
+- 基于 **RESP** 协议并支持redis-cli，jedis等客户端操作
+- 拥有五种数据对象，支持**六十多个**常用操作命令
 - 支持RDB、AOF持久化机制
 - 支持惰性、定时两种过期策略；
 - 支持基于jvm内存的8种驱逐策略并可自行扩展
 - 支持Redis事务
-- 本地吞吐量是 Redis 的 60% - 70%，延迟在 50 并发下做到 98% 以上低于 1ms （基于redis-benchmark测试结果）
+- 本地吞吐量是 Redis 的 60% - 70%；延迟在 50 并发下做到 98% 以上低于 1ms （基于redis-benchmark测试结果）
 
-**文档**
+## **文档**
 
 [java-redis-doc](http://isheihei.cn/tags/java-redis/)
 
@@ -41,13 +47,8 @@
 
 参考资料：
 
-- 《redis设计与实现第二版》- 机械工业出版社
-
+- [《Redis设计与实现》](http://product.dangdang.com/23501734.html)
 - [Redis](https://redis.io/)
-
 - [基于java从零写一个redis？从开发者视角简单聊一聊 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/434698347)
-
 - [Redis中文网 - Redis开发与运维技术、Redis教程、使用手册](https://www.redis.com.cn/)
-
 - [Redis中的LFU算法 - 再见紫罗兰 - 博客园 (cnblogs.com)](https://www.cnblogs.com/linxiyue/p/10955533.html)
-
