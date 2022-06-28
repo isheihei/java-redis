@@ -33,10 +33,6 @@ public class Exec extends AbstractCommand {
             Command cmd;
             while ((cmd = redisClient.getCommand()) != null) {
                 Resp resp = cmd.handle(redisClient);
-//                if (resp instanceof Errors) {
-//                    resps.add(BulkString.NullBulkString);
-//                    continue;
-//                }
                 resps.add(resp);
             }
         }

@@ -45,6 +45,10 @@
 
 由于本项目基于原版 Redis 协议格式开发，所以兼容各种客户端连接，如 [redis-cli](https://github.com/microsoftarchive/redis)、[jedis](https://github.com/redis/jedis)等。
 
+## 性能测试
+
+[Redis设计与实现07 性能测试 (isheihei.cn)](http://isheihei.cn/posts/数据库/redis设计与实现07-性能测试/)
+
 参考资料：
 
 - [《Redis设计与实现》](http://product.dangdang.com/23501734.html)

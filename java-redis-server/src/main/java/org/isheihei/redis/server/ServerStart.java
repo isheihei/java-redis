@@ -2,14 +2,14 @@ package org.isheihei.redis.server;
 
 import org.isheihei.redis.core.evict.Evict;
 import org.isheihei.redis.core.expired.Expire;
-import org.isheihei.redis.server.channel.SingleChannelSelectStrategy;
+import org.isheihei.redis.server.channel.DefaultChannelSelectStrategy;
 
 public class ServerStart {
     public static void main(String[] args) {
         RedisNetServer server = new RedisNetServer()
                 .ip("0.0.0.0")
                 .port(6379)
-                .channelOption(new SingleChannelSelectStrategy())
+                .channelOption(new DefaultChannelSelectStrategy())
                 .dbNum(16)
                 .evictStrategy(Evict.NO_EVICT())
                 .expireStrategy(Expire.DEFAULT_EXPIRE_STRATEGY())

@@ -1,9 +1,4 @@
-import org.isheihei.redis.server.RedisNetServer;
-import org.isheihei.redis.server.channel.SingleChannelSelectStrategy;
 import org.junit.Test;
-import redis.clients.jedis.Jedis;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * @ClassName: RedisEvictTest
@@ -17,15 +12,19 @@ public class RedisEvictTest {
 
     @Test
     public void evictTest() {
-        new RedisNetServer()
-                .ip("0.0.0.0")
-                .port(6379)
-                .channelOption(new SingleChannelSelectStrategy())
-                .dbNum(16)
-                .aof(false)
-                .init()
-                .start();
-        Jedis jedis = new Jedis("127.0.0.1", 6379, ((int) TimeUnit.SECONDS.toMillis(100)));
+//        new RedisNetServer()
+//                .ip("0.0.0.0")
+//                .port(6379)
+//                .channelOption(new SingleChannelSelectStrategy())
+//                .dbNum(16)
+//                .evictStrategy(Evict.ALL_KEYS_RANDOM_EVICT())
+//                .rdb(false)
+//                .aof(false)
+//                .init()
+//                .start();
+//        Jedis jedis = new Jedis("127.0.0.1", 6379, ((int) TimeUnit.SECONDS.toMillis(100)));
+//        LOGGER.info("最大内存：" + Runtime.getRuntime().maxMemory());
+//        LOGGER.info("最大内存：" + Runtime.getRuntime().totalMemory());
 //        int i = 1;
 //        while (true) {
 //            i++;

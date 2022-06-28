@@ -69,12 +69,6 @@ public class Aof implements Persist {
                 int respLen = bufferPolled.readableBytes();
                 MappedByteBuffer mappedByteBuffer = channel.map(FileChannel.MapMode.READ_WRITE, len, respLen);
                 mappedByteBuffer.put(ByteBufUtil.getBytes(bufferPolled));
-//                LOGGER.error("len " + len);
-//                LOGGER.error("mappedByteBuffer.position()" + mappedByteBuffer.position());
-//                LOGGER.error("mappedByteBuffer.capacity()" + mappedByteBuffer.capacity());
-//                    LOGGER.error("respLen" + respLen);
-//                    LOGGER.error("bufferPolled 可读 + " + bufferPolled.readableBytes());
-//                    LOGGER.error("putIndex" + putIndex);
                 bufferQueue.poll();
             } while (!bufferQueue.isEmpty());
             LOGGER.info("rdb持久化完成");
