@@ -2,7 +2,7 @@ package org.isheihei.redis.server.handler;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.handler.codec.ByteToMessageDecoder;
 import org.apache.log4j.Logger;
 import org.isheihei.redis.common.consts.ErrorsConst;
 import org.isheihei.redis.core.command.AbstractWriteCommand;
@@ -15,6 +15,8 @@ import org.isheihei.redis.core.resp.impl.Errors;
 import org.isheihei.redis.core.resp.impl.RespArray;
 import org.isheihei.redis.core.resp.impl.SimpleString;
 
+import java.util.List;
+
 
 /**
  * @ClassName: CommandDecoder
@@ -22,24 +24,17 @@ import org.isheihei.redis.core.resp.impl.SimpleString;
  * @Date: 2022/6/8 21:00
  * @Author: isheihei
  */
-public class CommandDecoder extends LengthFieldBasedFrameDecoder {
+public class CommandDecoder extends ByteToMessageDecoder {
 
     private static final Logger LOGGER = Logger.getLogger(CommandDecoder.class);
-    private static final int MAX_FRAME_LENGTH = Integer.MAX_VALUE;
 
     private Aof aof;
     public CommandDecoder(Aof aof) {
-        this();
         this.aof = aof;
     }
 
-    public CommandDecoder() {
-        // 读取完整数据包
-        super(MAX_FRAME_LENGTH, 0, 0);
-    }
-
     @Override
-    public Object decode(ChannelHandlerContext ctx, ByteBuf in) {
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         while (in.readableBytes() != 0) {
             int mark = in.readerIndex();
             try {
@@ -59,7 +54,7 @@ public class CommandDecoder extends LengthFieldBasedFrameDecoder {
                     if (aof != null && command instanceof AbstractWriteCommand) {
                         ((AbstractWriteCommand) command).setAof(aof);
                     }
-                    return command;
+                    out.add(command);
                 }
             } catch (Exception e) {
                 in.readerIndex(mark);
@@ -67,7 +62,6 @@ public class CommandDecoder extends LengthFieldBasedFrameDecoder {
                 break;
             }
         }
-        return null;
     }
 
 }

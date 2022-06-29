@@ -17,7 +17,7 @@
 - 支持惰性、定时两种过期策略；
 - 支持基于jvm内存的8种驱逐策略并可自行扩展
 - 支持Redis事务
-- 本地吞吐量是 Redis 的 95% 左右；使用 epoll 模型的延迟也几乎与 Redis相当 （基于redis-benchmark测试结果）
+- 吞吐量与延迟与 Redis 几乎相等甚至部分测试略优
 
 ## **文档**
 
@@ -33,7 +33,7 @@
         new RedisNetServer()
                 .ip("0.0.0.0")	// 地址
                 .port(6379)	// 端口号()
-                .channelOption(new SingleChannelSelectStrategy())	// io模型
+                .channelOption(new DefaultChannelSelectStrategy())	// io模型
                 .dbNum(16)	// 数据库数量
                 .evictStrategy(Evict.NO_EVICT())	// 逐出策略
                 .expireStrategy(Expire.DEFAULT_EXPIRE_STRATEGY())	// 过期策略
